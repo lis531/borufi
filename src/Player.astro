@@ -16,6 +16,7 @@
     songBtns.forEach((button) => {
         if (button instanceof HTMLElement) {
             button.addEventListener("click", () => changeSong(button.dataset.source));
+            //button.lastChild.addEventListener("click", () => changeSong(button.dataset.source));
         }
     });
 </script>
