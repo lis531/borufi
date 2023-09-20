@@ -1,0 +1,29 @@
+<audio controls id="audio">
+    <source src="" type="audio/mp3" id="sorc">
+</audio>
+
+<script>
+    const audio = document.getElementById("source") as HTMLAudioElement;
+    const cards = document.querySelectorAll(".song");
+
+    cards.forEach((card) => {
+        card.addEventListener("click", () => {
+            const source = card.getAttribute("data-source");
+            if (audio != null && source != null) {
+                audio.src = source;
+                audio.play();
+                return;
+            }
+        });
+    });
+</script>
+
+<style>
+    audio {
+        width: 100%;
+        position: fixed;
+        bottom: 1rem;
+        border-radius: 1rem;
+        background: #fff;
+    }
+</style>
