@@ -1,20 +1,22 @@
-<audio controls id="audio">
+<audio controls>
     <source src="" type="audio/mp3" id="sorc">
 </audio>
 
 <script>
-    const audio = document.getElementById("source") as HTMLAudioElement;
-    const cards = document.querySelectorAll(".song");
+    let songBtns = document.querySelectorAll("#song");
+    let source = document.getElementById("sorc") as HTMLAudioElement;
+    let audio = document.getElementsByTagName("audio")[0];
+    const changeSong = (sourceLink:any) => {
+        if (source != null) {
+            source.src = sourceLink;
+            audio.load();
+        }
+    };
 
-    cards.forEach((card) => {
-        card.addEventListener("click", () => {
-            const source = card.getAttribute("data-source");
-            if (audio != null && source != null) {
-                audio.src = source;
-                audio.play();
-                return;
-            }
-        });
+    songBtns.forEach((button) => {
+        if (button instanceof HTMLElement) {
+            button.addEventListener("click", () => changeSong(button.dataset.source));
+        }
     });
 </script>
 
