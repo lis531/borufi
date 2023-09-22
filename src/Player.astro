@@ -1,32 +1,66 @@
-<audio controls>
-    <source src="" type="audio/mp3" id="sorc">
-</audio>
+<div id="audio-player-container">
+    <p>Audio Player</p>
+    <button id="play-icon"></button>
+    <span id="current-time" class="time">0:00</span>
+    <input type="range" id="seek-slider" max="100" value="0">
+    <span id="duration" class="time">0:00</span>
+    <output id="volume">100</output>
+    <input type="range" id="volume-slider" max="100" value="100">
+    <button id="mute"><svg></svg></button>
+    <audio src="" preload="metadata" loop>
+</div>
 
 <script>
     let songBtns = document.querySelectorAll("#song");
-    let source = document.getElementById("sorc") as HTMLAudioElement;
     let audio = document.getElementsByTagName("audio")[0];
+    let timeline = document.getElementById("duration");
+    let currentTime = document.getElementById("current-time");
+    let volume = document.getElementById("volume");
+    let currentVolume = document.getElementById("volume-slider") as HTMLInputElement;
+    let muteBtn = document.getElementById("mute");
+
     const changeSong = (sourceLink:any) => {
-        if (source != null) {
-            source.src = sourceLink;
+        if (audio.src != null) {
+            audio.src = sourceLink;
             audio.load();
+            audio.onloadedmetadata();
+            audio.play();
         }
     };
+
+    const displayDuration = (duration) =>{
+        currentTime.innerHTML = duration;
+        timeline.innerHTML = calculateTime(duration);
+    }
+
+    const calculateTime = (secs) =>{
+        const minutes = Math.floor(secs / 60);
+        const seconds = Math.floor(secs % 60);
+        //const returnedSeconds = seconds < 10 ? `0${seconds}` : `$seconds`;
+        return `${minutes}:${seconds}`; 
+    }
 
     songBtns.forEach((button) => {
         if (button instanceof HTMLElement) {
             button.addEventListener("click", () => changeSong(button.dataset.source));
-            //button.lastChild.addEventListener("click", () => changeSong(button.dataset.source));
         }
     });
+    if(audio.src == null || audio.src == ""){
+        timeline.ariaDisabled;
+    }
+    muteBtn.addEventListener("click", () => {let turned = false; turned ? currentVolume.value = 100 : currentVolume.value = 0})
+    currentVolume.addEventListener("change", () => {volume.innerHTML = currentVolume.value})
+    audio.addEventListener("loadedmetadata", () => displayDuration(audio.duration))
 </script>
 
 <style>
     audio {
         width: 100%;
         position: fixed;
-        bottom: 1rem;
-        border-radius: 1rem;
+        bottom: 0;
         background: #fff;
+    }
+    body{
+        color: white;
     }
 </style>
