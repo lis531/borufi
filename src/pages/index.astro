@@ -32,11 +32,20 @@ import Player from '../Player.astro';
 				title="Song 4"
 				author="uwa"
 			/>
+			<Card
+				img="https://picsum.photos/1000/1000?random=5"
+				source='./kebsonken.mp3'
+				title="Song 5"
+				author="uwa"
+			/>
 		</ul>
 	</main>
 	<Player />
 </Layout>
 <style>
+	body{
+		margin: 0;
+	}
 	main {
 		display: flex;
 		flex-direction: column;
@@ -69,8 +78,8 @@ import Player from '../Player.astro';
 	}
 	.link-card-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
-		gap: 2rem;
+		grid-template-columns: repeat(auto-fit, minmax(18ch, 1fr));
+		gap: 2ch;
 		padding: 0;
 	}
 </style>

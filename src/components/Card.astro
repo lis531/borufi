@@ -22,7 +22,7 @@ const { title, author, source, img } = Astro.props;
 				{author}
 			</p>
 		</div>
-		<button id="playButton"></button>
+		<FaPlay id="playButton" />
 	</button>
 </li>
 <script>
@@ -35,13 +35,14 @@ const { title, author, source, img } = Astro.props;
 			}
 		}
 	}
-
 </script>
 <style>
 	.link-card {
 		display: flex;
+		margin: auto;
 		padding: 1px;
 		border-radius: 8px;
+		max-width: 24ch;
 		transition: background-position 20s cubic-bezier(0.22, 1, 0.36, 1);
 		box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 	}
@@ -53,7 +54,7 @@ const { title, author, source, img } = Astro.props;
 		background-color: #23262d;
 		opacity: 0.8;
 		display: flex;
-		flex-direction: row;
+		flex-direction: column;
 		justify-content: center;
 		align-items: center;
 		border: none;
@@ -66,22 +67,25 @@ const { title, author, source, img } = Astro.props;
 		margin-left: auto;
 		font-size: 1.5rem;
 		z-index: 10;
+		/* background-color: black; */
+		/* border-radius: 50%; */
 	}
-	.link-card > button:is(:hover, :focus-within) #playButton {
+	.link-card > button/*:is(:hover, :focus-within)*/ #playButton {
 		visibility: visible;
 	}
 	svg {
-		fill: rgb(var(--accent-light));
+		background-color: black;
+		height: 24px;
+		width: 24px;
 	}
 	div{
 		display: flex;
 		flex-direction: column;
 	}
 	img{
-		width: 100px;
-		height: 100px;
-		margin-right: 2rem;
-		border-radius: 8px;
+		width: 100%;
+		height: 100%;
+		border-radius: 0.5rem;
 	}
 	h2 {
 		margin: 0;
