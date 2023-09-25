@@ -1,11 +1,7 @@
 ---
 import { fade } from "astro:transitions";
-
-import { FaPlay } from 'react-icons/fa';
-import { BsFillPauseFill } from 'react-icons/bs';
 import { BsFillVolumeDownFill, BsFillVolumeMuteFill } from 'react-icons/bs';
-import { FaBackward, FaForward } from 'react-icons/fa6';
-import { FaStepForward, FaStepBackward } from 'react-icons/fa';
+import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from 'react-icons/rx';
 ---
 
 <div id="audioPlayer">
@@ -14,12 +10,14 @@ import { FaStepForward, FaStepBackward } from 'react-icons/fa';
         <h2>Artist</h2>
     </div>
     <div id="mainControls">
-        <div id="audioNavigation">
-            <button id="back"><FaBackward /></button>
-            <button id="play"><FaPlay /><BsFillPauseFill /></button>
-            <button id="back"><FaForward /></button>
+        <div id="songControls">
+            <button id="random"><RxShuffle /></button>
+            <button id="back"><RxTrackPrevious /></button>
+            <button id="play"><RxPlay /><RxPause /></button>
+            <button id="back"><RxTrackNext /></button>
+            <button id="loop"><RxLoop /></button>
         </div>
-        <div>
+        <div id="audioNavigation">
             <span id="current-time" class="time">0:00</span>
             <input type="range" id="seek-slider" max="100" value="0">
             <span id="duration" class="time">0:00</span>
@@ -27,13 +25,14 @@ import { FaStepForward, FaStepBackward } from 'react-icons/fa';
     </div>
     <div id="volumeControl">
         <span id="volume">100</span>
-        <button id="mute"><BsFillVolumeDownFill /></button>
+        <button id="mute"><BsFillVolumeDownFill /><BsFillVolumeMuteFill /></button>
         <input type="range" id="volume-slider" max="100" value="100">
     </div>
     <audio src="" preload="metadata">
 </div>
 
-<script>
+<script>import { FaLeaf } from "react-icons/fa";
+
     let songBtns = document.querySelectorAll("#song");
     let playBtn = document.getElementById("play");
     let cardPlayBtn = document.getElementById("playButton");
@@ -45,6 +44,7 @@ import { FaStepForward, FaStepBackward } from 'react-icons/fa';
     let muteBtn = document.getElementById("mute");
     let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
     let volumeSlider = document.getElementById("volume-slider") as HTMLInputElement;
+    let loopBtn = document.getElementById("loop");
 
     const changeSong = (sourceLink:any) => {
         if (audio) {
@@ -81,8 +81,9 @@ import { FaStepForward, FaStepBackward } from 'react-icons/fa';
         }
     });
 
-    if(audio.src == null || audio.src == ""){
-        timeline?.setAttribute('aria-disabled', 'true');
+    if(audio.src == null || audio.src == "" || audio.src == undefined){
+        console.log("No audio source found");
+        seekSlider.setAttribute("disabled", "true");
     }
 
     const changeState = () => {
@@ -104,16 +105,24 @@ import { FaStepForward, FaStepBackward } from 'react-icons/fa';
             }
         }
     }
-
+    const changeVolume = () =>{
+        if (audio) {
+            audio.volume = volumeSlider.value / 100;
+        }
+    }
+    let turned = false;
+    let lastVolume = 100;
     muteBtn?.addEventListener("click", () => {
-        let turned = false;
-        let lastVolume;
+        turned ? currentVolume.value = lastVolume : currentVolume.value = "0";
         if(lastVolume == "" || lastVolume == null){
             lastVolume = currentVolume.value;
         }
-        turned ? currentVolume.value = "lastVolume" : currentVolume.value = "0";
+        else{
+            lastVolume = 0;
+        }
         if (volume) {
             volume.innerHTML = currentVolume.value.toString();
+            changeVolume();
         }
         turned = !turned;
     });
@@ -139,9 +148,7 @@ import { FaStepForward, FaStepBackward } from 'react-icons/fa';
         }
     });
     volumeSlider?.addEventListener("change", () => {
-        if (audio) {
-            audio.volume = volumeSlider.value / 100;
-        }
+        changeVolume();
     });
     audio.addEventListener("timeupdate", () => {
         if (timeline) {
@@ -149,9 +156,35 @@ import { FaStepForward, FaStepBackward } from 'react-icons/fa';
             seekSlider.value = (audio.currentTime / audio.duration) * 100;
         }
     });
+    loopBtn?.addEventListener("click", () => {
+        let turned = false;
+        if (turned) {
+            audio.loop = false;
+            loopBtn.style.content = "";
+        } else {
+            audio.loop = true;
+            loopBtn.style.content = ".";
+        }
+        turned = !turned;
+    });
 </script>
 
 <style>
+    #volume-slider{
+        width: 100%;
+        height: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #volume-slider::-webkit-slider-thumb {
+        visibility: hidden;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+    }
+    #mute :last-child{
+        display: none;
+    }
     #play :last-child{
         display: none;
     }
@@ -184,6 +217,14 @@ import { FaStepForward, FaStepBackward } from 'react-icons/fa';
         align-items: center;
         gap: 10%;
     }
+    #songControls{
+        width: 30%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
     #mainControls{
         display: flex;
         flex-direction: column;
@@ -192,9 +233,17 @@ import { FaStepForward, FaStepBackward } from 'react-icons/fa';
         gap: 1rem;
         margin: auto;
     }
+    #audioNavigation{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
     #seek-slider {
         width: 100%;
         height: 4px;
+        width: 50vw;
         border-radius: 5px;
         cursor: pointer;
         background: #333333;
@@ -205,8 +254,9 @@ import { FaStepForward, FaStepBackward } from 'react-icons/fa';
         height: 1rem;
         border-radius: 50%;
     }
-    #seek-slider::-webkit-slider-runnable-track:hover{
+    #seek-slider::-webkit-slider-runnable-track{
         color-scheme: green;
+        border-radius: 50%;
     }
     #seek-slider:hover::-webkit-slider-thumb {
         visibility: visible;
@@ -220,5 +270,16 @@ import { FaStepForward, FaStepBackward } from 'react-icons/fa';
     }
     #songInfo{
         width: 30%;
+    }
+    #duration, #current-time{
+        width: 3vw;
+    }
+    #current-time{
+        text-align: right;
+    }
+    svg{
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 </style>
