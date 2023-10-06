@@ -67,16 +67,14 @@ const { title, author, source, img } = Astro.props;
 		margin-left: auto;
 		font-size: 1.5rem;
 		z-index: 10;
-		/* background-color: black; */
-		/* border-radius: 50%; */
 	}
-	.link-card > button/*:is(:hover, :focus-within)*/ #playButton {
+	.link-card > button:is(:hover, :focus-within) #playButton {
 		visibility: visible;
 	}
 	svg {
 		background-color: black;
 		padding: 1rem;
-		border-radius: 2rem;
+		clip-path: circle(50% at center);
 		height: max-content;
 		width: max-content;
 	}
