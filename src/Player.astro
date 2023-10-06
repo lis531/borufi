@@ -6,8 +6,8 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
 
 <div id="audioPlayer">
     <div id="songInfo">
-        <h1>Title</h1>
-        <h2>Artist</h2>
+        <h1><a>Title</a></h1>
+        <h2><a>Artist</a></h2>
     </div>
     <div id="mainControls">
         <div id="songControls">
@@ -204,7 +204,6 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         padding: 0;
         margin: 0;
         font-size: 2rem;
-        margin: 1rem;
 		cursor: pointer;
     }
     #audioPlayer{
@@ -223,7 +222,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        gap: 1rem;
+        gap: 3rem;
     }
     #mainControls{
         display: flex;
@@ -232,6 +231,15 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         justify-content: center;
         gap: 1rem;
         margin: auto;
+    }
+    #mainControls svg{
+        clip-path: circle(50% at center);
+        background-color: rgb(68, 68, 68);
+        padding: 0.8rem;
+        transition: ease-in-out 0.2s;
+    }
+    #mainControls svg:hover{
+        background-color: rgb(49, 49, 49);
     }
     #audioNavigation{
         display: flex;
@@ -270,6 +278,11 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     }
     #songInfo{
         width: 30%;
+        text-indent: 2rem;
+    }
+    #songInfo a:hover{
+        text-decoration: underline;
+        cursor: pointer;
     }
     #duration, #current-time{
         width: 3vw;
