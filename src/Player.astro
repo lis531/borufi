@@ -26,13 +26,12 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     <div id="volumeControl">
         <span id="volume">100</span>
         <button id="mute"><BsFillVolumeDownFill /><BsFillVolumeMuteFill /></button>
-        <input type="range" id="volume-slider" max="100" value="100">
+        <input type="range" id="volume-slider" max="100" value="50">
     </div>
     <audio src="" preload="metadata">
 </div>
 
-<script>import { FaLeaf } from "react-icons/fa";
-
+<script>
     let songBtns = document.querySelectorAll("#song");
     let playBtn = document.getElementById("play");
     let cardPlayBtn = document.getElementById("playButton");
@@ -50,9 +49,9 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         if (audio) {
             audio.src = sourceLink;
             audio.load();
-            audio.play();
             changeState();
         }
+        console.log("Changed song to " + sourceLink);
     };
 
     const displayDuration = (duration: number, timeElapsed: number) =>{
@@ -62,6 +61,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         if (timeline) {
             timeline.innerHTML = calculateTime(duration);
         }
+        seekSlider.value = 0;
     }
 
     const calculateTime = (secs: number) =>{
@@ -70,8 +70,11 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         if (seconds < 10) {
             return `${minutes}:0${seconds}`;
         }
-        else{
+        else if (seconds >= 10){
             return `${minutes}:${seconds}`;
+        }
+        else{
+            return `0:00`;
         }
     }
 
@@ -87,17 +90,18 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     }
 
     const changeState = () => {
+        if(playBtn){
+
+        }
         if(audio.paused){
             audio.play(); 
-            if(playBtn) {
-                const firstChild = playBtn.firstChild as HTMLElement;
-                const lastChild = playBtn.lastChild as HTMLElement;
-                firstChild.style.display = "none";
-                lastChild.style.display = "block";
-            }
+            const firstChild = playBtn.firstChild as HTMLElement;
+            const lastChild = playBtn.lastChild as HTMLElement;
+            firstChild.style.display = "none";
+            lastChild.style.display = "block";
         }else{
             audio.pause(); 
-            if(playBtn) {
+            if(seekSlider.max != "0") {
                 const firstChild = playBtn.firstChild as HTMLElement;
                 const lastChild = playBtn.lastChild as HTMLElement;
                 firstChild.style.display = "block";
@@ -154,6 +158,12 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         if (timeline) {
             displayDuration(audio.duration, audio.currentTime);
             seekSlider.value = (audio.currentTime / audio.duration) * 100;
+            if(isNaN(seekSlider.max)){
+                seekSlider.max = "0";
+            }
+            else{
+                seekSlider.max = audio.duration.toString();
+            }
         }
     });
     loopBtn?.addEventListener("click", () => {
@@ -181,6 +191,9 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         width: 1rem;
         height: 1rem;
         border-radius: 50%;
+    }
+    #volume-slider:hover::-webkit-slider-thumb {
+        visibility: visible;
     }
     #mute :last-child{
         display: none;
@@ -232,14 +245,18 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         gap: 1rem;
         margin: auto;
     }
-    #mainControls svg{
+    #play{
         clip-path: circle(50% at center);
-        background-color: rgb(68, 68, 68);
+        background-color: rgb(255, 255, 255);
+        color: rgb(0, 0, 0);
         padding: 0.8rem;
         transition: ease-in-out 0.2s;
     }
-    #mainControls svg:hover{
-        background-color: rgb(49, 49, 49);
+    #play:hover{
+        background-color: rgb(201, 201, 201);
+    }
+    #random.active, #loop.active{
+        color: rgb(146,75,236);
     }
     #audioNavigation{
         display: flex;
@@ -275,10 +292,12 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         flex-direction: row;
         align-items: center;
         justify-content: right;
+        gap: 1rem;
+        margin-right: 3rem;
     }
     #songInfo{
         width: 30%;
-        text-indent: 2rem;
+        margin-left: 3rem;
     }
     #songInfo a:hover{
         text-decoration: underline;
