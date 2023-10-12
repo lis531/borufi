@@ -19,12 +19,12 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         </div>
         <div id="audioNavigation">
             <span id="current-time" class="time">0:00</span>
-            <input type="range" id="seek-slider" max="100" value="0">
+            <input type="range" id="seek-slider" max="0" value="0">
             <span id="duration" class="time">0:00</span>
         </div>
     </div>
     <div id="volumeControl">
-        <span id="volume">100</span>
+        <span id="volume">50</span>
         <button id="mute"><BsFillVolumeDownFill /><BsFillVolumeMuteFill /></button>
         <input type="range" id="volume-slider" max="100" value="50">
     </div>
@@ -34,32 +34,39 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
 <script>
     let songBtns = document.querySelectorAll("#song");
     let playBtn = document.getElementById("play");
+    let loopBtn = document.getElementById("loop");
     let cardPlayBtn = document.getElementById("playButton");
-    let audio = document.getElementsByTagName("audio")[0];
-    let timeline = document.getElementById("duration");
     let currentTime = document.getElementById("current-time");
+    let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
+    let durationTime = document.getElementById("duration");
+    let audio = document.getElementsByTagName("audio")[0];
+    let muteBtn = document.getElementById("mute");
     let volume = document.getElementById("volume");
     let currentVolume = document.getElementById("volume-slider") as HTMLInputElement;
-    let muteBtn = document.getElementById("mute");
-    let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
-    let volumeSlider = document.getElementById("volume-slider") as HTMLInputElement;
-    let loopBtn = document.getElementById("loop");
 
     const changeSong = (sourceLink:any) => {
-        if (audio) {
+        if(sourceLink == null || sourceLink == "" || sourceLink == undefined){
+            console.log("No audio source found");
+            seekSlider.setAttribute("disabled", "true");
+            playBtn.setAttribute("disabled", "true");
+            changeState();
+            audio.src = "null";
+        }
+        else{
+            seekSlider.removeAttribute("disabled");
+            playBtn.removeAttribute("disabled");
             audio.src = sourceLink;
             audio.load();
             changeState();
         }
-        console.log("Changed song to " + sourceLink);
     };
 
     const displayDuration = (duration: number, timeElapsed: number) =>{
         if (currentTime) {
             currentTime.innerHTML = calculateTime(timeElapsed);
         }
-        if (timeline) {
-            timeline.innerHTML = calculateTime(duration);
+        if (durationTime) {
+            durationTime.innerHTML = calculateTime(duration);
         }
         seekSlider.value = 0;
     }
@@ -78,47 +85,35 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         }
     }
 
-    songBtns.forEach((button) => {
-        if (button instanceof HTMLElement) {
-            button.addEventListener("click", () => changeSong(button.dataset.source));
-        }
-    });
-
-    if(audio.src == null || audio.src == "" || audio.src == undefined){
-        console.log("No audio source found");
-        seekSlider.setAttribute("disabled", "true");
-    }
-
     const changeState = () => {
         if(playBtn){
-
-        }
-        if(audio.paused){
-            audio.play(); 
             const firstChild = playBtn.firstChild as HTMLElement;
             const lastChild = playBtn.lastChild as HTMLElement;
-            firstChild.style.display = "none";
-            lastChild.style.display = "block";
-        }else{
-            audio.pause(); 
-            if(seekSlider.max != "0") {
-                const firstChild = playBtn.firstChild as HTMLElement;
-                const lastChild = playBtn.lastChild as HTMLElement;
+            if(audio.paused && audio.src != "null"){
+                audio.play();
+                firstChild.style.display = "none";
+                lastChild.style.display = "block";
+            }else{
+                audio.pause();
                 firstChild.style.display = "block";
                 lastChild.style.display = "none";
             }
         }
     }
+    
     const changeVolume = () =>{
         if (audio) {
-            audio.volume = volumeSlider.value / 100;
+            audio.volume = currentVolume.value / 100;
         }
     }
+
+
+
     let turned = false;
     let lastVolume = 100;
     muteBtn?.addEventListener("click", () => {
         turned ? currentVolume.value = lastVolume : currentVolume.value = "0";
-        if(lastVolume == "" || lastVolume == null){
+        if(lastVolume == "" || lastVolume == null || lastVolume == undefined || lastVolume == 0){
             lastVolume = currentVolume.value;
         }
         else{
@@ -130,34 +125,41 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         }
         turned = !turned;
     });
+
     currentVolume.addEventListener("change", () => {
         if (volume) {
             volume.innerHTML = currentVolume.value.toString();
         }
     });
+
     audio.addEventListener("loadedmetadata", () => {
-        if (timeline) {
+        if (durationTime) {
             displayDuration(audio.duration, audio.currentTime);
         }
     });
+
     playBtn?.addEventListener("click", () => {
         changeState()
     });
+
     cardPlayBtn?.addEventListener("click", () => {
         changeState()
     });
+
     seekSlider?.addEventListener("change", () => {
         if (audio) {
             audio.currentTime = audio.duration * (seekSlider.value / 100);
         }
     });
-    volumeSlider?.addEventListener("change", () => {
+
+    currentVolume?.addEventListener("change", () => {
         changeVolume();
     });
+
     audio.addEventListener("timeupdate", () => {
-        if (timeline) {
+        if (durationTime) {
             displayDuration(audio.duration, audio.currentTime);
-            seekSlider.value = (audio.currentTime / audio.duration) * 100;
+            seekSlider.value = (audio.currentTime / seekSlider.max) * 100;
             if(isNaN(seekSlider.max)){
                 seekSlider.max = "0";
             }
@@ -166,6 +168,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
             }
         }
     });
+
     loopBtn?.addEventListener("click", () => {
         let turned = false;
         if (turned) {
@@ -176,6 +179,12 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
             loopBtn.style.content = ".";
         }
         turned = !turned;
+    });
+
+    songBtns.forEach((button) => {
+        if (button instanceof HTMLElement) {
+            button.addEventListener("click", () => changeSong(button.dataset.source));
+        }
     });
 </script>
 
@@ -266,7 +275,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         gap: 1rem;
     }
     #seek-slider {
-        width: 100%;
+        width: max-content;
         height: 4px;
         width: 50vw;
         border-radius: 5px;
@@ -288,6 +297,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     }
     #volumeControl{
         width: 30%;
+        min-width: 10%;
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -297,13 +307,14 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     }
     #songInfo{
         width: 30%;
+        min-width: 10%;
         margin-left: 3rem;
     }
     #songInfo a:hover{
         text-decoration: underline;
         cursor: pointer;
     }
-    #duration, #current-time{
+    #durationTime, #current-time{
         width: 3vw;
     }
     #current-time{
