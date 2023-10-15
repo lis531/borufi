@@ -19,14 +19,14 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         </div>
         <div id="audioNavigation">
             <span id="current-time" class="time">0:00</span>
-            <input type="range" id="seek-slider" max="0" value="0">
+            <input type="range" id="seek-slider" min="0" max="0" value="0" step="1">
             <span id="duration" class="time">0:00</span>
         </div>
     </div>
     <div id="volumeControl">
         <span id="volume">50</span>
         <button id="mute"><BsFillVolumeDownFill /><BsFillVolumeMuteFill /></button>
-        <input type="range" id="volume-slider" max="100" value="50">
+        <input type="range" id="volume-slider" min="0" max="100" value="50">
     </div>
     <audio src="" preload="metadata">
 </div>
@@ -109,17 +109,17 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
 
 
 
-    let turned = false;
-    let lastVolume = 100;
+    let turned = true;
+    let lastVolume = 0;
     muteBtn?.addEventListener("click", () => {
-        turned ? currentVolume.value = lastVolume : currentVolume.value = "0";
-        if(lastVolume == "" || lastVolume == null || lastVolume == undefined || lastVolume == 0){
+        console.log(lastVolume, currentVolume.value, turned);
+        if(turned){
             lastVolume = currentVolume.value;
+            currentVolume.value = "0";
+        } else {
+            currentVolume.value = lastVolume.toString();
         }
-        else{
-            lastVolume = 0;
-        }
-        if (volume) {
+        if(volume) {
             volume.innerHTML = currentVolume.value.toString();
             changeVolume();
         }
@@ -153,6 +153,8 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     });
 
     currentVolume?.addEventListener("change", () => {
+        lastVolume = currentVolume.value;
+        turned != turned;
         changeVolume();
     });
 
@@ -193,28 +195,31 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         width: 100%;
         height: 5px;
         border-radius: 5px;
+        outline: none;
         cursor: pointer;
+        -webkit-appearance: none;
     }
     #volume-slider::-webkit-slider-thumb {
-        visibility: hidden;
+        -webkit-appearance: none;
+        appearance: none;
         width: 1rem;
         height: 1rem;
-        border-radius: 50%;
+        border-radius: 50%; 
+        background: #fff;
+        cursor: pointer;
+        visibility: hidden;
     }
     #volume-slider:hover::-webkit-slider-thumb {
         visibility: visible;
+    }
+    #volume-slider::-webkit-slider{
+        background-color: green;
     }
     #mute :last-child{
         display: none;
     }
     #play :last-child{
         display: none;
-    }
-    audio {
-        width: 100%;
-        position: fixed;
-        bottom: 0;
-        background: #fff;
     }
     body{
         color: white;
@@ -236,10 +241,9 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         display: flex;
         flex-direction: row;
         align-items: center;
-        gap: 10%;
+        gap: 8%;
     }
     #songControls{
-        width: 30%;
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -253,6 +257,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         justify-content: center;
         gap: 1rem;
         margin: auto;
+        width: 50%;
     }
     #play{
         clip-path: circle(50% at center);
@@ -296,19 +301,16 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         visibility: visible;
     }
     #volumeControl{
-        width: 30%;
-        min-width: 10%;
+        width: 20%;
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: right;
-        gap: 1rem;
-        margin-right: 3rem;
+        margin-right: 2rem;
     }
     #songInfo{
-        width: 30%;
-        min-width: 10%;
-        margin-left: 3rem;
+        width: 20%;
+        margin-left: 2rem;
     }
     #songInfo a:hover{
         text-decoration: underline;
