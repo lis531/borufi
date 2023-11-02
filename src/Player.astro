@@ -18,9 +18,10 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
             <button id="loop"><RxLoop /></button>
         </div>
         <div id="audioNavigation">
-            <span id="current-time" class="time">0:00</span>
-            <input type="range" id="seek-slider" min="0" max="0" value="0" step="1">
-            <span id="duration" class="time">0:00</span>
+            <label id="current-time" class="time">0:00</label>
+            <div class="fill"></div>
+            <input type="range" id="seek-slider" min="0" max="0" value="0">
+            <label id="duration" class="time">0:00</label>
         </div>
     </div>
     <div id="volumeControl">
@@ -35,6 +36,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     let songBtns = document.querySelectorAll("#song");
     let playBtn = document.getElementById("play");
     let loopBtn = document.getElementById("loop");
+    let randomBtn = document.getElementById("random");
     let cardPlayBtn = document.getElementById("playButton");
     let currentTime = document.getElementById("current-time");
     let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
@@ -50,6 +52,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
             seekSlider.setAttribute("disabled", "true");
             playBtn.setAttribute("disabled", "true");
             changeState();
+            calTime;
             audio.src = "null";
         }
         else{
@@ -60,6 +63,15 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
             changeState();
         }
     };
+
+    const playNextSong = () => {
+        let nextSong = document.querySelector(".active").nextElementSibling;
+        if (nextSong) {
+            changeSong(nextSong.dataset.source);
+            removeClasses();
+            nextSong.parentElement.classList.add("active");
+        }
+    }
 
     const displayDuration = (duration: number, timeElapsed: number) =>{
         if (currentTime) {
@@ -93,7 +105,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
                 audio.play();
                 firstChild.style.display = "none";
                 lastChild.style.display = "block";
-            }else{
+            }else if(audio.src != "null"){
                 audio.pause();
                 firstChild.style.display = "block";
                 lastChild.style.display = "none";
@@ -146,9 +158,18 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         changeState()
     });
 
+    let tempValue = 0;
+    seekSlider?.addEventListener("input", () => {
+        if (audio) {
+            tempValue = seekSlider.value;
+            currentTime.innerHTML = calculateTime(tempValue);
+        }
+    });
+
     seekSlider?.addEventListener("change", () => {
         if (audio) {
-            audio.currentTime = audio.duration * (seekSlider.value / 100);
+            audio.currentTime = audio.duration * (seekSlider.value / seekSlider.max);
+            tempValue = 0;
         }
     });
 
@@ -158,10 +179,10 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         changeVolume();
     });
 
-    audio.addEventListener("timeupdate", () => {
-        if (durationTime) {
+    const calTime = setInterval(() => {
+        if (durationTime && tempValue == 0) {
             displayDuration(audio.duration, audio.currentTime);
-            seekSlider.value = (audio.currentTime / seekSlider.max) * 100;
+            seekSlider.value = audio.currentTime;
             if(isNaN(seekSlider.max)){
                 seekSlider.max = "0";
             }
@@ -169,23 +190,43 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
                 seekSlider.max = audio.duration.toString();
             }
         }
+        else if(currentTime == durationTime){
+            playNextSong();
+        }
+    }, 1000);
+
+    let loopTurned = false;
+    loopBtn?.addEventListener("click", () => {
+        if (loopTurned) {
+            audio.loop = false;
+            loopBtn?.classList.remove("on");
+        } else if (!loopTurned){
+            audio.loop = true;
+            loopBtn?.classList.add("on");
+        }
+        loopTurned = !loopTurned;
+    });
+    let randomTurned = false;
+    randomBtn?.addEventListener("click", () => {
+        if (randomTurned) {
+            randomBtn?.classList.remove("on");
+        } else if (!randomTurned){
+            randomBtn?.classList.add("on");
+        }
+        randomTurned = !randomTurned;
     });
 
-    loopBtn?.addEventListener("click", () => {
-        let turned = false;
-        if (turned) {
-            audio.loop = false;
-            loopBtn.style.content = "";
-        } else {
-            audio.loop = true;
-            loopBtn.style.content = ".";
-        }
-        turned = !turned;
-    });
+    const removeClasses = () => {
+        songBtns.forEach((button) => {
+            if (button instanceof HTMLElement) {
+                button.parentElement.classList.remove("active");
+            }
+        });
+    }
 
     songBtns.forEach((button) => {
         if (button instanceof HTMLElement) {
-            button.addEventListener("click", () => changeSong(button.dataset.source));
+            button.addEventListener("click", () => {removeClasses(); changeSong(button.dataset.source); button.parentElement.classList.add("active");});
         }
     });
 </script>
@@ -269,8 +310,19 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     #play:hover{
         background-color: rgb(201, 201, 201);
     }
-    #random.active, #loop.active{
+    #random::after, #loop::after{
+        content: "";
+    }
+    #random.on, #loop.on{
         color: rgb(146,75,236);
+        height: 2rem;
+    }
+    #random.on::after, #loop.on::after{
+        content: ".";
+        position: relative;
+        top: -2rem;
+        font-size: 3rem;
+        /* //aling to the top */
     }
     #audioNavigation{
         display: flex;
