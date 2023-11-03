@@ -1,5 +1,5 @@
 ---
-import { FaPlay } from 'react-icons/fa';
+import { FaPlay, FaPause } from 'react-icons/fa';
 
 interface Props {
 	title: string;
@@ -21,8 +21,8 @@ const { title, author, source, img } = Astro.props;
 			<p>
 				{author}
 			</p>
+			<!-- <button id="playButton"><FaPlay /><FaPause /></button> -->
 		</div>
-		<FaPlay id="playButton" />
 	</button>
 </li>
 <script>
@@ -63,7 +63,7 @@ const { title, author, source, img } = Astro.props;
 		cursor: pointer;
 	}
 	#playButton {
-		visibility: hidden;
+		visibility: visible;
 		margin-left: auto;
 		font-size: 1.5rem;
 		z-index: 10;

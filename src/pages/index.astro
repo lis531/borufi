@@ -2,9 +2,11 @@
 import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
 import Player from '../Player.astro';
+import Playlist from '../Playlist.astro';
 ---
 
 <Layout title="Borufi">
+	<Playlist />
 	<main>
 		<h1><span class="text-gradient">Borufi</span></h1>
 		<ul role="list" class="link-card-grid">
@@ -42,6 +44,11 @@ import Player from '../Player.astro';
 	</main>
 	<Player />
 </Layout>
+
+<script>
+	
+</script>
+
 <style>
 	body{
 		margin: 0;

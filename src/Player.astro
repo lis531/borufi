@@ -1,5 +1,5 @@
 ---
-import { fade } from "astro:transitions";
+import { fade } from 'astro:transitions';
 import { BsFillVolumeDownFill, BsFillVolumeMuteFill } from 'react-icons/bs';
 import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from 'react-icons/rx';
 ---
@@ -46,14 +46,17 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     let volume = document.getElementById("volume");
     let currentVolume = document.getElementById("volume-slider") as HTMLInputElement;
 
+    seekSlider.setAttribute("disabled", "true");
+    playBtn.setAttribute("disabled", "true");
+
     const changeSong = (sourceLink:any) => {
         if(sourceLink == null || sourceLink == "" || sourceLink == undefined){
             console.log("No audio source found");
             seekSlider.setAttribute("disabled", "true");
             playBtn.setAttribute("disabled", "true");
-            changeState();
-            calTime;
             audio.src = "null";
+            changeState(true);
+            calTime;
         }
         else{
             seekSlider.removeAttribute("disabled");
@@ -97,18 +100,20 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         }
     }
 
-    const changeState = () => {
+    const changeState = (isNull: boolean) => {
         if(playBtn){
             const firstChild = playBtn.firstChild as HTMLElement;
             const lastChild = playBtn.lastChild as HTMLElement;
-            if(audio.paused && audio.src != "null"){
+            if(audio.paused && !isNull){
                 audio.play();
                 firstChild.style.display = "none";
                 lastChild.style.display = "block";
-            }else if(audio.src != "null"){
+            }else{
                 audio.pause();
                 firstChild.style.display = "block";
                 lastChild.style.display = "none";
+                currentTime.innerHTML = "0:00";
+                durationTime.innerHTML = "0:00";
             }
         }
     }
@@ -118,8 +123,6 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
             audio.volume = currentVolume.value / 100;
         }
     }
-
-
 
     let turned = true;
     let lastVolume = 0;
@@ -138,7 +141,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         turned = !turned;
     });
 
-    currentVolume.addEventListener("change", () => {
+    currentVolume.addEventListener("input", () => {
         if (volume) {
             volume.innerHTML = currentVolume.value.toString();
         }
@@ -229,6 +232,8 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
             button.addEventListener("click", () => {removeClasses(); changeSong(button.dataset.source); button.parentElement.classList.add("active");});
         }
     });
+
+    // audio.addEventListener("play", changeState())
 </script>
 
 <style>

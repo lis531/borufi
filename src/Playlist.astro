@@ -1,0 +1,12 @@
+<div>
+    <h1 id="playlistTitle">Playlist Title</h1>
+    <p id="author">Author</p><p id="playlistLength">Length</p>
+    <ol id="songs"></ol>
+</div>
+<script>
+    let songs = document.getElementById("songs");
+    let playlist = []
+    playlist.forEach(song => {
+        songs.innerHTML += `<li><div></p><h1 id="songTitle">Song 1</h1><p id="views">Views</p><p id="length">0:00</p><p></p></div></li>`;
+    });
+</script>
