@@ -19,7 +19,6 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         </div>
         <div id="audioNavigation">
             <label id="current-time" class="time">0:00</label>
-            <div class="fill"></div>
             <input type="range" id="seek-slider" min="0" max="0" value="0">
             <label id="duration" class="time">0:00</label>
         </div>
@@ -143,6 +142,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
 
     currentVolume.addEventListener("input", () => {
         if (volume) {
+            audio.volume = currentVolume.value / 100;
             volume.innerHTML = currentVolume.value.toString();
         }
     });
@@ -154,11 +154,11 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     });
 
     playBtn?.addEventListener("click", () => {
-        changeState()
+        changeState();
     });
 
     cardPlayBtn?.addEventListener("click", () => {
-        changeState()
+        
     });
 
     let tempValue = 0;
@@ -168,7 +168,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
             currentTime.innerHTML = calculateTime(tempValue);
         }
     });
-
+    
     seekSlider?.addEventListener("change", () => {
         if (audio) {
             audio.currentTime = audio.duration * (seekSlider.value / seekSlider.max);
@@ -352,7 +352,6 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         border-radius: 50%;
     }
     #seek-slider::-webkit-slider-runnable-track{
-        color-scheme: green;
         border-radius: 50%;
     }
     #seek-slider:hover::-webkit-slider-thumb {
@@ -374,7 +373,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         text-decoration: underline;
         cursor: pointer;
     }
-    #durationTime, #current-time{
+    #duration, #current-time{
         width: 3vw;
     }
     #current-time{
