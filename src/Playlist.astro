@@ -1,9 +1,12 @@
 <div>
     <h1 id="playlistTitle">Playlist Title</h1>
-    <p id="author">Author</p><p id="playlistLength">Length</p>
+    <div style="display: flex; flex-direction: row; gap: 5%;"><p id="author">Author</p><p id="playlistLength">Length</p></div>
     <ol id="songs"></ol>
 </div>
 <script>
+    let plAuthor = document.getElementById("author");
+    let plLength = document.getElementById("playlistLength");
+
     let songs = document.getElementById("songs");
     let playlist = []
     playlist.forEach(song => {

@@ -11,43 +11,49 @@ interface Props {
 const { title, author, source, img } = Astro.props;
 ---
 
-<li class="link-card">
-	<button id="song" data-source={source}>
-		<img src={img}>
-		<div>
-			<h2>
-				{title}
-			</h2>
-			<p>
-				{author}
-			</p>
-			<!-- <button id="playButton"><FaPlay /><FaPause /></button> -->
+<div class="link-card">
+	<div id="song" data-source={source}>
+		<div id="imgPlay" style="position: relative;">
+			<img src={img}>
+			<button id="playButton"><FaPlay /><FaPause /></button>
 		</div>
-	</button>
-</li>
+		<div id="info">
+			<h2>{title}</h2>
+			<p>{author}</p>
+		</div>
+	</div>
+</div>
 <script>
 	const audio = document.querySelector('audio');
-	if(audio?.onplaying) {
-		audio.onplaying = () => {
-			const playButton = document.querySelector('#playButton');
-			if(playButton != null){
-				playButton.innerHTML = `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" role="img"><path d="M6 4l15 8-15 8z"></path></svg>`;
-			}
+	const playButtons = document.querySelectorAll('#playButton');
+	playButtons.forEach(child => {
+		let firstChild = child.firstChild as HTMLElement;
+		let lastChild = child.lastChild as HTMLElement;
+		if(audio?.paused) {
+			firstChild.style.display = "block";
+			lastChild.style.display = "none";
 		}
-	}
+		else{
+			firstChild.style.display = "none";
+			lastChild.style.display = "block";
+		}
+	});
+
 </script>
 <style>
+	#info{
+		text-align: center;
+	}
 	.link-card {
 		display: flex;
-		margin: auto;
-		padding: 1px;
+		flex-direction: column;
 		border-radius: 8px;
 		max-width: 24ch;
-		transition: background-position 20s cubic-bezier(0.22, 1, 0.36, 1);
+		width: 100%;
+		transition: 20s cubic-bezier(0.22, 1, 0.36, 1);
 		box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 	}
-	.link-card > button {
-		width: 100%;
+	#song {
 		padding: 1.5rem;
 		border-radius: 8px;
 		color: white;
@@ -63,18 +69,33 @@ const { title, author, source, img } = Astro.props;
 		cursor: pointer;
 	}
 	#playButton {
-		visibility: visible;
-		margin-left: auto;
+		position: absolute;
+		visibility: hidden;
 		font-size: 1.5rem;
+		bottom: calc(0.5vh + 0.5vw);
+		right: calc(0.5vh + 0.5vw);
 		z-index: 10;
+		color: white;
+		transition: background-color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+		font-family: inherit;
+		cursor: pointer;
+		border: none;
+		background-color: inherit;
+		padding: 0;
+		overflow: hidden;
 	}
-	.link-card > button:is(:hover, :focus-within) #playButton {
+	#song:is(:hover, :focus-within) #playButton {
+		visibility: visible;
+	}
+	.link-card:is(.active) #playButton {
 		visibility: visible;
 	}
 	svg {
-		background-color: black;
+		clip-path: circle(50% at 50% 50%);
+		box-shadow: 1rem 1rem 0rem black;
+		background-color: rgb(146,75,236);
+		color: white;
 		padding: 1rem;
-		clip-path: circle(50% at center);
 		height: max-content;
 		width: max-content;
 	}
@@ -105,5 +126,6 @@ const { title, author, source, img } = Astro.props;
 	.active{
 		color: var(--accent-light) !important;
 		background: var(--accent-gradient) !important;
+		border: 1px solid white;
 	}
 </style>
