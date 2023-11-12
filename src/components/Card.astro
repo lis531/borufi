@@ -28,18 +28,31 @@ const { title, author, source, img } = Astro.props;
 	const playButtons = document.querySelectorAll('#playButton');
 	playButtons.forEach((button) => {
 		button.firstChild.style.display = 'block';
-			button.lastChild.style.display = 'none';
+		button.lastChild.style.display = 'none';
 	});
 	audio?.addEventListener('pause', () => {
 		playButtons.forEach((button) => {
-			button.firstChild.style.display = 'block';
-			button.lastChild.style.display = 'none';
+			if(button instanceof HTMLElement){
+				button.firstChild.style.display = 'block';
+				button.lastChild.style.display = 'none';
+			}
 		});
 	});
 	audio?.addEventListener('play', () => {
 		playButtons.forEach((button) => {
-			button.firstChild.style.display = 'none';
-			button.lastChild.style.display = 'block';
+			if(button instanceof HTMLElement){
+				console.log("This", button.dataset.source != audio?.src?.split('/')[3]);
+				console.log(button.parentElement?.parentElement?.lastChild?.firstChild, button.dataset.source, audio?.src.split('/')[3]);
+				if(button.dataset.source != audio?.src?.split('/')[3]){
+					button.firstChild.style.display = 'block';
+					button.lastChild.style.display = 'none';
+					audio.src = button.dataset.source;
+				}else{
+					console.log(true);
+					button.firstChild.style.display = 'block';
+					button.lastChild.style.display = 'none';
+				}
+			}
 		});
 	});
 </script>

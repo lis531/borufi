@@ -78,7 +78,8 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         if (currentTime) {
             currentTime.innerHTML = calculateTime(timeElapsed);
         }
-        if (durationTime && duration != null) {
+        if (durationTime && duration !== null) {
+            console.log("cos")
             durationTime.innerHTML = calculateTime(duration);
         }
         seekSlider.value = 0;
@@ -116,9 +117,11 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         }
     }
     currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
+    audio.volume = currentVolume.value / 200;
     const changeVolume = () =>{
         if (audio) {
-            audio.volume = currentVolume.value / 100;
+            console.log(currentVolume.value);
+            audio.volume = currentVolume.value / 200;
         }
     }
 
@@ -129,8 +132,30 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         if(turned){
             lastVolume = currentVolume.value;
             currentVolume.value = "0";
+            if (muteBtn) {
+                const firstChild = muteBtn.firstChild as HTMLElement | null;
+                const lastChild = muteBtn.lastChild as HTMLElement | null;
+                if (firstChild) {
+                    firstChild.style.display = "none";
+                }
+                if (lastChild) {
+                    lastChild.style.display = "block";
+                }
+            }
+            currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
         } else {
             currentVolume.value = lastVolume.toString();
+            if (muteBtn) {
+                const firstChild = muteBtn.firstChild as HTMLElement | null;
+                const lastChild = muteBtn.lastChild as HTMLElement | null;
+                if (firstChild) {
+                    firstChild.style.display = "block";
+                }
+                if (lastChild) {
+                    lastChild.style.display = "none";
+                }
+            }
+            currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
         }
         if(volume) {
             volume.innerHTML = currentVolume.value.toString();
@@ -141,7 +166,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
 
     currentVolume.addEventListener("input", () => {
         if (volume) {
-            audio.volume = currentVolume.value / 100;
+            audio.volume = currentVolume.value / 200;
             currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
             volume.innerHTML = currentVolume.value.toString();
         }
@@ -232,8 +257,6 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
             button.addEventListener("click", () => {
                 removeClasses();
                 button.parentElement.parentElement.parentElement.classList.add("active");
-                console.log(audio.paused);
-                console.log(audio.played);
                 if(!audio.paused){
                     audio.pause();
                 } else if (audio.played.length == 1){
@@ -261,16 +284,20 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         cursor: pointer;
     }
     input[type="range"]::-webkit-slider-thumb {
+        visibility: hidden;
         position: relative;
         -webkit-appearance: none;
         box-sizing: content-box;
         border: 1px solid #2a2b2c;
-        height: 15px;
-        width: 15px;
+        height: 16px;
+        width: 16px;
         border-radius: 50%;
         background-color: #fff;
         cursor: pointer;
         margin: -7px 0 0 0;
+    }
+    input[type="range"]:hover::-webkit-slider-thumb {
+        visibility: visible;
     }
     input[type="range"]::before {
         position: absolute;
