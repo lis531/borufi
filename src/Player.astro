@@ -32,11 +32,10 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
 </div>
 
 <script>
-    let songBtns = document.querySelectorAll("#song");
+    let cardPlayBtns = document.querySelectorAll("#playButton");
     let playBtn = document.getElementById("play");
     let loopBtn = document.getElementById("loop");
     let randomBtn = document.getElementById("random");
-    let cardPlayBtn = document.getElementById("playButton");
     let currentTime = document.getElementById("current-time");
     let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
     let durationTime = document.getElementById("duration");
@@ -52,34 +51,34 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         if(sourceLink == null || sourceLink == "" || sourceLink == undefined){
             console.log("No audio source found");
             seekSlider.setAttribute("disabled", "true");
-            playBtn.setAttribute("disabled", "true");
+            playBtn?.setAttribute("disabled", "true");
             audio.src = "null";
             changeState(true);
             calTime;
         }
         else{
             seekSlider.removeAttribute("disabled");
-            playBtn.removeAttribute("disabled");
+            playBtn?.removeAttribute("disabled");
             audio.src = sourceLink;
             audio.load();
             changeState();
         }
     };
 
-    const playNextSong = () => {
-        let nextSong = document.querySelector(".active").nextElementSibling;
-        if (nextSong) {
-            changeSong(nextSong.dataset.source);
-            removeClasses();
-            nextSong.parentElement.classList.add("active");
-        }
-    }
+    // const playNextSong = () => {
+    //     let nextSong = document.querySelector(".active").nextElementSibling;
+    //     if (nextSong) {
+    //         changeSong(nextSong.dataset.source);
+    //         removeClasses();
+    //         nextSong.parentElement.classList.add("active");
+    //     }
+    // }
 
-    const displayDuration = (duration: number, timeElapsed: number) =>{
+    const displayDuration = (timeElapsed: number, duration = null) =>{
         if (currentTime) {
             currentTime.innerHTML = calculateTime(timeElapsed);
         }
-        if (durationTime) {
+        if (durationTime && duration != null) {
             durationTime.innerHTML = calculateTime(duration);
         }
         seekSlider.value = 0;
@@ -116,7 +115,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
             }
         }
     }
-    
+    currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
     const changeVolume = () =>{
         if (audio) {
             audio.volume = currentVolume.value / 100;
@@ -143,13 +142,14 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     currentVolume.addEventListener("input", () => {
         if (volume) {
             audio.volume = currentVolume.value / 100;
+            currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
             volume.innerHTML = currentVolume.value.toString();
         }
     });
 
     audio.addEventListener("loadedmetadata", () => {
         if (durationTime) {
-            displayDuration(audio.duration, audio.currentTime);
+            displayDuration(audio.currentTime, audio.duration);
         }
     });
 
@@ -157,14 +157,11 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         changeState();
     });
 
-    cardPlayBtn?.addEventListener("click", () => {
-        
-    });
-
     let tempValue = 0;
     seekSlider?.addEventListener("input", () => {
         if (audio) {
             tempValue = seekSlider.value;
+            seekSlider.style.setProperty('--seek-before-width', `${(Number(seekSlider.value) / Number(seekSlider.max)) * 100}%`);
             currentTime.innerHTML = calculateTime(tempValue);
         }
     });
@@ -172,6 +169,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     seekSlider?.addEventListener("change", () => {
         if (audio) {
             audio.currentTime = audio.duration * (seekSlider.value / seekSlider.max);
+            seekSlider.style.setProperty('--seek-before-width', `${(Number(seekSlider.value) / Number(seekSlider.max)) * 100}%`);
             tempValue = 0;
         }
     });
@@ -184,16 +182,17 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
 
     const calTime = setInterval(() => {
         if (durationTime && tempValue == 0) {
-            displayDuration(audio.duration, audio.currentTime);
+            displayDuration(audio.currentTime);
             seekSlider.value = audio.currentTime;
+            seekSlider.style.setProperty('--seek-before-width', `${(Number(seekSlider.value) / Number(seekSlider.max)) * 100}%`);
             if(isNaN(seekSlider.max)){
                 seekSlider.max = "0";
             }
             else{
-                seekSlider.max = audio.duration.toString();
+                seekSlider.max = Math.floor(audio.duration).toString();
             }
         }
-        else if(currentTime == durationTime){
+        else if(audio.ended && randomTurned){
             playNextSong();
         }
     }, 1000);
@@ -209,6 +208,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         }
         loopTurned = !loopTurned;
     });
+
     let randomTurned = false;
     randomBtn?.addEventListener("click", () => {
         if (randomTurned) {
@@ -220,44 +220,78 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     });
 
     const removeClasses = () => {
-        songBtns.forEach((button) => {
+        cardPlayBtns.forEach((button) => {
             if (button instanceof HTMLElement) {
-                button.parentElement.classList.remove("active");
+                button.parentElement.parentElement.parentElement.classList.remove("active");
             }
         });
     }
-
-    songBtns.forEach((button) => {
+    
+    cardPlayBtns.forEach((button) => {
         if (button instanceof HTMLElement) {
-            button.addEventListener("click", () => {removeClasses(); changeSong(button.dataset.source); button.parentElement.classList.add("active");});
+            button.addEventListener("click", () => {
+                removeClasses();
+                button.parentElement.parentElement.parentElement.classList.add("active");
+                console.log(audio.paused);
+                console.log(audio.played);
+                if(!audio.paused){
+                    audio.pause();
+                } else if (audio.played.length == 1){
+                    audio.play();
+                } else {
+                    changeSong(button.dataset.source)
+                };
+            });
         }
     });
 </script>
 
 <style>
-    #volume-slider{
+    input[type="range"] {
+        position: relative;
+        -webkit-appearance: none;
+        border-radius: 1rem;
+    }
+    input[type="range"]:disabled {
+        background-color: #2a2b2c;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
         width: 100%;
         height: 5px;
-        border-radius: 5px;
-        outline: none;
         cursor: pointer;
-        -webkit-appearance: none;
     }
-    #volume-slider::-webkit-slider-thumb {
+    input[type="range"]::-webkit-slider-thumb {
+        position: relative;
         -webkit-appearance: none;
-        appearance: none;
-        width: 1rem;
-        height: 1rem;
-        border-radius: 50%; 
-        background: #fff;
+        box-sizing: content-box;
+        border: 1px solid #2a2b2c;
+        height: 15px;
+        width: 15px;
+        border-radius: 50%;
+        background-color: #fff;
         cursor: pointer;
-        visibility: hidden;
+        margin: -7px 0 0 0;
     }
-    #volume-slider:hover::-webkit-slider-thumb {
-        visibility: visible;
+    input[type="range"]::before {
+        position: absolute;
+        content: "";
+        left: 0;
+        height: 5px;
+        background-color: var(--accent);
+        border-radius: 1rem;
+        cursor: pointer;
     }
-    #volume-slider::-webkit-slider{
-        background-color: green;
+    input[type="range"]:active::-webkit-slider-thumb {
+        transform: scale(1.1);
+    }
+    #seek-slider::before{
+        width: var(--seek-before-width);
+    }
+    #volume-slider::before{
+        width: var(--volume-before-width);
+    }
+    #seek-slider{
+        width: 50vw;
     }
     #mute :last-child{
         display: none;
@@ -328,7 +362,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         position: relative;
         top: -2rem;
         font-size: 3rem;
-        /* //aling to the top */
+        /* aling to the top */
     }
     #audioNavigation{
         display: flex;
@@ -336,26 +370,6 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         align-items: center;
         justify-content: center;
         gap: 1rem;
-    }
-    #seek-slider {
-        width: max-content;
-        height: 4px;
-        width: 50vw;
-        border-radius: 5px;
-        cursor: pointer;
-        background: #333333;
-    }
-    #seek-slider::-webkit-slider-thumb {
-        visibility: hidden;
-        width: 1rem;
-        height: 1rem;
-        border-radius: 50%;
-    }
-    #seek-slider::-webkit-slider-runnable-track{
-        border-radius: 50%;
-    }
-    #seek-slider:hover::-webkit-slider-thumb {
-        visibility: visible;
     }
     #volumeControl{
         width: 20%;
