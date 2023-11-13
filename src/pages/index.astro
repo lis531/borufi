@@ -75,7 +75,11 @@ import Playlist from '../Playlist.astro';
 		margin-bottom: 1em;
 	}
 	.text-gradient {
-		background-image: var(--accent-gradient);
+		background-image: linear-gradient(
+			to bottom right,
+			rgba(131, 29, 29, 1),
+			rgba(99, 175, 226, 1)
+		);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 		background-size: 400%;

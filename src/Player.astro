@@ -55,8 +55,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
             audio.src = "null";
             changeState(true);
             calTime;
-        }
-        else{
+        } else if (sourceLink != audio.src){
             seekSlider.removeAttribute("disabled");
             playBtn?.removeAttribute("disabled");
             audio.src = sourceLink;
@@ -180,6 +179,17 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
 
     playBtn?.addEventListener("click", () => {
         changeState();
+        cardPlayBtns.forEach(button => {
+            if (button instanceof HTMLElement) {
+                if(audio.paused){
+                    button.firstChild.style.display = 'block';
+                    button.lastChild.style.display = 'none';
+                } else {
+                    button.firstChild.style.display = 'none';
+                    button.lastChild.style.display = 'block';
+                }
+            }
+        });
     });
 
     let tempValue = 0;
@@ -252,19 +262,51 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         });
     }
     
+    const checkBtns = () =>{
+        cardPlayBtns.forEach((button) => {
+            if (button instanceof HTMLElement) {
+                if(button.dataset.source != audio.src.split("/").pop()){
+                    button.firstChild.style.display = 'block';
+                    button.lastChild.style.display = 'none';
+                } else {
+                    button.firstChild.style.display = 'none';
+                    button.lastChild.style.display = 'block';
+                }
+            }
+        });
+    }
+
     cardPlayBtns.forEach((button) => {
         if (button instanceof HTMLElement) {
             button.addEventListener("click", () => {
                 removeClasses();
+                console.log(button.dataset.source != audio.src.split("/").pop())
+                console.log(button.dataset.source, audio.src.split("/").pop())
                 button.parentElement.parentElement.parentElement.classList.add("active");
-                if(!audio.paused){
-                    audio.pause();
-                } else if (audio.played.length == 1){
+                if(button.dataset.source != audio.src.split("/").pop()){
+                    changeSong(button.dataset.source)
+                    button.firstChild.style.display = 'none';
+				    button.lastChild.style.display = 'block';
+                    checkBtns();
                     audio.play();
                 } else {
-                    changeSong(button.dataset.source)
-                };
+                    if(audio.paused){
+                        button.firstChild.style.display = 'none';
+                        button.lastChild.style.display = 'block';
+                        changeState();
+                        audio.play();
+                    } else {
+                        button.firstChild.style.display = 'block';
+                        button.lastChild.style.display = 'none';
+                        changeState();
+                        audio.pause();
+                    }
+                }
             });
+            if(button.dataset.source != audio.src){
+                button.firstChild.style.display = 'block';
+				button.lastChild.style.display = 'none';
+            }
         }
     });
 </script>

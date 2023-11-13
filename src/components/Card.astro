@@ -24,36 +24,10 @@ const { title, author, source, img } = Astro.props;
 	</div>
 </div>
 <script>
-	const audio = document.querySelector('audio');
 	const playButtons = document.querySelectorAll('#playButton');
 	playButtons.forEach((button) => {
 		button.firstChild.style.display = 'block';
 		button.lastChild.style.display = 'none';
-	});
-	audio?.addEventListener('pause', () => {
-		playButtons.forEach((button) => {
-			if(button instanceof HTMLElement){
-				button.firstChild.style.display = 'block';
-				button.lastChild.style.display = 'none';
-			}
-		});
-	});
-	audio?.addEventListener('play', () => {
-		playButtons.forEach((button) => {
-			if(button instanceof HTMLElement){
-				console.log("This", button.dataset.source != audio?.src?.split('/')[3]);
-				console.log(button.parentElement?.parentElement?.lastChild?.firstChild, button.dataset.source, audio?.src.split('/')[3]);
-				if(button.dataset.source != audio?.src?.split('/')[3]){
-					button.firstChild.style.display = 'block';
-					button.lastChild.style.display = 'none';
-					audio.src = button.dataset.source;
-				}else{
-					console.log(true);
-					button.firstChild.style.display = 'block';
-					button.lastChild.style.display = 'none';
-				}
-			}
-		});
 	});
 </script>
 <style>
@@ -61,26 +35,54 @@ const { title, author, source, img } = Astro.props;
 		text-align: center;
 	}
 	.link-card {
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		border-radius: 8px;
 		max-width: 24ch;
 		width: 100%;
-		transition: ease-in-out 3s;
+		transition: ease-in-out 0.3s;
+		background-image: linear-gradient(
+			to bottom right,
+			rgba(71, 0, 0, 0.2),
+			rgba(17, 135, 214, 0.1)
+			);
+			z-index: 0;
 		box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+	}
+	.link-card::before{
+		position: absolute;
+  		content: '';
+  		top: 0;
+  		right: 0;
+  		bottom: 0;
+  		left: 0;
+		border-radius: 8px;
+  		background-image: linear-gradient(
+			to bottom right,
+			rgba(131, 29, 29, 0.2),
+			rgba(99, 175, 226, 0.2)
+		);
+  		z-index: -1;
+  		transition: opacity 0.5s linear;
+  		opacity: 0;
+	}
+	.link-card:hover{
+		scale: 1.05;
+	}
+	.link-card:is(:hover, .active)::before{
+		opacity: 1;
 	}
 	#song {
 		padding: 1.5rem;
 		border-radius: 8px;
 		color: white;
-		background-color: #23262d;
-		opacity: 0.8;
+		background: rgba(35, 38, 45, 0.6)
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
 		border: none;
-		transition: background-color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 		font-family: inherit;
 		cursor: pointer;
 	}
@@ -92,7 +94,6 @@ const { title, author, source, img } = Astro.props;
 		right: calc(0.5vh + 0.5vw);
 		z-index: 10;
 		color: white;
-		transition: background-color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 		font-family: inherit;
 		cursor: pointer;
 		border: none;
@@ -100,16 +101,51 @@ const { title, author, source, img } = Astro.props;
 		padding: 0;
 		overflow: hidden;
 		z-index: 10;
+		
 	}
-	#song:is(:hover, :focus-within) #playButton {
+	@keyframes playButtonAnimation {
+		0%{
+			visibility: hidden;
+			transform: translateY(30%);
+			opacity: 0;
+		}
+		100%{
+			transform: translateY(0%);
+			opacity: 1;
+			visibility: visible;
+		}
+	}
+	.link-card:not(.active) :hover #playButton {
+    	visibility: visible;
+    	animation: playButtonAnimation 0.35s ease-in-out forwards;
+	}
+	.link-card img{
+		transition: 0.5s ease-in-out;
+	}
+	.link-card:not(.active) :hover img{
+		box-shadow: 0rem 0rem 1rem rgba(0, 0, 0, 0.5);
+	}
+	.link-card:not(:hover, .active) #playButton {
 		visibility: visible;
+    	animation: playButtonAnimationReverse 0.35s ease-in-out forwards;
+	}
+
+	@keyframes playButtonAnimationReverse {
+	    0% {
+	        transform: translateY(0%);
+	        opacity: 1;
+	    }
+	    100% {
+	        transform: translateY(30%);
+	        opacity: 0;
+			visibility: hidden;
+	    }
 	}
 	.link-card:is(.active) #playButton {
 		visibility: visible;
 	}
 	svg {
 		clip-path: circle(50% at 50% 50%);
-		box-shadow: 1rem 1rem 0rem black;
 		background-color: rgb(146,75,236);
 		color: white;
 		padding: 1rem;
@@ -134,15 +170,11 @@ const { title, author, source, img } = Astro.props;
 		margin-top: 0.5rem;
 		margin-bottom: 0;
 	}
-	.link-card:is(:hover) {
-		background-image: var(--accent-gradient);
-	}
-	.link-card:is(:hover) h2 {
+	.link-card:hover h2 {
 		color: var(--accent-light);
 	}
 	.active{
 		color: var(--accent-light) !important;
-		background: var(--accent-gradient) !important;
-		border: 1px solid white;
+		scale: 1.05;
 	}
 </style>
