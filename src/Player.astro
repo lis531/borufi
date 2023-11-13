@@ -78,7 +78,6 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
             currentTime.innerHTML = calculateTime(timeElapsed);
         }
         if (durationTime && duration !== null) {
-            console.log("cos")
             durationTime.innerHTML = calculateTime(duration);
         }
         seekSlider.value = 0;
@@ -119,7 +118,6 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     audio.volume = currentVolume.value / 200;
     const changeVolume = () =>{
         if (audio) {
-            console.log(currentVolume.value);
             audio.volume = currentVolume.value / 200;
         }
     }
@@ -127,7 +125,6 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     let turned = true;
     let lastVolume = 0;
     muteBtn?.addEventListener("click", () => {
-        console.log(lastVolume, currentVolume.value, turned);
         if(turned){
             lastVolume = currentVolume.value;
             currentVolume.value = "0";
@@ -453,11 +450,17 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         height: 2rem;
     }
     #random.on::after, #loop.on::after{
-        content: ".";
+        display: block;
         position: relative;
-        top: -2rem;
-        font-size: 3rem;
-        /* aling to the top */
+        content: "";
+        width: 5px;
+        height: 5px;
+        justify-self: center;
+        align-self: center;
+        border-radius: 1rem;
+        margin: auto;
+        top: 5px;
+        background-color: rgb(146,75,236);
     }
     #audioNavigation{
         display: flex;
