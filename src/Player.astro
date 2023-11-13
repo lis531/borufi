@@ -1,6 +1,6 @@
 ---
 import { fade } from 'astro:transitions';
-import { BsFillVolumeDownFill, BsFillVolumeMuteFill } from 'react-icons/bs';
+import { BsVolumeDown, BsVolumeMute, BsVolumeUp } from 'react-icons/bs';
 import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from 'react-icons/rx';
 ---
 
@@ -25,7 +25,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     </div>
     <div id="volumeControl">
         <span id="volume">50</span>
-        <button id="mute"><BsFillVolumeDownFill /><BsFillVolumeMuteFill /></button>
+        <button id="mute"><BsVolumeDown /><BsVolumeUp /><BsVolumeMute /></button>
         <input type="range" id="volume-slider" min="0" max="100" value="50">
     </div>
     <audio src="" preload="metadata">
@@ -98,7 +98,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         }
     }
 
-    const changeState = (isNull: boolean) => {
+    const changeState = (isNull: boolean = false) => {
         if(playBtn){
             const firstChild = playBtn.firstChild as HTMLElement;
             const lastChild = playBtn.lastChild as HTMLElement;
@@ -133,24 +133,26 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
             currentVolume.value = "0";
             if (muteBtn) {
                 const firstChild = muteBtn.firstChild as HTMLElement | null;
+                const secondChild = muteBtn.children[1] as HTMLElement | null;
                 const lastChild = muteBtn.lastChild as HTMLElement | null;
-                if (firstChild) {
-                    firstChild.style.display = "none";
-                }
-                if (lastChild) {
-                    lastChild.style.display = "block";
-                }
+                firstChild.style.display = "none";
+                secondChild.style.display = "none";
+                lastChild.style.display = "block";
             }
             currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
         } else {
             currentVolume.value = lastVolume.toString();
-            if (muteBtn) {
+            if (muteBtn && currentVolume.value != "0") {
                 const firstChild = muteBtn.firstChild as HTMLElement | null;
+                const secondChild = muteBtn.children[1] as HTMLElement | null;
                 const lastChild = muteBtn.lastChild as HTMLElement | null;
-                if (firstChild) {
+                if(lastVolume > 75){
+                    firstChild.style.display = "none";
+                    secondChild.style.display = "block";
+                    lastChild.style.display = "none";
+                } else {
                     firstChild.style.display = "block";
-                }
-                if (lastChild) {
+                    secondChild.style.display = "none";
                     lastChild.style.display = "none";
                 }
             }
@@ -166,6 +168,28 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     currentVolume.addEventListener("input", () => {
         if (volume) {
             audio.volume = currentVolume.value / 200;
+            const firstChild = muteBtn.firstChild as HTMLElement | null;
+            const secondChild = muteBtn.children[1] as HTMLElement | null;
+            const lastChild = muteBtn.lastChild as HTMLElement | null;
+            if(currentVolume.value > 75){
+                if (muteBtn) {
+                    firstChild.style.display = "none";
+                    secondChild.style.display = "block";
+                    lastChild.style.display = "none";
+                }
+            } else if(currentVolume.value > 0){
+                if (muteBtn) {
+                    firstChild.style.display = "block";
+                    secondChild.style.display = "none";
+                    lastChild.style.display = "none";
+                }
+            } else {
+                if (muteBtn) {
+                    firstChild.style.display = "none";
+                    secondChild.style.display = "none";
+                    lastChild.style.display = "block";
+                }
+            }
             currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
             volume.innerHTML = currentVolume.value.toString();
         }
@@ -187,6 +211,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
                 } else {
                     button.firstChild.style.display = 'none';
                     button.lastChild.style.display = 'block';
+                    checkBtns();
                 }
             }
         });
@@ -280,15 +305,13 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         if (button instanceof HTMLElement) {
             button.addEventListener("click", () => {
                 removeClasses();
-                console.log(button.dataset.source != audio.src.split("/").pop())
-                console.log(button.dataset.source, audio.src.split("/").pop())
                 button.parentElement.parentElement.parentElement.classList.add("active");
                 if(button.dataset.source != audio.src.split("/").pop()){
                     changeSong(button.dataset.source)
                     button.firstChild.style.display = 'none';
 				    button.lastChild.style.display = 'block';
-                    checkBtns();
                     audio.play();
+                    checkBtns();
                 } else {
                     if(audio.paused){
                         button.firstChild.style.display = 'none';
@@ -362,6 +385,9 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     #seek-slider{
         width: 50vw;
     }
+    #mute :nth-child(2){
+        display: none;
+    }
     #mute :last-child{
         display: none;
     }
@@ -388,7 +414,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         display: flex;
         flex-direction: row;
         align-items: center;
-        gap: 8%;
+        gap: 5%;
         z-index: 100;
         height: 15vh;
         min-height: 7.5rem;
@@ -398,7 +424,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        gap: 3rem;
+        gap: 3vw;
     }
     #mainControls{
         display: flex;
@@ -439,17 +465,18 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         align-items: center;
         justify-content: center;
         gap: 1rem;
+        width: 100%;
     }
     #volumeControl{
-        width: 20%;
+        width: 20vw;
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: right;
-        margin-right: 2rem;
+        margin-right: 2vw;
     }
     #songInfo{
-        width: 20%;
+        min-width: 20%;
         margin-left: 2rem;
     }
     #songInfo a:hover{
