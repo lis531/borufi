@@ -15,7 +15,7 @@ const { title, author, source, img } = Astro.props;
 	<div id="song" data-source={source}>
 		<div id="imgPlay" style="position: relative;">
 			<img src={img}>
-			<button id="playButton" data-source={source}><FaPlay /><FaPause /></button>
+			<button id="playButton" data-source={source} class="no-animation"><FaPlay /><FaPause /></button>
 		</div>
 		<div id="info">
 			<h2>{title}</h2>
@@ -25,9 +25,17 @@ const { title, author, source, img } = Astro.props;
 </div>
 <script>
 	const playButtons = document.querySelectorAll('#playButton');
+	const linkCards = document.getElementsByClassName('link-card');
 	playButtons.forEach((button) => {
 		button.firstChild.style.display = 'block';
 		button.lastChild.style.display = 'none';
+
+	});
+	Array.from(linkCards).forEach((card: Element) => {
+		const button = card.querySelector('#playButton');
+		card.addEventListener('mouseover', () => {
+			button?.classList.remove('no-animation');
+		});
 	});
 </script>
 <style>
@@ -115,14 +123,18 @@ const { title, author, source, img } = Astro.props;
 			visibility: visible;
 		}
 	}
-	.link-card:not(.active) :hover #playButton {
+	.no-animation{
+		animation: none !important;
+		visibility: hidden !important;
+	}
+	.link-card:not(.active):hover #playButton {
     	visibility: visible;
     	animation: playButtonAnimation 0.35s ease-in-out forwards;
 	}
 	.link-card img{
 		transition: 0.5s ease-in-out;
 	}
-	.link-card:not(.active) :hover img{
+	.link-card:not(.active):hover img{
 		box-shadow: 0rem 0rem 1rem rgba(0, 0, 0, 0.5);
 	}
 	.link-card:not(:hover, .active) #playButton {

@@ -19,7 +19,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         </div>
         <div id="audioNavigation">
             <label id="current-time" class="time">0:00</label>
-            <input type="range" id="seek-slider" min="0" max="0" value="0">
+            <input type="range" id="seek-slider" min="0" max="0" value="0" disabled>
             <label id="duration" class="time">0:00</label>
         </div>
     </div>
@@ -332,6 +332,9 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
 </script>
 
 <style>
+    :root{
+        --volume-before-width: 50%;
+    }
     input[type="range"] {
         position: relative;
         -webkit-appearance: none;
@@ -388,6 +391,12 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     #mute :last-child{
         display: none;
     }
+    /* #mute > svg > path{
+        dokończyć
+        width: 100%;
+        height: 100%;
+        float: left;
+    } */
     #play :last-child{
         display: none;
     }
@@ -471,15 +480,15 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         width: 100%;
     }
     #volumeControl{
-        width: 20vw;
+        width: calc(20% - 2rem);
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: right;
-        margin-right: 2vw;
+        margin-right: 2rem;
     }
     #songInfo{
-        min-width: 20%;
+        width: calc(20% - 2rem);
         margin-left: 2rem;
     }
     #songInfo a:hover{
