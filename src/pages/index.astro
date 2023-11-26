@@ -6,41 +6,43 @@ import Playlist from '../Playlist.astro';
 ---
 
 <Layout title="Borufi">
-	<main>
-		<!-- <Playlist /> -->
+	<Playlist />
+	<main id="main">
 		<h1><span class="text-gradient">Borufi</span></h1>
 		<ul role="list" class="link-card-grid">
 			<Card
-			img="https://picsum.photos/1000/1000?random=1"
-			source=''
-			title="Song 1"
-			author="bor"
+				img="boruwa_originals.jpg"
+				source=''
+				title="Boruwa Originals"
+				author="boruwa"
+				playlistId="1"
 			/>
 			<Card
-			img="https://picsum.photos/1000/1000?random=2"
-			source='kebsonken.mp3'
-			title="Song 2"
-			author="uwa"
+				img="modern_boruwas.jpg"
+				source='kebsonken.mp3'
+				title="Modern Boruwas"
+				author="boruwa"
+				playlistId="2"
 			/>
 			<Card
-			img="https://picsum.photos/1000/1000?random=3"
-			source='vocal_ns.wav'
-			title="Song 3"
-			author="bor"
+				img="boruwa_vocals.jpg"
+				source='vocal_ns.wav'
+				title="Boruwa Vocals"
+				author="boruwa"
+				playlistId="3"
 			/>
 			<Card
-			img="https://picsum.photos/1000/1000?random=4"
-			source='lyr.mp3'
-			title="Song 4"
-			author="uwa"
+				img="christmas_with_boruwa.jpg"
+				source='lyr.mp3'
+				title="Boruwa For Christmas"
+				author="boruwa"
+				playlistId="4"
 			/>
 			</ul>
 		</main>
 	<Player />
 </Layout>
-
 <script>
-	
 </script>
 
 <style>

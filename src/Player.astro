@@ -300,7 +300,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
 
     cardPlayBtns.forEach((button) => {
         if (button instanceof HTMLElement) {
-            button.addEventListener("click", () => {
+            button.addEventListener("click", (event) => {
                 removeClasses();
                 button.parentElement.parentElement.parentElement.classList.add("active");
                 if(button.dataset.source != audio.src.split("/").pop()){
@@ -322,6 +322,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
                         audio.pause();
                     }
                 }
+                event.stopPropagation();
             });
             if(button.dataset.source != audio.src){
                 button.firstChild.style.display = 'block';
@@ -379,6 +380,10 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     #seek-slider::before{
         width: var(--seek-before-width);
     }
+    #volume-slider{
+        width: 100%;
+        max-width: 8rem;
+    }
     #volume-slider::before{
         width: var(--volume-before-width);
     }
@@ -391,12 +396,9 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     #mute :last-child{
         display: none;
     }
-    /* #mute > svg > path{
-        dokończyć
-        width: 100%;
-        height: 100%;
-        float: left;
-    } */
+    #mute > svg{
+        text-align: left;
+    }
     #play :last-child{
         display: none;
     }
@@ -422,7 +424,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         align-items: center;
         gap: 5%;
         z-index: 100;
-        height: 15vh;
+        height: 12vh;
         min-height: 7.5rem;
     }
     #songControls{
@@ -480,16 +482,16 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         width: 100%;
     }
     #volumeControl{
-        width: calc(20% - 2rem);
+        width: calc(20% - 2vw);
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: right;
-        margin-right: 2rem;
+        margin-right: 2vw;
     }
     #songInfo{
-        width: calc(20% - 2rem);
-        margin-left: 2rem;
+        width: calc(20% - 2vw);
+        margin-left: 2vw;
     }
     #songInfo a:hover{
         text-decoration: underline;

@@ -1,16 +1,129 @@
-<button id="backButton"></button>
-<div>
-    <h1 id="playlistTitle">Playlist Title</h1>
-    <div style="display: flex; flex-direction: row; gap: 5%;"><p id="author">Author</p><p id="playlistLength">Length</p></div>
-    <ol id="songs"></ol>
+<div id="playlistMain">
+    <button id="backButton">Back</button>
+    <div>
+        <img id="cover" src=>
+        <h1 id="playlistTitle"></h1>
+        <div style="display: flex; flex-direction: row; gap: 5%;"><p id="author"></p><p id="playlistLength">Playlist length</p></div>
+        <ol id="songs">
+        </ol>
+    </div>
 </div>
 <script>
-    let plAuthor = document.getElementById("author");
-    let plLength = document.getElementById("playlistLength");
+    const playlistsData = [
+        {
+            "title": "Boruwa Originals",
+            "img": "boruwa_originals.jpg",
+            "author": "Artist 1",
+            "songs": [
+                {
+                    "title": "Song 1",
+                    "artist": "Artist 1",
+                    "source": "kebsonken.mp3"
+                },
+                {
+                    "title": "Song 2",
+                    "artist": "Artist 2",
+                    "source": "kebsonken.mp3"
+                }
+            ]
+        },
+        {
+            "title": "Modern Boruwas",
+            "img": "modern_boruwas.jpg",
+            "author": "Artist 2",
+            "songs": [
+                {
+                    "title": "Song 3",
+                    "artist": "Artist 3",
+                    "source": "kebsonken.mp3"
+                },
+                {
+                    "title": "Song 4",
+                    "artist": "Artist 4",
+                    "source": "kebsonken.mp3"
+                }
+            ]
+        },
+        {
+            "title": "Boruwa Vocals",
+            "img": "boruwa_vocals.jpg",
+            "author": "Artist 3",
+            "songs": [
+                {
+                    "title": "Song 5",
+                    "artist": "Artist 5",
+                    "source": "kebsonken.mp3"
+                },
+                {
+                    "title": "Song 6",
+                    "artist": "Artist 6",
+                    "source": "kebsonken.mp3"
+                }
+            ]
+        },
+        {
+            "title": "Boruwa For Christmas",
+            "img": "christmas_with_boruwa.jpg",
+            "author": "Artist 4",
+            "songs": [
+                {
+                    "title": "Song 7",
+                    "artist": "Artist 7",
+                    "source": "kebsonken.mp3"
+                },
+                {
+                    "title": "Song 8",
+                    "artist": "Artist 8",
+                    "source": "kebsonken.mp3"
+                }
+            ]
+        }
+    ];
+    
+    let backButton = document.getElementById("backButton") as HTMLElement;
+    let playlists = document.querySelectorAll("#song") as NodeListOf<HTMLElement>;
+    let cover = document.getElementById("cover") as HTMLImageElement;
+    let playlistTitle = document.getElementById("playlistTitle") as HTMLElement;
+    let author = document.getElementById("author") as HTMLElement;
+    let playlistLength = document.getElementById("playlistLength") as HTMLElement;
+    let songsContainer = document.getElementById("songs") as HTMLElement;
+    let playlistMain = document.getElementById("playlistMain") as HTMLElement;
+    let main = document.getElementById("main") as HTMLElement;
+    
+    let playlistId = 0;
+    playlistMain.style.display = "none";
+    main.style.display = "block";
+    
+    backButton?.addEventListener("click", () => {
+        playlistMain.style.display = "none";
+        main.style.display = "block";
+    });
 
-    let songs = document.getElementById("songs");
-    let playlist = []
-    playlist.forEach(song => {
-        songs.innerHTML += `<li><div></p><h1 id="songTitle">Song 1</h1><p id="views">Views</p><p id="length">0:00</p><p></p></div></li>`;
+    import { RxPlay, RxPause } from 'react-icons/rx';
+
+    function updatePlaylistInfo() {
+        cover.src = playlistsData[playlistId].img;
+        playlistTitle.textContent = playlistsData[playlistId].title;
+        author.textContent = playlistsData[playlistId].author;
+        songsContainer.innerHTML = playlistsData[playlistId].songs.map((song) => {
+            return `<button id="play"><RxPlay />Play<RxPause /></button><li>${song.title} - ${song.artist} - Length: ${song.source.length}</li>`;
+        }).join("");
+        console.log(playlistsData[playlistId].songs[1].source.length);
+    }
+
+    playlists.forEach((playlist, index) => {
+        playlist.addEventListener("click", () => {
+            console.log(playlist.dataset.source);
+            playlistId = index;
+            playlistMain.style.display = "block";
+            main.style.display = "none";
+            updatePlaylistInfo();
+        });
     });
 </script>
+<style>
+    #cover{
+        width: 10rem;
+        height: 10rem;
+    }
+</style>
