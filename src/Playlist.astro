@@ -1,14 +1,21 @@
-<div id="playlistMain">
-    <button id="backButton">Back</button>
-    <div>
-        <img id="cover" src=>
-        <h1 id="playlistTitle"></h1>
-        <div style="display: flex; flex-direction: row; gap: 5%;"><p id="author"></p><p id="playlistLength">Playlist length</p></div>
-        <ol id="songs">
-        </ol>
+---
+import { ViewTransitions } from 'astro:transitions';
+---
+
+<>
+    <div id="playlistMain">
+        <button id="backButton">Back</button>
+        <div>
+            <img id="cover" src=>
+            <h1 id="playlistTitle"></h1>
+            <div style="display: flex; flex-direction: row; gap: 5%;"><p id="author"></p><p id="playlistLength">Playlist length</p></div>
+            <ol id="songs">
+            </ol>
+        </div>
     </div>
-</div>
-<script>
+    <ViewTransitions />
+</head>
+    <script>
     const playlistsData = [
         {
             "title": "Boruwa Originals",
@@ -18,12 +25,12 @@
                 {
                     "title": "Song 1",
                     "artist": "Artist 1",
-                    "source": "kebsonken.mp3"
+                    "source": "./kebsonken.mp3"
                 },
                 {
                     "title": "Song 2",
                     "artist": "Artist 2",
-                    "source": "kebsonken.mp3"
+                    "source": "./kebsonken.mp3"
                 }
             ]
         },
@@ -35,12 +42,12 @@
                 {
                     "title": "Song 3",
                     "artist": "Artist 3",
-                    "source": "kebsonken.mp3"
+                    "source": "./kebsonken.mp3"
                 },
                 {
                     "title": "Song 4",
                     "artist": "Artist 4",
-                    "source": "kebsonken.mp3"
+                    "source": "./kebsonken.mp3"
                 }
             ]
         },
@@ -52,12 +59,12 @@
                 {
                     "title": "Song 5",
                     "artist": "Artist 5",
-                    "source": "kebsonken.mp3"
+                    "source": "./kebsonken.mp3"
                 },
                 {
                     "title": "Song 6",
                     "artist": "Artist 6",
-                    "source": "kebsonken.mp3"
+                    "source": "./kebsonken.mp3"
                 }
             ]
         },
@@ -79,7 +86,8 @@
             ]
         }
     ];
-    
+    let songPlayBtns = document.querySelectorAll("#playSong");
+    console.log(songPlayBtns);
     let backButton = document.getElementById("backButton") as HTMLElement;
     let playlists = document.querySelectorAll("#song") as NodeListOf<HTMLElement>;
     let cover = document.getElementById("cover") as HTMLImageElement;
@@ -101,14 +109,29 @@
 
     import { RxPlay, RxPause } from 'react-icons/rx';
 
-    function updatePlaylistInfo() {
+    function formatDuration(durationInSeconds: number) {
+        const minutes = Math.floor(durationInSeconds / 60);
+        const seconds = Math.floor(durationInSeconds % 60);
+        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+
+    async function updatePlaylistInfo() {
         cover.src = playlistsData[playlistId].img;
         playlistTitle.textContent = playlistsData[playlistId].title;
         author.textContent = playlistsData[playlistId].author;
-        songsContainer.innerHTML = playlistsData[playlistId].songs.map((song) => {
-            return `<button id="play"><RxPlay />Play<RxPause /></button><li>${song.title} - ${song.artist} - Length: ${song.source.length}</li>`;
-        }).join("");
-        console.log(playlistsData[playlistId].songs[1].source.length);
+
+        const promises = playlistsData[playlistId].songs.map((song) => {
+            return new Promise((resolve) => {
+                const audio = new Audio(song.source);
+                audio.addEventListener('loadedmetadata', () => {
+                    resolve(`<button id="playSong" data-source=${song.source}><RxPlay />Play<RxPause /></button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audio.duration)}</li>`);
+                });
+                audio.preload = 'metadata';
+            });
+        });
+
+        const songHTMLArray = await Promise.all(promises);
+        songsContainer.innerHTML = songHTMLArray.join("");
     }
 
     playlists.forEach((playlist, index) => {
@@ -117,6 +140,7 @@
             playlistId = index;
             playlistMain.style.display = "block";
             main.style.display = "none";
+            // window.location.href = "/playlist/" + playlistId;
             updatePlaylistInfo();
         });
     });
@@ -125,5 +149,28 @@
     #cover{
         width: 10rem;
         height: 10rem;
+        border-radius: 1rem;
     }
+    #playlistMain{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+    }
+    #playlistMain div{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    #playlistMain div p{
+        margin: 0;
+    }
+    #playlistMain div p:first-child{
+        font-size: 1.5rem;
+    }
+    #playlistMain div p:last-child{
+        font-size: 1rem;
+    }
+
 </style>

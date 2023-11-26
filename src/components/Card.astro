@@ -26,7 +26,7 @@ const { title, author, source, img, playlistId } = Astro.props;
 <script>
 	const playButtons = document.querySelectorAll('#playButton');
 	const linkCards = document.getElementsByClassName('link-card');
-	playButtons.forEach((button) => {
+	playButtons.forEach(button => {
 		button.firstChild.style.display = 'block';
 		button.lastChild.style.display = 'none';
 
