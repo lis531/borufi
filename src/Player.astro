@@ -27,7 +27,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         <button id="mute"><BsVolumeDown /><BsVolumeUp /><BsVolumeMute /></button>
         <input type="range" id="volume-slider" min="0" max="100" value="50">
     </div>
-    <audio src="" preload="metadata">
+    <audio id="audio" src="" preload="metadata">
 </div>
 
 <script>
@@ -38,7 +38,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     let currentTime = document.getElementById("current-time");
     let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
     let durationTime = document.getElementById("duration");
-    let audio = document.getElementsByTagName("audio")[0];
+    let audio = document.getElementById("audio");
     let muteBtn = document.getElementById("mute");
     let volume = document.getElementById("volume");
     let currentVolume = document.getElementById("volume-slider") as HTMLInputElement;
