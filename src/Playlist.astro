@@ -1,5 +1,6 @@
 ---
-import { ViewTransitions } from 'astro:transitions';
+// import { ViewTransitions } from 'astro:transitions';
+import { RxPlay, RxPause } from 'react-icons/rx';
 ---
 
 <>
@@ -8,12 +9,13 @@ import { ViewTransitions } from 'astro:transitions';
         <div>
             <img id="cover" src=>
             <h1 id="playlistTitle"></h1>
+            <button id="playPlaylist"><RxPlay/><RxPause/></button>
             <div style="display: flex; flex-direction: row; gap: 5%;"><p id="author"></p><p id="playlistLength">Playlist length</p></div>
             <ol id="songs">
             </ol>
         </div>
     </div>
-    <ViewTransitions />
+    <!-- <ViewTransitions /> -->
 </head>
     <script>
     const playlistsData = [
@@ -97,6 +99,7 @@ import { ViewTransitions } from 'astro:transitions';
     let songsContainer = document.getElementById("songs") as HTMLElement;
     let playlistMain = document.getElementById("playlistMain") as HTMLElement;
     let main = document.getElementById("main") as HTMLElement;
+    let playPlaylist = document.getElementById("playPlaylist") as HTMLElement;
     
     let playlistId = 0;
     playlistMain.style.display = "none";
@@ -115,25 +118,50 @@ import { ViewTransitions } from 'astro:transitions';
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     }
 
-    async function updatePlaylistInfo() {
+    // async function updatePlaylistInfo() {
+    //     cover.src = playlistsData[playlistId].img;
+    //     playlistTitle.textContent = playlistsData[playlistId].title;
+    //     author.textContent = playlistsData[playlistId].author;
+
+    //     const promises = playlistsData[playlistId].songs.map((song) => {
+    //         return new Promise((resolve) => {
+    //             const audio = new Audio(song.source);
+    //             audio.addEventListener('loadedmetadata', () => {
+    //                 resolve(`<button id="playSong" data-source=${song.source}><RxPlay />Play<RxPause /></button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audio.duration)}</li>`);
+    //             });
+    //             audio.preload = 'metadata';
+    //         });
+    //     });
+
+    //     const songHTMLArray = await Promise.all(promises);
+    //     songsContainer.innerHTML = songHTMLArray.join("");
+    // }
+
+    function updatePlaylistInfo() {
         cover.src = playlistsData[playlistId].img;
         playlistTitle.textContent = playlistsData[playlistId].title;
         author.textContent = playlistsData[playlistId].author;
-
-        const promises = playlistsData[playlistId].songs.map((song) => {
-            return new Promise((resolve) => {
-                const audio = new Audio(song.source);
-                audio.addEventListener('loadedmetadata', () => {
-                    resolve(`<button id="playSong" data-source=${song.source}><RxPlay />Play<RxPause /></button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audio.duration)}</li>`);
+        songsContainer.innerHTML = "";
+        playlistsData[playlistId].songs.map((song) => {
+            const audio = new Audio(song.source);
+            audio.load();
+            audio.addEventListener('loadedmetadata', () => {
+                songsContainer.innerHTML += `<button id="playSong" data-source='${song.source}'><RxPlay />Play<RxPause /></button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audio.duration)}</li>`;
+            });
+            let playSongBtns = document.querySelectorAll("#playSong");
+            playSongBtns.forEach((playSongBtn) => {
+                playSongBtn.addEventListener("click", () => {
+                    console.log("ben");
+                    const audio = new Audio(playSongBtn.dataset.source);
+                    audio.play();
                 });
-                audio.preload = 'metadata';
             });
         });
-
-        const songHTMLArray = await Promise.all(promises);
-        songsContainer.innerHTML = songHTMLArray.join("");
     }
-
+    playPlaylist.addEventListener("click", () => {
+        const audio = new Audio(playlistsData[playlistId].songs[0].source);
+        audio.play();
+    });
     playlists.forEach((playlist, index) => {
         playlist.addEventListener("click", () => {
             console.log(playlist.dataset.source);
