@@ -119,13 +119,13 @@ import { RxPlay, RxPause } from 'react-icons/rx';
     }
 
     const audio = document.getElementById("audio") as HTMLAudioElement;
-    const
+
     function playSong(source: string) {
         if(audio.src != source)
         {
             audio.src = source;
         }
-        if()
+        if(audio.paused)
         {
             audio.play();
             console.log("Playing");

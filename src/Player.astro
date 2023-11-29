@@ -304,47 +304,6 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         });
     }
 
-<<<<<<< Updated upstream
-=======
-    songPlayBtns.forEach((button) => {
-        if (button instanceof HTMLElement && button.firstChild instanceof HTMLElement && button.lastChild instanceof HTMLElement && button.dataset.source && audio instanceof HTMLAudioElement) {
-            button.addEventListener("click", () => {
-                if (button instanceof HTMLElement && button.firstChild instanceof HTMLElement && button.lastChild instanceof HTMLElement && button.dataset.source && audio instanceof HTMLAudioElement){
-                    console.log(button.dataset.source);
-                    removeClasses();
-                    const parentElement = button.parentElement?.parentElement?.parentElement;
-                    if (parentElement) {
-                        parentElement.classList.add("active");
-                    }
-                    if(button.dataset.source != audio.src.split("/").pop()){
-                        changeSong(button.dataset.source)
-                        button.firstChild.style.display = 'none';
-                        button.lastChild.style.display = 'block';
-                        audio.play();
-                    } else {
-                        if(audio.paused){
-                            button.firstChild.style.display = 'none';
-                            button.lastChild.style.display = 'block';
-                            changeState();
-                            audio.play();
-                        } else {
-                            button.firstChild.style.display = 'block';
-                            button.lastChild.style.display = 'none';
-                            changeState();
-                            audio.pause();
-                        }
-                    }
-                }
-            });
-            if(button.dataset.source != audio.src){
-                console.log(button.dataset.source);
-                button.firstChild.style.display = 'block';
-                button.lastChild.style.display = 'none';
-            }
-        }
-    });
-
->>>>>>> Stashed changes
     cardPlayBtns.forEach((button) => {
         if (button instanceof HTMLElement && button.firstChild instanceof HTMLElement && button.lastChild instanceof HTMLElement && button.dataset.source && audio instanceof HTMLAudioElement) {
             button.addEventListener("click", (event) => {
