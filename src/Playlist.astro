@@ -119,15 +119,21 @@ import { RxPlay, RxPause } from 'react-icons/rx';
     }
 
     const audio = document.getElementById("audio") as HTMLAudioElement;
+    const
     function playSong(source: string) {
         if(audio.src != source)
         {
             audio.src = source;
         }
-        if(audio.paused)
+        if()
+        {
             audio.play();
-        else
+            console.log("Playing");
+        }
+        else{
             audio.pause();
+            console.log("Playing2");
+        }
     }
 
     function updatePlaylistInfo() {
@@ -150,8 +156,12 @@ import { RxPlay, RxPause } from 'react-icons/rx';
         });
     }
     playPlaylist.addEventListener("click", () => {
-        const audio = new Audio(playlistsData[playlistId].songs[0].source);
-        audio.play();
+        audio.src = (playlistsData[playlistId].songs[0].source);
+        if(audio.paused){
+            audio.play();
+        } else{
+            audio.pause();
+        }
     });
     playlists.forEach((playlist, index) => {
         playlist.addEventListener("click", () => {

@@ -42,8 +42,6 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     let muteBtn = document.getElementById("mute");
     let volume = document.getElementById("volume");
     let currentVolume = document.getElementById("volume-slider") as HTMLInputElement;
-    let songPlayBtns = document.querySelectorAll("#playSong");
-    console.log(songPlayBtns);
 
     seekSlider.setAttribute("disabled", "true");
     playBtn.setAttribute("disabled", "true");
@@ -299,40 +297,6 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         });
     }
 
-    songPlayBtns.forEach((button) => {
-        if (button instanceof HTMLElement) {
-            button.addEventListener("click", () => {
-                console.log(button.dataset.source);
-                removeClasses();
-                button.parentElement.parentElement.parentElement.classList.add("active");
-                if(button.dataset.source != audio.src.split("/").pop()){
-                    changeSong(button.dataset.source)
-                    button.firstChild.style.display = 'none';
-                    button.lastChild.style.display = 'block';
-                    audio.play();
-                } else {
-                    if(audio.paused){
-                        button.firstChild.style.display = 'none';
-                        button.lastChild.style.display = 'block';
-                        changeState();
-                        audio.play();
-                    } else {
-                        button.firstChild.style.display = 'block';
-                        button.lastChild.style.display = 'none';
-                        changeState();
-                        audio.pause();
-                    }
-                }
-            });
-            if(button.dataset.source != audio.src){
-                console.log(button.dataset.source);
-
-                button.firstChild.style.display = 'block';
-                button.lastChild.style.display = 'none';
-            }
-        }
-    });
-
     cardPlayBtns.forEach((button) => {
         if (button instanceof HTMLElement) {
             button.addEventListener("click", (event) => {
@@ -363,6 +327,24 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
                 button.firstChild.style.display = 'block';
 				button.lastChild.style.display = 'none';
             }
+        }
+    });
+
+    audio?.addEventListener("play", () => {
+        if(playBtn){
+            const firstChild = playBtn.firstChild as HTMLElement;
+            const lastChild = playBtn.lastChild as HTMLElement;
+            firstChild.style.display = "none";
+            lastChild.style.display = "block";
+        }
+    });
+
+    audio?.addEventListener("pause", () => {
+        if(playBtn){
+            const firstChild = playBtn.firstChild as HTMLElement;
+            const lastChild = playBtn.lastChild as HTMLElement;
+            firstChild.style.display = "block";
+            lastChild.style.display = "none";
         }
     });
 </script>
