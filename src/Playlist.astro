@@ -146,10 +146,10 @@ import { RxPlay, RxPause } from 'react-icons/rx';
             audio.load();
             audio.addEventListener('loadedmetadata', () => {
                 songsContainer.innerHTML += `<button id="playSong" data-source='${song.source}'><RxPlay />Play<RxPause /></button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audio.duration)}</li>`;
-                let playSongBtns = document.querySelectorAll("#playSong");
+                let playSongBtns = document.querySelectorAll("#playSong") as NodeListOf<HTMLButtonElement>;
                 playSongBtns.forEach((playSongBtn) => {
                     playSongBtn.addEventListener("click", () => {
-                        playSong(playSongBtn.dataset.source);
+                        playSong(playSongBtn.dataset.source ?? "");
                     });
                 });
             });

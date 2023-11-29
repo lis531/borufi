@@ -27,9 +27,10 @@ const { title, author, source, img, playlistId } = Astro.props;
 	const playButtons = document.querySelectorAll('#playButton');
 	const linkCards = document.getElementsByClassName('link-card');
 	playButtons.forEach(button => {
-		button.firstChild.style.display = 'block';
-		button.lastChild.style.display = 'none';
-
+		if(button.firstChild instanceof HTMLButtonElement && button.lastChild instanceof HTMLButtonElement) {
+			button.firstChild.style.display = 'block';
+			button.lastChild.style.display = 'none';
+		}
 	});
 	Array.from(linkCards).forEach((card: Element) => {
 		const button = card.querySelector('#playButton');

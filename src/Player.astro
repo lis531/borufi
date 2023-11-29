@@ -44,22 +44,26 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     let currentVolume = document.getElementById("volume-slider") as HTMLInputElement;
 
     seekSlider.setAttribute("disabled", "true");
-    playBtn.setAttribute("disabled", "true");
+    if(playBtn){
+        playBtn.setAttribute("disabled", "true");
+    }
 
     const changeSong = (sourceLink:any) => {
-        if(sourceLink == null || sourceLink == "" || sourceLink == undefined){
-            console.log("No audio source found");
-            seekSlider.setAttribute("disabled", "true");
-            playBtn?.setAttribute("disabled", "true");
-            audio.src = "null";
-            changeState(true);
-            calTime;
-        } else if (sourceLink != audio.src){
-            seekSlider.removeAttribute("disabled");
-            playBtn?.removeAttribute("disabled");
-            audio.src = sourceLink;
-            audio.load();
-            changeState();
+        if(audio instanceof HTMLAudioElement && playBtn instanceof HTMLElement){
+            if(sourceLink == null || sourceLink == "" || sourceLink == undefined){
+                console.log("No audio source found");
+                seekSlider.setAttribute("disabled", "true");
+                playBtn.setAttribute("disabled", "true");
+                audio.setAttribute("src", "null");
+                changeState(true);
+                calTime;
+            } else if (sourceLink != audio.src){
+                seekSlider.removeAttribute("disabled");
+                playBtn.removeAttribute("disabled");
+                audio.setAttribute("src", sourceLink);
+                audio.load();
+                changeState();
+            }
         }
     };
 
@@ -72,14 +76,14 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     //     }
     // }
 
-    const displayDuration = (timeElapsed: number, duration = null) =>{
+    const displayDuration = (timeElapsed: number, duration = 0) =>{
         if (currentTime) {
             currentTime.innerHTML = calculateTime(timeElapsed);
         }
-        if (durationTime && duration !== null) {
+        if (durationTime && duration !== 0) {
             durationTime.innerHTML = calculateTime(duration);
         }
-        seekSlider.value = 0;
+        seekSlider.value = "0";
     }
 
     const calculateTime = (secs: number) =>{
@@ -97,7 +101,7 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     }
 
     const changeState = (isNull: boolean = false) => {
-        if(playBtn){
+        if(playBtn && audio instanceof HTMLAudioElement && currentTime && durationTime){
             const firstChild = playBtn.firstChild as HTMLElement;
             const lastChild = playBtn.lastChild as HTMLElement;
             if(audio.paused && !isNull){
@@ -114,10 +118,12 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         }
     }
     currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
-    audio.volume = currentVolume.value / 200;
+    if(audio instanceof HTMLAudioElement){
+        audio.volume = Number(currentVolume.value) / 200;
+    }
     const changeVolume = () =>{
-        if (audio) {
-            audio.volume = currentVolume.value / 200;
+        if (audio instanceof HTMLAudioElement) {
+            audio.volume = Number(currentVolume.value) / 200;
         }
     }
 
@@ -125,12 +131,12 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     let lastVolume = 0;
     muteBtn?.addEventListener("click", () => {
         if(turned){
-            lastVolume = currentVolume.value;
+            lastVolume = Number(currentVolume.value);
             currentVolume.value = "0";
             if (muteBtn) {
-                const firstChild = muteBtn.firstChild as HTMLElement | null;
-                const secondChild = muteBtn.children[1] as HTMLElement | null;
-                const lastChild = muteBtn.lastChild as HTMLElement | null;
+                const firstChild = muteBtn.firstChild as HTMLElement;
+                const secondChild = muteBtn.children[1] as HTMLElement;
+                const lastChild = muteBtn.lastChild as HTMLElement;
                 firstChild.style.display = "none";
                 secondChild.style.display = "none";
                 lastChild.style.display = "block";
@@ -139,9 +145,9 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         } else {
             currentVolume.value = lastVolume.toString();
             if (muteBtn && currentVolume.value != "0") {
-                const firstChild = muteBtn.firstChild as HTMLElement | null;
-                const secondChild = muteBtn.children[1] as HTMLElement | null;
-                const lastChild = muteBtn.lastChild as HTMLElement | null;
+                const firstChild = muteBtn.firstChild as HTMLElement;
+                const secondChild = muteBtn.children[1] as HTMLElement;
+                const lastChild = muteBtn.lastChild as HTMLElement;
                 if(lastVolume > 75){
                     firstChild.style.display = "none";
                     secondChild.style.display = "block";
@@ -162,45 +168,40 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     });
 
     currentVolume.addEventListener("input", () => {
-        if (volume) {
-            audio.volume = currentVolume.value / 200;
-            const firstChild = muteBtn.firstChild as HTMLElement | null;
-            const secondChild = muteBtn.children[1] as HTMLElement | null;
-            const lastChild = muteBtn.lastChild as HTMLElement | null;
-            if(currentVolume.value > 75){
-                if (muteBtn) {
-                    firstChild.style.display = "none";
-                    secondChild.style.display = "block";
-                    lastChild.style.display = "none";
-                }
-            } else if(currentVolume.value > 0){
-                if (muteBtn) {
-                    firstChild.style.display = "block";
-                    secondChild.style.display = "none";
-                    lastChild.style.display = "none";
-                }
+        if (volume && muteBtn && audio instanceof HTMLAudioElement) {
+            audio.volume = Number(currentVolume.value) / 200;
+            const firstChild = muteBtn.firstChild as HTMLElement;
+            const secondChild = muteBtn.children[1] as HTMLElement;
+            const lastChild = muteBtn.lastChild as HTMLElement;
+            if(Number(currentVolume.value) > 75){
+                firstChild.style.display = "none";
+                secondChild.style.display = "block";
+                lastChild.style.display = "none";
+            } else if(Number(currentVolume.value) > 0){
+                firstChild.style.display = "block";
+                secondChild.style.display = "none";
+                lastChild.style.display = "none";
             } else {
-                if (muteBtn) {
-                    firstChild.style.display = "none";
-                    secondChild.style.display = "none";
-                    lastChild.style.display = "block";
-                }
+                firstChild.style.display = "none";
+                secondChild.style.display = "none";
+                lastChild.style.display = "block";
             }
             currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
             volume.innerHTML = currentVolume.value.toString();
         }
     });
-
-    audio.addEventListener("loadedmetadata", () => {
-        if (durationTime) {
-            displayDuration(audio.currentTime, audio.duration);
-        }
-    });
-
+    if(audio){
+        audio.addEventListener("loadedmetadata", () => {
+            if(audio instanceof HTMLAudioElement){
+                displayDuration(audio.currentTime, audio.duration);
+            }
+        });
+    }
+        
     playBtn?.addEventListener("click", () => {
         changeState();
         cardPlayBtns.forEach(button => {
-            if (button instanceof HTMLElement) {
+            if (button.lastChild instanceof HTMLElement && button.firstChild instanceof HTMLAudioElement && audio instanceof HTMLAudioElement) {
                 if(audio.paused){
                     button.firstChild.style.display = 'block';
                     button.lastChild.style.display = 'none';
@@ -215,46 +216,49 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
 
     let tempValue = 0;
     seekSlider?.addEventListener("input", () => {
-        if (audio) {
-            tempValue = seekSlider.value;
+        if (audio && currentTime) {
+            tempValue = Number(seekSlider.value);
             seekSlider.style.setProperty('--seek-before-width', `${(Number(seekSlider.value) / Number(seekSlider.max)) * 100}%`);
             currentTime.innerHTML = calculateTime(tempValue);
         }
     });
     
     seekSlider?.addEventListener("change", () => {
-        if (audio) {
-            audio.currentTime = audio.duration * (seekSlider.value / seekSlider.max);
+        if (audio instanceof HTMLAudioElement) {
+            audio.currentTime = audio.duration * (Number(seekSlider.value) / Number(seekSlider.max));
             seekSlider.style.setProperty('--seek-before-width', `${(Number(seekSlider.value) / Number(seekSlider.max)) * 100}%`);
             tempValue = 0;
         }
     });
 
     currentVolume?.addEventListener("change", () => {
-        lastVolume = currentVolume.value;
+        lastVolume = Number(currentVolume.value);
         turned != turned;
         changeVolume();
     });
 
     const calTime = setInterval(() => {
-        if (durationTime && tempValue == 0) {
+        if(audio instanceof HTMLAudioElement){
+            if (durationTime && tempValue == 0) {
             displayDuration(audio.currentTime);
-            seekSlider.value = audio.currentTime;
+            seekSlider.value = audio.currentTime.toString();
             seekSlider.style.setProperty('--seek-before-width', `${(Number(seekSlider.value) / Number(seekSlider.max)) * 100}%`);
-            if(isNaN(seekSlider.max)){
+            if(isNaN(Number(seekSlider.max))){
                 seekSlider.max = "0";
             }
             else{
                 seekSlider.max = Math.floor(audio.duration).toString();
             }
-        }
-        else if(audio.ended && randomTurned){
-            playNextSong();
+            }
+            else if(audio.ended && randomTurned){
+                // playNextSong();
+            }
         }
     }, 1000);
 
     let loopTurned = false;
     loopBtn?.addEventListener("click", () => {
+        if(audio instanceof HTMLAudioElement)
         if (loopTurned) {
             audio.loop = false;
             loopBtn?.classList.remove("on");
@@ -278,14 +282,17 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
     const removeClasses = () => {
         cardPlayBtns.forEach((button) => {
             if (button instanceof HTMLElement) {
-                button.parentElement.parentElement.parentElement.classList.remove("active");
+                const parentElement = button.parentElement?.parentElement?.parentElement;
+                if (parentElement) {
+                    parentElement.classList.remove("active");
+                }
             }
         });
     }
     
     const checkBtns = () =>{
         cardPlayBtns.forEach((button) => {
-            if (button instanceof HTMLElement) {
+            if (button.firstChild instanceof HTMLElement && button.lastChild instanceof HTMLElement && button instanceof HTMLElement && audio instanceof HTMLAudioElement) {
                 if(button.dataset.source != audio.src.split("/").pop()){
                     button.firstChild.style.display = 'block';
                     button.lastChild.style.display = 'none';
@@ -297,28 +304,73 @@ import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from
         });
     }
 
-    cardPlayBtns.forEach((button) => {
-        if (button instanceof HTMLElement) {
-            button.addEventListener("click", (event) => {
-                removeClasses();
-                button.parentElement.parentElement.parentElement.classList.add("active");
-                if(button.dataset.source != audio.src.split("/").pop()){
-                    changeSong(button.dataset.source)
-                    button.firstChild.style.display = 'none';
-				    button.lastChild.style.display = 'block';
-                    audio.play();
-                    checkBtns();
-                } else {
-                    if(audio.paused){
+<<<<<<< Updated upstream
+=======
+    songPlayBtns.forEach((button) => {
+        if (button instanceof HTMLElement && button.firstChild instanceof HTMLElement && button.lastChild instanceof HTMLElement && button.dataset.source && audio instanceof HTMLAudioElement) {
+            button.addEventListener("click", () => {
+                if (button instanceof HTMLElement && button.firstChild instanceof HTMLElement && button.lastChild instanceof HTMLElement && button.dataset.source && audio instanceof HTMLAudioElement){
+                    console.log(button.dataset.source);
+                    removeClasses();
+                    const parentElement = button.parentElement?.parentElement?.parentElement;
+                    if (parentElement) {
+                        parentElement.classList.add("active");
+                    }
+                    if(button.dataset.source != audio.src.split("/").pop()){
+                        changeSong(button.dataset.source)
                         button.firstChild.style.display = 'none';
                         button.lastChild.style.display = 'block';
-                        changeState();
                         audio.play();
                     } else {
-                        button.firstChild.style.display = 'block';
-                        button.lastChild.style.display = 'none';
-                        changeState();
-                        audio.pause();
+                        if(audio.paused){
+                            button.firstChild.style.display = 'none';
+                            button.lastChild.style.display = 'block';
+                            changeState();
+                            audio.play();
+                        } else {
+                            button.firstChild.style.display = 'block';
+                            button.lastChild.style.display = 'none';
+                            changeState();
+                            audio.pause();
+                        }
+                    }
+                }
+            });
+            if(button.dataset.source != audio.src){
+                console.log(button.dataset.source);
+                button.firstChild.style.display = 'block';
+                button.lastChild.style.display = 'none';
+            }
+        }
+    });
+
+>>>>>>> Stashed changes
+    cardPlayBtns.forEach((button) => {
+        if (button instanceof HTMLElement && button.firstChild instanceof HTMLElement && button.lastChild instanceof HTMLElement && button.dataset.source && audio instanceof HTMLAudioElement) {
+            button.addEventListener("click", (event) => {
+                removeClasses();
+                if (button instanceof HTMLElement && button.firstChild instanceof HTMLElement && button.lastChild instanceof HTMLElement && button.dataset.source && audio instanceof HTMLAudioElement) {
+                    if (button.parentElement?.parentElement?.parentElement) {
+                        button.parentElement.parentElement.parentElement.classList.add("active");
+                    }
+                    if(button.dataset.source != audio.src.split("/").pop()){
+                        changeSong(button.dataset.source)
+                        button.firstChild.style.display = 'none';
+				        button.lastChild.style.display = 'block';
+                        audio.play();
+                        checkBtns();
+                    } else {
+                        if(audio.paused){
+                            button.firstChild.style.display = 'none';
+                            button.lastChild.style.display = 'block';
+                            changeState();
+                            audio.play();
+                        } else {
+                            button.firstChild.style.display = 'block';
+                            button.lastChild.style.display = 'none';
+                            changeState();
+                            audio.pause();
+                        }
                     }
                 }
                 event.stopPropagation();
