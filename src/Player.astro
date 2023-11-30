@@ -111,7 +111,7 @@ export let playerState = {
         playerState.randomTurned = !playerState.randomTurned;
     });
 */
-    // import { playerState } from './Player.astro';
+    import { playerState } from './Player.astro';
 
     let cardPlayBtns = document.querySelectorAll("#playButton");
     let playBtn = document.getElementById("play") as HTMLButtonElement;
@@ -333,27 +333,26 @@ export let playerState = {
         }
     }, 1000);
 
-    let loopTurned = false;
+    // loopBtn?.addEventListener("click", () => {
+    //     if (loopTurned) {
+    //         audio.loop = false;
+    //         loopBtn?.classList.remove("on");
+    //     } else if (!loopTurned){
+    //         audio.loop = true;
+    //         loopBtn?.classList.add("on");
+    //     }
+    //     loopTurned = !loopTurned;
+    // });
     loopBtn?.addEventListener("click", () => {
-        if(audio instanceof HTMLAudioElement)
-        if (loopTurned) {
-            audio.loop = false;
-            loopBtn?.classList.remove("on");
-        } else if (!loopTurned){
-            audio.loop = true;
-            loopBtn?.classList.add("on");
-        }
-        loopTurned = !loopTurned;
+        playerState.isLooping = !playerState.isLooping;
+        console.log(playerState.isLooping);
+        audio.loop = playerState.isLooping;
+        playerState.isLooping ? loopBtn?.classList.add("on") : loopBtn?.classList.remove("on");
     });
 
-    let randomTurned = false;
     randomBtn?.addEventListener("click", () => {
-        if (randomTurned) {
-            randomBtn?.classList.remove("on");
-        } else if (!randomTurned){
-            randomBtn?.classList.add("on");
-        }
-        randomTurned = !randomTurned;
+        randomBtn?.classList.toggle("on");
+        playerState.isShuffling = !playerState.isShuffling;
     });
 
     const removeClasses = () => {
@@ -409,26 +408,6 @@ export let playerState = {
                 button.firstChild.style.display = 'block';
 				button.lastChild.style.display = 'none';
             }
-    });
-
-    audio?.addEventListener("play", () => {
-        if(playBtn){
-            console.log("play");
-            const firstChild = playBtn.firstChild as HTMLElement;
-            const lastChild = playBtn.lastChild as HTMLElement;
-            firstChild.style.display = "none";
-            lastChild.style.display = "block";
-        }
-    });
-
-    audio?.addEventListener("pause", () => {
-        if(playBtn){
-            console.log("pause");
-            const firstChild = playBtn.firstChild as HTMLElement;
-            const lastChild = playBtn.lastChild as HTMLElement;
-            firstChild.style.display = "block";
-            lastChild.style.display = "none";
-        }
     });
 </script>
 <style>
