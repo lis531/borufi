@@ -2,11 +2,11 @@
 import { BsVolumeDown, BsVolumeMute, BsVolumeUp } from 'react-icons/bs';
 import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from 'react-icons/rx';
 
-// Player.astro
 export let playerState = {
     isPlaying: false,
     isLooping: false,
     isShuffling: false,
+    isMuted: false,
     audioSource: "",
 };
 ---
@@ -207,42 +207,30 @@ export let playerState = {
 
     let turned = true;
     let lastVolume = 0;
-    muteBtn?.addEventListener("click", () => {
-        if(turned){
-            lastVolume = Number(currentVolume.value);
-            currentVolume.value = "0";
-            if (muteBtn) {
-                const firstChild = muteBtn.firstChild as HTMLElement;
-                const secondChild = muteBtn.children[1] as HTMLElement;
-                const lastChild = muteBtn.lastChild as HTMLElement;
-                firstChild.style.display = "none";
-                secondChild.style.display = "none";
-                lastChild.style.display = "block";
-            }
-            currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
-        } else {
-            currentVolume.value = lastVolume.toString();
-            if (muteBtn && currentVolume.value != "0") {
-                const firstChild = muteBtn.firstChild as HTMLElement;
-                const secondChild = muteBtn.children[1] as HTMLElement;
-                const lastChild = muteBtn.lastChild as HTMLElement;
-                if(lastVolume > 75){
-                    firstChild.style.display = "none";
-                    secondChild.style.display = "block";
-                    lastChild.style.display = "none";
-                } else {
-                    firstChild.style.display = "block";
-                    secondChild.style.display = "none";
-                    lastChild.style.display = "none";
-                }
-            }
-            currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
-        }
-        if(volume) {
-            volume.innerHTML = currentVolume.value.toString();
-            changeVolume();
-        }
-        turned = !turned;
+    /*
+        muteBtn?.addEventListener("click", () => {
+        playerState.lastVolume = Number(currentVolume.value);
+        currentVolume.value = playerState.turned ? "0" : playerState.lastVolume.toString();
+
+        const [firstChild, secondChild, lastChild] = muteBtn.children as HTMLElement[];
+        firstChild.style.display = playerState.turned ? "none" : "block";
+        secondChild.style.display = "none";
+        lastChild.style.display = playerState.turned ? "block" : "none";
+
+        currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
+    });
+    */
+        muteBtn?.addEventListener("click", () => {
+        lastVolume = Number(currentVolume.value);
+        currentVolume.value = playerState.isMuted ? "0" : lastVolume.toString();
+
+        const muteBtnChildren = muteBtn ? Array.from(muteBtn.children) as HTMLElement[] : [];
+        const [firstChild, secondChild, lastChild] = muteBtnChildren;
+        firstChild.style.display = playerState.isMuted ? "none" : "block";
+        secondChild.style.display = "none";
+        lastChild.style.display = playerState.isMuted ? "block" : "none";
+
+        currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
     });
 
     currentVolume.addEventListener("input", () => {
@@ -333,21 +321,10 @@ export let playerState = {
         }
     }, 1000);
 
-    // loopBtn?.addEventListener("click", () => {
-    //     if (loopTurned) {
-    //         audio.loop = false;
-    //         loopBtn?.classList.remove("on");
-    //     } else if (!loopTurned){
-    //         audio.loop = true;
-    //         loopBtn?.classList.add("on");
-    //     }
-    //     loopTurned = !loopTurned;
-    // });
     loopBtn?.addEventListener("click", () => {
-        playerState.isLooping = !playerState.isLooping;
-        console.log(playerState.isLooping);
+        loopBtn?.classList.toggle("on")
         audio.loop = playerState.isLooping;
-        playerState.isLooping ? loopBtn?.classList.add("on") : loopBtn?.classList.remove("on");
+        playerState.isLooping = !playerState.isLooping;
     });
 
     randomBtn?.addEventListener("click", () => {
