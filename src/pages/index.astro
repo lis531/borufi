@@ -3,13 +3,11 @@ import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
 import Player from '../Player.astro';
 import Playlist from '../Playlist.astro';
-import { ViewTransitions } from "astro:transitions";
+// import { ViewTransitions } from "astro:transitions";
 ---
 
 <Layout title="Borufi">
-	<Playlist>
-		<ViewTransitions />
-	</Playlist>
+	<Playlist />
 	<head>
 		<main id="main">
 			<h1><span class="text-gradient">Borufi</span></h1>
@@ -44,7 +42,7 @@ import { ViewTransitions } from "astro:transitions";
 				/>
 			</ul>
 		</main>
-		<ViewTransitions />
+		<!-- <ViewTransitions /> -->
 	</head>
 	<Player />
 </Layout>

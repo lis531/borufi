@@ -39,12 +39,96 @@ export let playerState = {
 </div>
 
 <script>
-    /*
     import { playerState } from './Player.astro';
 
-    
+    let cardPlayBtns = document.querySelectorAll("#playButton");
+    let playBtn = document.getElementById("play") as HTMLButtonElement;
+    let loopBtn = document.getElementById("loop");
+    let randomBtn = document.getElementById("random");
+    let currentTime = document.getElementById("current-time");
+    let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
+    let durationTime = document.getElementById("duration");
+    let audio = document.getElementById("audio") as HTMLAudioElement;
+    let muteBtn = document.getElementById("mute");
+    let volume = document.getElementById("volume");
+    let currentVolume = document.getElementById("volume-slider") as HTMLInputElement;
+  
+    seekSlider.disabled = true;
+    if (playBtn) playBtn.disabled = true;
+  
+    const changeSong = (sourceLink: any) => {
+      if (playBtn instanceof HTMLElement) {
+        if (sourceLink == null || sourceLink == "" || sourceLink == undefined) {
+          console.log("No audio source found");
+          seekSlider.setAttribute("disabled", "true");
+          playBtn.setAttribute("disabled", "true");
+          audio.setAttribute("src", "null");
+          changeState(true);
+          calTime;
+        } else if (sourceLink !== audio.src) {
+          seekSlider.removeAttribute("disabled");
+          playBtn.removeAttribute("disabled");
+          audio.setAttribute("src", sourceLink);
+          audio.load();
+          changeState();
+        }
+      }
+    };
+  
+    const displayDuration = (timeElapsed: number, duration = 0) => {
+      if (currentTime) {
+        currentTime.innerHTML = calculateTime(timeElapsed);
+      }
+      if (durationTime && duration !== 0) {
+        durationTime.innerHTML = calculateTime(duration);
+      }
+      seekSlider.value = "0";
+    };
+  
+    const calculateTime = (secs: number) => {
+      const minutes = Math.floor(secs / 60);
+      const seconds = Math.floor(secs % 60);
+      if (seconds < 10) {
+        return `${minutes}:0${seconds}`;
+      } else if (seconds >= 10) {
+        return `${minutes}:${seconds}`;
+      } else {
+        return `0:00`;
+      }
+    };
+  
+    const changeState = (isNull: boolean = false) => {
+      if (playBtn && audio instanceof HTMLAudioElement && currentTime && durationTime) {
+        const firstChild = playBtn.firstChild as HTMLElement;
+        const lastChild = playBtn.lastChild as HTMLElement;
+        if (audio.paused && !isNull) {
+          audio.play();
+          firstChild.style.display = "none";
+          lastChild.style.display = "block";
+        } else {
+          audio.pause();
+          firstChild.style.display = "block";
+          lastChild.style.display = "none";
+        }
+        playerState.isPlaying = !audio.paused;
+      }
+    };
 
-    muteBtn?.addEventListener("click", () => {
+    currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
+    if(audio instanceof HTMLAudioElement){
+        audio.volume = Number(currentVolume.value) / 200;
+    }
+    const changeVolume = () =>{
+        if (audio instanceof HTMLAudioElement) {
+            audio.volume = Number(currentVolume.value) / 200;
+        }
+    }
+
+    let turned = true;
+    let lastVolume = 50;
+
+    /*
+        muteBtn?.addEventListener("click", () => {
         playerState.lastVolume = Number(currentVolume.value);
         currentVolume.value = playerState.turned ? "0" : playerState.lastVolume.toString();
 
@@ -55,6 +139,57 @@ export let playerState = {
 
         currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
     });
+    */
+   
+    muteBtn?.addEventListener("click", () => {
+        if(turned){
+            lastVolume = currentVolume.value;
+            currentVolume.value = "0";
+                const firstChild = muteBtn.firstChild as HTMLElement;
+                const secondChild = muteBtn.children[1] as HTMLElement;
+                const lastChild = muteBtn.lastChild as HTMLElement;
+                firstChild.style.display = "none";
+                secondChild.style.display = "none";
+                lastChild.style.display = "block";
+        } else {
+            currentVolume.value = lastVolume;
+            if (muteBtn && currentVolume.value != "0") {
+                const firstChild = muteBtn.firstChild as HTMLElement;
+                const secondChild = muteBtn.children[1] as HTMLElement;
+                const lastChild = muteBtn.lastChild as HTMLElement;
+                if(lastVolume > 75){
+                    firstChild.style.display = "none";
+                    secondChild.style.display = "block";
+                    lastChild.style.display = "none";
+                } else {
+                    firstChild.style.display = "block";
+                    secondChild.style.display = "none";
+                    lastChild.style.display = "none";
+                }
+            }
+        }
+        currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
+        if(volume) {
+            volume.innerHTML = currentVolume.value.toString();
+            changeVolume();
+        }
+        turned = !turned;
+    });
+        
+
+    // muteBtn?.addEventListener("click", () => {
+    //     console.log(lastVolume);
+    //     currentVolume.value = lastVolume.toString();
+    //     lastVolume = playerState.isMuted ? Number(currentVolume.value) : 0;
+
+    //     const muteBtnChildren = muteBtn ? Array.from(muteBtn.children) as HTMLElement[] : [];
+    //     const [firstChild, secondChild, lastChild] = muteBtnChildren;
+    //     firstChild.style.display = playerState.isMuted ? "none" : "block";
+    //     secondChild.style.display = "none";
+    //     lastChild.style.display = playerState.isMuted ? "block" : "none";
+    //     currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
+    //     playerState.isMuted = !playerState.isMuted;
+    // });
 
     currentVolume.addEventListener("input", () => {
         audio.volume = Number(currentVolume.value) / 200;
@@ -75,195 +210,10 @@ export let playerState = {
         currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
         volume.innerHTML = currentVolume.value.toString();
     });
-
+    
     audio?.addEventListener("loadedmetadata", () => {
-        if (audio instanceof HTMLAudioElement) {
-            displayDuration(audio.currentTime, audio.duration);
-        }
+        displayDuration(audio.currentTime, audio.duration);
     });
-
-    playBtn?.addEventListener("click", () => {
-        changeState();
-        cardPlayBtns.forEach(button => {
-            if (button.lastChild instanceof HTMLElement && button.firstChild instanceof HTMLAudioElement && audio instanceof HTMLAudioElement) {
-                if (audio.paused) {
-                    button.firstChild.style.display = 'block';
-                    button.lastChild.style.display = 'none';
-                } else {
-                    button.firstChild.style.display = 'none';
-                    button.lastChild.style.display = 'block';
-                    checkBtns();
-                }
-            }
-        });
-    });
-
-    loopBtn?.addEventListener("click", () => {
-        if (audio instanceof HTMLAudioElement) {
-            audio.loop = !playerState.loopTurned;
-            loopBtn?.classList.toggle("on");
-        }
-        playerState.loopTurned = !playerState.loopTurned;
-    });
-
-    randomBtn?.addEventListener("click", () => {
-        randomBtn?.classList.toggle("on");
-        playerState.randomTurned = !playerState.randomTurned;
-    });
-*/
-    import { playerState } from './Player.astro';
-
-    let cardPlayBtns = document.querySelectorAll("#playButton");
-    let playBtn = document.getElementById("play") as HTMLButtonElement;
-    let loopBtn = document.getElementById("loop");
-    let randomBtn = document.getElementById("random");
-    let currentTime = document.getElementById("current-time");
-    let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
-    let durationTime = document.getElementById("duration");
-    let audio = document.getElementById("audio") as HTMLAudioElement;
-    let muteBtn = document.getElementById("mute");
-    let volume = document.getElementById("volume");
-    let currentVolume = document.getElementById("volume-slider") as HTMLInputElement;
-
-    seekSlider.disabled = true;
-    if (playBtn) playBtn.disabled = true;
-
-    const changeSong = (sourceLink:any) => {
-        if(playBtn instanceof HTMLElement){
-            if(sourceLink == null || sourceLink == "" || sourceLink == undefined){
-                console.log("No audio source found");
-                seekSlider.setAttribute("disabled", "true");
-                playBtn.setAttribute("disabled", "true");
-                audio.setAttribute("src", "null");
-                changeState(true);
-                calTime;
-            } else if (sourceLink != audio.src){
-                seekSlider.removeAttribute("disabled");
-                playBtn.removeAttribute("disabled");
-                audio.setAttribute("src", sourceLink);
-                audio.load();
-                changeState();
-            }
-        }
-    };
-
-    // const playNextSong = () => {
-    //     let nextSong = document.querySelector(".active").nextElementSibling;
-    //     if (nextSong) {
-    //         changeSong(nextSong.dataset.source);
-    //         removeClasses();
-    //         nextSong.parentElement.classList.add("active");
-    //     }
-    // }    
-
-    const displayDuration = (timeElapsed: number, duration = 0) =>{
-        if (currentTime) {
-            currentTime.innerHTML = calculateTime(timeElapsed);
-        }
-        if (durationTime && duration !== 0) {
-            durationTime.innerHTML = calculateTime(duration);
-        }
-        seekSlider.value = "0";
-    }
-
-    const calculateTime = (secs: number) =>{
-        const minutes = Math.floor(secs / 60);
-        const seconds = Math.floor(secs % 60);
-        if (seconds < 10) {
-            return `${minutes}:0${seconds}`;
-        }
-        else if (seconds >= 10){
-            return `${minutes}:${seconds}`;
-        }
-        else{
-            return `0:00`;
-        }
-    }
-
-    const changeState = (isNull: boolean = false) => {
-        if(playBtn && audio instanceof HTMLAudioElement && currentTime && durationTime){
-            const firstChild = playBtn.firstChild as HTMLElement;
-            const lastChild = playBtn.lastChild as HTMLElement;
-            if(audio.paused && !isNull){
-                audio.play();
-                firstChild.style.display = "none";
-                lastChild.style.display = "block";
-            }else{
-                audio.pause();
-                firstChild.style.display = "block";
-                lastChild.style.display = "none";
-            }
-        }
-    }
-    currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
-    if(audio instanceof HTMLAudioElement){
-        audio.volume = Number(currentVolume.value) / 200;
-    }
-    const changeVolume = () =>{
-        if (audio instanceof HTMLAudioElement) {
-            audio.volume = Number(currentVolume.value) / 200;
-        }
-    }
-
-    let turned = true;
-    let lastVolume = 0;
-    /*
-        muteBtn?.addEventListener("click", () => {
-        playerState.lastVolume = Number(currentVolume.value);
-        currentVolume.value = playerState.turned ? "0" : playerState.lastVolume.toString();
-
-        const [firstChild, secondChild, lastChild] = muteBtn.children as HTMLElement[];
-        firstChild.style.display = playerState.turned ? "none" : "block";
-        secondChild.style.display = "none";
-        lastChild.style.display = playerState.turned ? "block" : "none";
-
-        currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
-    });
-    */
-        muteBtn?.addEventListener("click", () => {
-        lastVolume = Number(currentVolume.value);
-        currentVolume.value = playerState.isMuted ? "0" : lastVolume.toString();
-
-        const muteBtnChildren = muteBtn ? Array.from(muteBtn.children) as HTMLElement[] : [];
-        const [firstChild, secondChild, lastChild] = muteBtnChildren;
-        firstChild.style.display = playerState.isMuted ? "none" : "block";
-        secondChild.style.display = "none";
-        lastChild.style.display = playerState.isMuted ? "block" : "none";
-
-        currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
-    });
-
-    currentVolume.addEventListener("input", () => {
-        if (volume && muteBtn && audio instanceof HTMLAudioElement) {
-            audio.volume = Number(currentVolume.value) / 200;
-            const firstChild = muteBtn.firstChild as HTMLElement;
-            const secondChild = muteBtn.children[1] as HTMLElement;
-            const lastChild = muteBtn.lastChild as HTMLElement;
-            if(Number(currentVolume.value) > 75){
-                firstChild.style.display = "none";
-                secondChild.style.display = "block";
-                lastChild.style.display = "none";
-            } else if(Number(currentVolume.value) > 0){
-                firstChild.style.display = "block";
-                secondChild.style.display = "none";
-                lastChild.style.display = "none";
-            } else {
-                firstChild.style.display = "none";
-                secondChild.style.display = "none";
-                lastChild.style.display = "block";
-            }
-            currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
-            volume.innerHTML = currentVolume.value.toString();
-        }
-    });
-    if(audio){
-        audio.addEventListener("loadedmetadata", () => {
-            if(audio instanceof HTMLAudioElement){
-                console.log(audio.duration);
-                displayDuration(audio.currentTime, audio.duration);
-            }
-        });
-    }
         
     playBtn?.addEventListener("click", () => {
         changeState();
@@ -383,7 +333,7 @@ export let playerState = {
             });
             if(button.dataset.source != audio.src){
                 button.firstChild.style.display = 'block';
-				button.lastChild.style.display = 'none';
+		    	button.lastChild.style.display = 'none';
             }
     });
 </script>
