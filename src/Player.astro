@@ -6,8 +6,8 @@ export let playerState = {
     isPlaying: false,
     isLooping: false,
     isShuffling: false,
-    isMuted: false,
     audioSource: "",
+    currentPlaylist: ""
 };
 ---
 
@@ -40,7 +40,6 @@ export let playerState = {
 
 <script>
     import { playerState } from './Player.astro';
-
     let cardPlayBtns = document.querySelectorAll("#playButton");
     let playBtn = document.getElementById("play") as HTMLButtonElement;
     let loopBtn = document.getElementById("loop");
@@ -57,61 +56,61 @@ export let playerState = {
     if (playBtn) playBtn.disabled = true;
   
     const changeSong = (sourceLink: any) => {
-      if (playBtn instanceof HTMLElement) {
-        if (sourceLink == null || sourceLink == "" || sourceLink == undefined) {
-          console.log("No audio source found");
-          seekSlider.setAttribute("disabled", "true");
-          playBtn.setAttribute("disabled", "true");
-          audio.setAttribute("src", "null");
-          changeState(true);
-          calTime;
-        } else if (sourceLink !== audio.src) {
-          seekSlider.removeAttribute("disabled");
-          playBtn.removeAttribute("disabled");
-          audio.setAttribute("src", sourceLink);
-          audio.load();
-          changeState();
+        if (playBtn instanceof HTMLElement) {
+            if (sourceLink == null || sourceLink == "" || sourceLink == undefined) {
+                console.log("No audio source found");
+                seekSlider.setAttribute("disabled", "true");
+                playBtn.setAttribute("disabled", "true");
+                audio.setAttribute("src", "null");
+                changeState(true);
+                calTime;
+            } else if (sourceLink !== audio.src) {
+                seekSlider.removeAttribute("disabled");
+                playBtn.removeAttribute("disabled");
+                audio.setAttribute("src", sourceLink);
+                audio.load();
+                changeState();
+            }
         }
-      }
     };
   
     const displayDuration = (timeElapsed: number, duration = 0) => {
-      if (currentTime) {
-        currentTime.innerHTML = calculateTime(timeElapsed);
-      }
-      if (durationTime && duration !== 0) {
-        durationTime.innerHTML = calculateTime(duration);
-      }
-      seekSlider.value = "0";
+        if (currentTime) {
+            currentTime.innerHTML = calculateTime(timeElapsed);
+        }
+        if (durationTime && duration !== 0) {
+            durationTime.innerHTML = calculateTime(duration);
+        }
+        seekSlider.value = "0";
     };
   
     const calculateTime = (secs: number) => {
-      const minutes = Math.floor(secs / 60);
-      const seconds = Math.floor(secs % 60);
-      if (seconds < 10) {
-        return `${minutes}:0${seconds}`;
-      } else if (seconds >= 10) {
-        return `${minutes}:${seconds}`;
-      } else {
-        return `0:00`;
-      }
+        const minutes = Math.floor(secs / 60);
+        const seconds = Math.floor(secs % 60);
+        if (seconds < 10) {
+            return `${minutes}:0${seconds}`;
+        } else if (seconds >= 10) {
+            return `${minutes}:${seconds}`;
+        } else {
+            return `0:00`;
+        }
     };
   
     const changeState = (isNull: boolean = false) => {
-      if (playBtn && audio instanceof HTMLAudioElement && currentTime && durationTime) {
-        const firstChild = playBtn.firstChild as HTMLElement;
-        const lastChild = playBtn.lastChild as HTMLElement;
-        if (audio.paused && !isNull) {
-          audio.play();
-          firstChild.style.display = "none";
-          lastChild.style.display = "block";
-        } else {
-          audio.pause();
-          firstChild.style.display = "block";
-          lastChild.style.display = "none";
+        if (playBtn && audio instanceof HTMLAudioElement && currentTime && durationTime) {
+            const firstChild = playBtn.firstChild as HTMLElement;
+            const lastChild = playBtn.lastChild as HTMLElement;
+            if (audio.paused && !isNull) {
+                audio.play();
+                firstChild.style.display = "none";
+                lastChild.style.display = "block";
+            } else {
+                audio.pause();
+                firstChild.style.display = "block";
+                lastChild.style.display = "none";
+            }
+            playerState.isPlaying = !audio.paused;
         }
-        playerState.isPlaying = !audio.paused;
-      }
     };
 
     currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
@@ -228,7 +227,26 @@ export let playerState = {
             }
         });
     });
-
+    let playPlaylist = document.getElementById("playPlaylist") as HTMLElement;
+    playPlaylist?.addEventListener("click", () => {
+        changeState();
+        cardPlayBtns.forEach(button => {
+            if(audio.paused){
+                button.firstChild.style.display = 'block';
+                button.lastChild.style.display = 'none';
+            } else {
+                button.firstChild.style.display = 'none';
+                button.lastChild.style.display = 'block';
+                checkBtns();
+            }
+        });
+    });
+    // cardPlayBtns.forEach(button => {
+    //         if(audio.played && playerState.currentPlaylist){
+    //             button.firstChild.style.display = 'none';
+    //             button.lastChild.style.display = 'block';
+    //         }
+    //     });
     let tempValue = 0;
     seekSlider?.addEventListener("input", () => {
         if (audio && currentTime) {
@@ -328,6 +346,7 @@ export let playerState = {
                         changeState();
                         audio.pause();
                     }
+                    playerState.isPlaying = !playerState.isPlaying;
                 }
                 event.stopPropagation();
             });

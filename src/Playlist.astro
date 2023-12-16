@@ -18,6 +18,7 @@ import { RxPlay, RxPause } from 'react-icons/rx';
     <!-- <ViewTransitions /> -->
 </head>
 <script>
+    import { playerState } from './Player.astro';
     const playlistsData = [
         {
             "title": "Boruwa Originals",
@@ -88,8 +89,7 @@ import { RxPlay, RxPause } from 'react-icons/rx';
             ]
         }
     ];
-    let songPlayBtns = document.querySelectorAll("#playSong");
-    console.log(songPlayBtns);
+    
     let backButton = document.getElementById("backButton") as HTMLElement;
     let playlists = document.querySelectorAll("#song") as NodeListOf<HTMLElement>;
     let cover = document.getElementById("cover") as HTMLImageElement;
@@ -99,7 +99,6 @@ import { RxPlay, RxPause } from 'react-icons/rx';
     let songsContainer = document.getElementById("songs") as HTMLElement;
     let playlistMain = document.getElementById("playlistMain") as HTMLElement;
     let main = document.getElementById("main") as HTMLElement;
-    let playPlaylist = document.getElementById("playPlaylist") as HTMLElement;
     
     let playlistId = 0;
     playlistMain.style.display = "none";
@@ -110,32 +109,40 @@ import { RxPlay, RxPause } from 'react-icons/rx';
         main.style.display = "block";
     });
 
-    import { RxPlay, RxPause } from 'react-icons/rx';
-
+    
     function formatDuration(durationInSeconds: number) {
         const minutes = Math.floor(durationInSeconds / 60);
         const seconds = Math.floor(durationInSeconds % 60);
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     }
-
+    
     const audio = document.getElementById("audio") as HTMLAudioElement;
-
-    function playSong(source: string) {
-        if(audio.src != source)
-        {
-            audio.src = source;
-        }
-        if(audio.paused)
-        {
-            audio.play();
-            console.log("Playing");
-        }
-        else{
-            audio.pause();
-            console.log("Playing2");
+    
+    const playSong = (playSongBtn: Element) =>{
+        let playIco = playSongBtn.querySelector("#firstChild") as HTMLElement;
+        let pauseIco = playSongBtn.querySelector("#lastChild") as HTMLElement;
+        playIco.style.display = "none";
+        pauseIco.style.display = "block";
+        if (playIco && pauseIco) {
+            if(audio.src != playerState.audioSource)
+            {
+                audio.src = playerState.audioSource;
+            }
+            if(audio.paused)
+            {
+                audio.play();
+                playIco.style.display = "none";
+                pauseIco.style.display = "block";
+            }
+            else{
+                audio.pause();
+                playIco.style.display = "block";
+                pauseIco.style.display = "none";
+            }
+            playerState.isPlaying = !playerState.isPlaying;
         }
     }
-
+    
     function updatePlaylistInfo() {
         cover.src = playlistsData[playlistId].img;
         playlistTitle.textContent = playlistsData[playlistId].title;
@@ -145,16 +152,27 @@ import { RxPlay, RxPause } from 'react-icons/rx';
             const audio = new Audio(song.source);
             audio.load();
             audio.addEventListener('loadedmetadata', () => {
-                songsContainer.innerHTML += `<button id="playSong" data-source='${song.source}'><RxPlay />Play<RxPause /></button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audio.duration)}</li>`;
+                songsContainer.innerHTML += `<button id="playSong" data-source='${song.source}'>
+                    <svg viewBox="0 0 15 15" fill="none" id="firstChild"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z" fill="currentColor"></path></svg>
+                    <svg viewBox="0 0 15 15" fill="none" id="lastChild"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor"></path></svg>
+                    </button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audio.duration)}</li>`;
                 let playSongBtns = document.querySelectorAll("#playSong") as NodeListOf<HTMLButtonElement>;
                 playSongBtns.forEach((playSongBtn) => {
+                    // const playIco = playSongBtn.firstChild as HTMLElement;
+                    // const pauseIco = playSongBtn.lastChild as HTMLElement;
+                    // if (playIco && pauseIco) {
+                    //     playIco.style.display = "block";
+                    //     pauseIco.style.display = "none";
+                    // }
                     playSongBtn.addEventListener("click", () => {
-                        playSong(playSongBtn.dataset.source ?? "");
+                        playSong(playSongBtn);
+                        playerState.currentPlaylist = playlistsData[playlistId].songs;
                     });
                 });
             });
         });
     }
+
     playPlaylist.addEventListener("click", () => {
         audio.src = (playlistsData[playlistId].songs[0].source);
         if(audio.paused){
@@ -165,8 +183,9 @@ import { RxPlay, RxPause } from 'react-icons/rx';
     });
     playlists.forEach((playlist, index) => {
         playlist.addEventListener("click", () => {
-            console.log(playlist.dataset.source);
             playlistId = index;
+            playerState.currentPlaylist = index.toString();
+            console.log(playerState.currentPlaylist);
             playlistMain.style.display = "block";
             main.style.display = "none";
             // window.location.href = "/playlist/" + playlistId;
