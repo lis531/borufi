@@ -3,7 +3,14 @@
 import { RxPlay, RxPause } from 'react-icons/rx';
 ---
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
     <div id="playlistMain">
         <button id="backButton">Back</button>
         <div>
@@ -16,7 +23,8 @@ import { RxPlay, RxPause } from 'react-icons/rx';
         </div>
     </div>
     <!-- <ViewTransitions /> -->
-</head>
+</body>
+</html>
 <script>
     import { playerState } from './Player.astro';
     const playlistsData = [
@@ -117,7 +125,7 @@ import { RxPlay, RxPause } from 'react-icons/rx';
     }
     
     const audio = document.getElementById("audio") as HTMLAudioElement;
-    
+
     const playSong = (playSongBtn: Element) =>{
         let playIco = playSongBtn.querySelector("#firstChild") as HTMLElement;
         let pauseIco = playSongBtn.querySelector("#lastChild") as HTMLElement;
@@ -143,30 +151,30 @@ import { RxPlay, RxPause } from 'react-icons/rx';
         }
     }
     
+    import changeSong from './Player.astro';
+
     function updatePlaylistInfo() {
         cover.src = playlistsData[playlistId].img;
         playlistTitle.textContent = playlistsData[playlistId].title;
         author.textContent = playlistsData[playlistId].author;
         songsContainer.innerHTML = "";
         playlistsData[playlistId].songs.map((song) => {
-            const audio = new Audio(song.source);
-            audio.load();
-            audio.addEventListener('loadedmetadata', () => {
-                songsContainer.innerHTML += `<button id="playSong" data-source='${song.source}'>
+            const audioTemp = new Audio(song.source);
+            audioTemp.addEventListener('loadedmetadata', () => {
+                songsContainer.innerHTML += `<div><button id="singleSongButton" data-source='${song.source}' data-playlistID='${playlistId}'>
                     <svg viewBox="0 0 15 15" fill="none" id="firstChild"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z" fill="currentColor"></path></svg>
                     <svg viewBox="0 0 15 15" fill="none" id="lastChild"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor"></path></svg>
-                    </button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audio.duration)}</li>`;
-                let playSongBtns = document.querySelectorAll("#playSong") as NodeListOf<HTMLButtonElement>;
-                playSongBtns.forEach((playSongBtn) => {
-                    // const playIco = playSongBtn.firstChild as HTMLElement;
-                    // const pauseIco = playSongBtn.lastChild as HTMLElement;
-                    // if (playIco && pauseIco) {
-                    //     playIco.style.display = "block";
-                    //     pauseIco.style.display = "none";
-                    // }
+                    </button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audio.duration)}</li></div>`;
+                let singleSongButtons = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+                singleSongButtons.forEach((playSongBtn) => {
                     playSongBtn.addEventListener("click", () => {
-                        playSong(playSongBtn);
-                        playerState.currentPlaylist = playlistsData[playlistId].songs;
+                        console.log(playSongBtn.dataset.source);
+                        let audio = document.getElementById("audio") as HTMLAudioElement;
+                        audio.src = playSongBtn.dataset.source || "";
+                        console.log(audio.src);
+                        audio.play();
+                        changePlaySongAppearance(playSongBtn);
+                        playerState.currentPlaylist = parseInt(playSongBtn.dataset.playlistID || "");
                     });
                 });
             });
@@ -192,6 +200,24 @@ import { RxPlay, RxPause } from 'react-icons/rx';
             updatePlaylistInfo();
         });
     });
+
+    const changePlaySongAppearance = (playSongBtn: Element) => {
+        let playIco = playSongBtn.querySelector("#firstChild") as HTMLElement;
+        let pauseIco = playSongBtn.querySelector("#lastChild") as HTMLElement;
+        playIco.style.display = "none";
+        pauseIco.style.display = "block";
+        if (playIco && pauseIco) {
+            if(audio.paused)
+            {
+                playIco.style.display = "block";
+                pauseIco.style.display = "none";
+            }
+            else{
+                playIco.style.display = "none";
+                pauseIco.style.display = "block";
+            }
+        }
+    }
 </script>
 <style>
     #cover{

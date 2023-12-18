@@ -7,14 +7,14 @@ export let playerState = {
     isLooping: false,
     isShuffling: false,
     audioSource: "",
-    currentPlaylist: ""
+    currentPlaylist: 0
 };
 ---
 
 <div id="audioPlayer">
     <div id="songInfo">
-        <h1><a>Title</a></h1>
-        <h2><a>Artist</a></h2>
+        <h1><a id="title">Title</a></h1>
+        <h2><a id="artist">Artist</a></h2>
     </div>
     <div id="mainControls">
         <div id="songControls">
@@ -51,29 +51,85 @@ export let playerState = {
     let muteBtn = document.getElementById("mute");
     let volume = document.getElementById("volume");
     let currentVolume = document.getElementById("volume-slider") as HTMLInputElement;
+    let title = document.getElementById("title");
+    let artist = document.getElementById("artist");
   
     seekSlider.disabled = true;
     if (playBtn) playBtn.disabled = true;
-  
-    const changeSong = (sourceLink: any) => {
+    
+    //player
+
+    const changePlayerPlayBtn = (isOn = false) =>{
+        if(playBtn instanceof HTMLElement){
+            const firstChild = playBtn.firstChild as HTMLElement;
+            const lastChild = playBtn.lastChild as HTMLElement;
+            if (isOn) {
+                firstChild.style.display = "block";
+                lastChild.style.display = "none";
+            } else {
+                firstChild.style.display = "none";
+                lastChild.style.display = "block";
+            }
+        }
+    }
+
+    //change song <-- it will recieve the song source link and play it
+
+    const changeSong = (sourceLink: string) => {
+        console.log("Changing song");
         if (playBtn instanceof HTMLElement) {
             if (sourceLink == null || sourceLink == "" || sourceLink == undefined) {
                 console.log("No audio source found");
                 seekSlider.setAttribute("disabled", "true");
                 playBtn.setAttribute("disabled", "true");
                 audio.setAttribute("src", "null");
-                changeState(true);
+                changePlayerPlayBtn(true);
                 calTime;
             } else if (sourceLink !== audio.src) {
                 seekSlider.removeAttribute("disabled");
                 playBtn.removeAttribute("disabled");
                 audio.setAttribute("src", sourceLink);
-                audio.load();
-                changeState();
+                changePlayerPlayBtn();
+                console.log("Audio source changed");
+                changeApperance();
+                playerState.isPlaying = !playerState.isPlaying;
             }
         }
-    };
-  
+    }
+
+    const changeApperance = () =>{
+        if (audio instanceof HTMLAudioElement) {
+            if (audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+            playerState.isPlaying = !playerState.isPlaying;
+        }
+    }
+
+    audio.addEventListener("play", () => {
+        if (audio instanceof HTMLAudioElement) {
+            console.log("kocham jaja")
+            changePlayerPlayBtn();
+            playerState.isPlaying = !playerState.isPlaying;
+        }
+    });
+
+    audio.addEventListener("pause", () => {
+        if (audio instanceof HTMLAudioElement) {
+            console.log("kocham jaja")
+            changePlayerPlayBtn(false);
+            playerState.isPlaying = !playerState.isPlaying;
+        }
+    });
+
+    playBtn.addEventListener("click", () => {
+        changeApperance();
+    });
+
+    //displaying the duration of the song
+
     const displayDuration = (timeElapsed: number, duration = 0) => {
         if (currentTime) {
             currentTime.innerHTML = calculateTime(timeElapsed);
@@ -95,23 +151,11 @@ export let playerState = {
             return `0:00`;
         }
     };
-  
-    const changeState = (isNull: boolean = false) => {
-        if (playBtn && audio instanceof HTMLAudioElement && currentTime && durationTime) {
-            const firstChild = playBtn.firstChild as HTMLElement;
-            const lastChild = playBtn.lastChild as HTMLElement;
-            if (audio.paused && !isNull) {
-                audio.play();
-                firstChild.style.display = "none";
-                lastChild.style.display = "block";
-            } else {
-                audio.pause();
-                firstChild.style.display = "block";
-                lastChild.style.display = "none";
-            }
-            playerState.isPlaying = !audio.paused;
-        }
-    };
+
+    //volume controls
+
+    let turned = true;
+    let lastVolume = 50;
 
     currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
     if(audio instanceof HTMLAudioElement){
@@ -122,72 +166,40 @@ export let playerState = {
             audio.volume = Number(currentVolume.value) / 200;
         }
     }
-
-    let turned = true;
-    let lastVolume = 50;
-
-    /*
-        muteBtn?.addEventListener("click", () => {
-        playerState.lastVolume = Number(currentVolume.value);
-        currentVolume.value = playerState.turned ? "0" : playerState.lastVolume.toString();
-
-        const [firstChild, secondChild, lastChild] = muteBtn.children as HTMLElement[];
-        firstChild.style.display = playerState.turned ? "none" : "block";
-        secondChild.style.display = "none";
-        lastChild.style.display = playerState.turned ? "block" : "none";
-
-        currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
-    });
-    */
    
-    muteBtn?.addEventListener("click", () => {
-        if(turned){
-            lastVolume = currentVolume.value;
-            currentVolume.value = "0";
-                const firstChild = muteBtn.firstChild as HTMLElement;
-                const secondChild = muteBtn.children[1] as HTMLElement;
-                const lastChild = muteBtn.lastChild as HTMLElement;
-                firstChild.style.display = "none";
-                secondChild.style.display = "none";
-                lastChild.style.display = "block";
-        } else {
-            currentVolume.value = lastVolume;
-            if (muteBtn && currentVolume.value != "0") {
-                const firstChild = muteBtn.firstChild as HTMLElement;
-                const secondChild = muteBtn.children[1] as HTMLElement;
-                const lastChild = muteBtn.lastChild as HTMLElement;
-                if(lastVolume > 75){
-                    firstChild.style.display = "none";
-                    secondChild.style.display = "block";
-                    lastChild.style.display = "none";
-                } else {
-                    firstChild.style.display = "block";
-                    secondChild.style.display = "none";
-                    lastChild.style.display = "none";
-                }
-            }
-        }
-        currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
-        if(volume) {
-            volume.innerHTML = currentVolume.value.toString();
-            changeVolume();
-        }
-        turned = !turned;
-    });
-        
-
     // muteBtn?.addEventListener("click", () => {
-    //     console.log(lastVolume);
-    //     currentVolume.value = lastVolume.toString();
-    //     lastVolume = playerState.isMuted ? Number(currentVolume.value) : 0;
-
-    //     const muteBtnChildren = muteBtn ? Array.from(muteBtn.children) as HTMLElement[] : [];
-    //     const [firstChild, secondChild, lastChild] = muteBtnChildren;
-    //     firstChild.style.display = playerState.isMuted ? "none" : "block";
-    //     secondChild.style.display = "none";
-    //     lastChild.style.display = playerState.isMuted ? "block" : "none";
+    //     if(turned){
+    //         lastVolume = currentVolume.value;
+    //         currentVolume.value = "0";
+    //             const firstChild = muteBtn.firstChild as HTMLElement;
+    //             const secondChild = muteBtn.children[1] as HTMLElement;
+    //             const lastChild = muteBtn.lastChild as HTMLElement;
+    //             firstChild.style.display = "none";
+    //             secondChild.style.display = "none";
+    //             lastChild.style.display = "block";
+    //     } else {
+    //         currentVolume.value = lastVolume;
+    //         if (muteBtn && currentVolume.value != "0") {
+    //             const firstChild = muteBtn.firstChild as HTMLElement;
+    //             const secondChild = muteBtn.children[1] as HTMLElement;
+    //             const lastChild = muteBtn.lastChild as HTMLElement;
+    //             if(lastVolume > 75){
+    //                 firstChild.style.display = "none";
+    //                 secondChild.style.display = "block";
+    //                 lastChild.style.display = "none";
+    //             } else {
+    //                 firstChild.style.display = "block";
+    //                 secondChild.style.display = "none";
+    //                 lastChild.style.display = "none";
+    //             }
+    //         }
+    //     }
     //     currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
-    //     playerState.isMuted = !playerState.isMuted;
+    //     if(volume) {
+    //         volume.innerHTML = currentVolume.value.toString();
+    //         changeVolume();
+    //     }
+    //     turned = !turned;
     // });
 
     currentVolume.addEventListener("input", () => {
@@ -209,44 +221,19 @@ export let playerState = {
         currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
         volume.innerHTML = currentVolume.value.toString();
     });
+
+    currentVolume?.addEventListener("change", () => {
+        lastVolume = Number(currentVolume.value);
+        turned != turned;
+        changeVolume();
+    });
     
     audio?.addEventListener("loadedmetadata", () => {
         displayDuration(audio.currentTime, audio.duration);
     });
-        
-    playBtn?.addEventListener("click", () => {
-        changeState();
-        cardPlayBtns.forEach(button => {
-            if(audio.paused){
-                button.firstChild.style.display = 'block';
-                button.lastChild.style.display = 'none';
-            } else {
-                button.firstChild.style.display = 'none';
-                button.lastChild.style.display = 'block';
-                checkBtns();
-            }
-        });
-    });
-    let playPlaylist = document.getElementById("playPlaylist") as HTMLElement;
-    playPlaylist?.addEventListener("click", () => {
-        changeState();
-        cardPlayBtns.forEach(button => {
-            if(audio.paused){
-                button.firstChild.style.display = 'block';
-                button.lastChild.style.display = 'none';
-            } else {
-                button.firstChild.style.display = 'none';
-                button.lastChild.style.display = 'block';
-                checkBtns();
-            }
-        });
-    });
-    // cardPlayBtns.forEach(button => {
-    //         if(audio.played && playerState.currentPlaylist){
-    //             button.firstChild.style.display = 'none';
-    //             button.lastChild.style.display = 'block';
-    //         }
-    //     });
+
+    //timeline controls
+
     let tempValue = 0;
     seekSlider?.addEventListener("input", () => {
         if (audio && currentTime) {
@@ -264,12 +251,6 @@ export let playerState = {
         }
     });
 
-    currentVolume?.addEventListener("change", () => {
-        lastVolume = Number(currentVolume.value);
-        turned != turned;
-        changeVolume();
-    });
-
     const calTime = setInterval(() => {
         if(audio instanceof HTMLAudioElement){
             if (durationTime && tempValue == 0) {
@@ -283,11 +264,10 @@ export let playerState = {
                     seekSlider.max = Math.floor(audio.duration).toString();
                 }
             }
-            else if(audio.ended && randomTurned){
-                // playNextSong();
-            }
         }
     }, 1000);
+
+    //loop and shuffle controls
 
     loopBtn?.addEventListener("click", () => {
         loopBtn?.classList.toggle("on")
@@ -300,6 +280,8 @@ export let playerState = {
         playerState.isShuffling = !playerState.isShuffling;
     });
 
+    //card play buttons
+
     const removeClasses = () => {
         cardPlayBtns.forEach((button) => {
             if (button instanceof HTMLElement) {
@@ -310,50 +292,40 @@ export let playerState = {
             }
         });
     }
-    
-    const checkBtns = () =>{
-        cardPlayBtns.forEach((button) => {
-                if(button.dataset.source != audio.src.split("/").pop()){
+
+    const cardButtonsCheck = (button: Element) => {
+        if(playerState.currentPlaylist != button.parentElement.parentElement?.dataset.source){
+            playerState.currentPlaylist = button.parentElement.parentElement?.dataset.source;
+            changeSong(button.dataset.source);
+            button.firstChild.style.display = 'none';
+            button.lastChild.style.display = 'block';
+        } else {
+            if(audio.paused){
+                console.log("Audio is playing");
+                button.firstChild.style.display = 'none';
+                button.lastChild.style.display = 'block';
+                changeApperance();
+            } else {
+                console.log("Audio is paused");
+                cardPlayBtns.forEach((button) => {
                     button.firstChild.style.display = 'block';
                     button.lastChild.style.display = 'none';
-                } else {
-                    button.firstChild.style.display = 'none';
-                    button.lastChild.style.display = 'block';
-                }
-            
-        });
+                });
+                changeApperance();
+            }
+            playerState.isPlaying = !playerState.isPlaying;
+        }
     }
 
     cardPlayBtns.forEach((button) => {
+        if(button.dataset.source != null){
             button.addEventListener("click", (event) => {
                 removeClasses();
                 button.parentElement.parentElement.parentElement.classList.remove("active");
-                if(button.dataset.source != audio.src.split("/").pop()){
-                    changeSong(button.dataset.source)
-                    button.firstChild.style.display = 'none';
-				    button.lastChild.style.display = 'block';
-                    audio.play();
-                    checkBtns();
-                } else {
-                    if(audio.paused){
-                        button.firstChild.style.display = 'none';
-                        button.lastChild.style.display = 'block';
-                        changeState();
-                        audio.play();
-                    } else {
-                        button.firstChild.style.display = 'block';
-                        button.lastChild.style.display = 'none';
-                        changeState();
-                        audio.pause();
-                    }
-                    playerState.isPlaying = !playerState.isPlaying;
-                }
+                cardButtonsCheck(button);
                 event.stopPropagation();
             });
-            if(button.dataset.source != audio.src){
-                button.firstChild.style.display = 'block';
-		    	button.lastChild.style.display = 'none';
-            }
+        }
     });
 </script>
 <style>
