@@ -89,9 +89,9 @@ export let playerState = {
                 seekSlider.removeAttribute("disabled");
                 playBtn.removeAttribute("disabled");
                 audio.setAttribute("src", sourceLink);
-                changePlayerPlayBtn();
                 console.log("Audio source changed");
-                changeApperance();
+                audio.play();
+                changePlayerPlayBtn();
                 playerState.isPlaying = !playerState.isPlaying;
             }
         }
@@ -110,7 +110,7 @@ export let playerState = {
 
     audio.addEventListener("play", () => {
         if (audio instanceof HTMLAudioElement) {
-            console.log("kocham jaja")
+            console.log("kocham jaja play")
             changePlayerPlayBtn();
             playerState.isPlaying = !playerState.isPlaying;
         }
@@ -118,8 +118,8 @@ export let playerState = {
 
     audio.addEventListener("pause", () => {
         if (audio instanceof HTMLAudioElement) {
-            console.log("kocham jaja")
-            changePlayerPlayBtn(false);
+            console.log("kocham jaja pause")
+            changePlayerPlayBtn(true);
             playerState.isPlaying = !playerState.isPlaying;
         }
     });
@@ -305,12 +305,14 @@ export let playerState = {
                 button.firstChild.style.display = 'none';
                 button.lastChild.style.display = 'block';
                 changeApperance();
+                audio.play();
             } else {
                 console.log("Audio is paused");
                 cardPlayBtns.forEach((button) => {
                     button.firstChild.style.display = 'block';
                     button.lastChild.style.display = 'none';
                 });
+                audio.pause();
                 changeApperance();
             }
             playerState.isPlaying = !playerState.isPlaying;

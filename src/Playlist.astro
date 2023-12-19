@@ -181,14 +181,6 @@ import { RxPlay, RxPause } from 'react-icons/rx';
         });
     }
 
-    playPlaylist.addEventListener("click", () => {
-        audio.src = (playlistsData[playlistId].songs[0].source);
-        if(audio.paused){
-            audio.play();
-        } else{
-            audio.pause();
-        }
-    });
     playlists.forEach((playlist, index) => {
         playlist.addEventListener("click", () => {
             playlistId = index;
