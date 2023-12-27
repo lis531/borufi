@@ -24,8 +24,21 @@ const { title, author, source, img, playlistId } = Astro.props;
 </div>
 
 <script>
+	import { playerState } from '../Player.astro';
+
 	const playButtons = document.querySelectorAll('#playButton');
 	const linkCards = document.getElementsByClassName('link-card');
+
+	if(playerState.currentPlaylist != 0){
+		playButtons.forEach((button, index) => {
+			if(index == playerState.currentPlaylist){
+				playlistId = index;
+				button.firstChild.style.display = 'none';
+				button.lastChild.style.display = 'block';
+			}
+		});
+    }
+
 	playButtons.forEach(button => {
 		button.firstChild.style.display = 'block';
 		button.lastChild.style.display = 'none';

@@ -3,7 +3,6 @@ import { BsVolumeDown, BsVolumeMute, BsVolumeUp } from 'react-icons/bs';
 import { RxLoop, RxShuffle, RxPlay, RxTrackNext, RxTrackPrevious, RxPause } from 'react-icons/rx';
 
 export let playerState = {
-    isPlaying: false,
     isLooping: false,
     isShuffling: false,
     audioSource: "",
@@ -57,24 +56,30 @@ export let playerState = {
     seekSlider.disabled = true;
     if (playBtn) playBtn.disabled = true;
     
-    //player
-
+    //player   
+    
     const changePlayerPlayBtn = (isOn = false) =>{
         if(playBtn instanceof HTMLElement){
             const firstChild = playBtn.firstChild as HTMLElement;
             const lastChild = playBtn.lastChild as HTMLElement;
+            // const firstChildPlaylist = cardPlayBtns[playerState.currentPlaylist - 1].firstChild as HTMLElement ? cardPlayBtns[playerState.currentPlaylist - 1].firstChild as HTMLElement : null;
+            // const lastChildPlaylist = cardPlayBtns[playerState.currentPlaylist - 1].lastChild as HTMLElement ? cardPlayBtns[playerState.currentPlaylist - 1].lastChild as HTMLElement : null;
             if (isOn) {
+                // firstChildPlaylist.style.display = "block";
+                // lastChildPlaylist.style.display = "none";
                 firstChild.style.display = "block";
                 lastChild.style.display = "none";
             } else {
+                // firstChildPlaylist.style.display = "none";
+                // lastChildPlaylist.style.display = "block";
                 firstChild.style.display = "none";
                 lastChild.style.display = "block";
             }
         }
     }
-
-    //change song <-- it will recieve the song source link and play it
-
+        
+        //change song <-- it will recieve the song source link and play it
+        
     const changeSong = (sourceLink: string) => {
         console.log("Changing song");
         if (playBtn instanceof HTMLElement) {
@@ -92,7 +97,6 @@ export let playerState = {
                 console.log("Audio source changed");
                 audio.play();
                 changePlayerPlayBtn();
-                playerState.isPlaying = !playerState.isPlaying;
             }
         }
     }
@@ -104,23 +108,20 @@ export let playerState = {
             } else {
                 audio.pause();
             }
-            playerState.isPlaying = !playerState.isPlaying;
         }
     }
 
     audio.addEventListener("play", () => {
         if (audio instanceof HTMLAudioElement) {
-            console.log("kocham jaja play")
+            console.log("play")
             changePlayerPlayBtn();
-            playerState.isPlaying = !playerState.isPlaying;
         }
     });
-
+    
     audio.addEventListener("pause", () => {
         if (audio instanceof HTMLAudioElement) {
-            console.log("kocham jaja pause")
+            console.log("pause")
             changePlayerPlayBtn(true);
-            playerState.isPlaying = !playerState.isPlaying;
         }
     });
 
@@ -154,9 +155,7 @@ export let playerState = {
 
     //volume controls
 
-    let turned = true;
-    let lastVolume = 50;
-
+    
     currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
     if(audio instanceof HTMLAudioElement){
         audio.volume = Number(currentVolume.value) / 200;
@@ -166,41 +165,38 @@ export let playerState = {
             audio.volume = Number(currentVolume.value) / 200;
         }
     }
-   
-    // muteBtn?.addEventListener("click", () => {
-    //     if(turned){
-    //         lastVolume = currentVolume.value;
-    //         currentVolume.value = "0";
-    //             const firstChild = muteBtn.firstChild as HTMLElement;
-    //             const secondChild = muteBtn.children[1] as HTMLElement;
-    //             const lastChild = muteBtn.lastChild as HTMLElement;
-    //             firstChild.style.display = "none";
-    //             secondChild.style.display = "none";
-    //             lastChild.style.display = "block";
-    //     } else {
-    //         currentVolume.value = lastVolume;
-    //         if (muteBtn && currentVolume.value != "0") {
-    //             const firstChild = muteBtn.firstChild as HTMLElement;
-    //             const secondChild = muteBtn.children[1] as HTMLElement;
-    //             const lastChild = muteBtn.lastChild as HTMLElement;
-    //             if(lastVolume > 75){
-    //                 firstChild.style.display = "none";
-    //                 secondChild.style.display = "block";
-    //                 lastChild.style.display = "none";
-    //             } else {
-    //                 firstChild.style.display = "block";
-    //                 secondChild.style.display = "none";
-    //                 lastChild.style.display = "none";
-    //             }
-    //         }
-    //     }
-    //     currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
-    //     if(volume) {
-    //         volume.innerHTML = currentVolume.value.toString();
-    //         changeVolume();
-    //     }
-    //     turned = !turned;
-    // });
+
+    let turned = true;
+    let lastVolume = "50";
+    
+    muteBtn?.addEventListener("click", () => {
+        if(turned){
+            lastVolume = currentVolume.value;
+            currentVolume.value = "0";
+            const [firstChild, secondChild, lastChild] = muteBtn.children as HTMLElement[];
+            firstChild.style.display = "none";
+            secondChild.style.display = "none";
+            lastChild.style.display = "block";
+        } else {
+            currentVolume.value = lastVolume;
+            const [firstChild, secondChild, lastChild] = muteBtn.children as HTMLElement[];
+            if(lastVolume > "75"){
+                firstChild.style.display = "none";
+                secondChild.style.display = "block";
+                lastChild.style.display = "none";
+            } else {
+                firstChild.style.display = "block";
+                secondChild.style.display = "none";
+                lastChild.style.display = "none";
+            }
+        }
+        currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
+        if(volume) {
+            volume.innerHTML = currentVolume.value.toString();
+            changeVolume();
+        }
+        turned = !turned;
+    })
 
     currentVolume.addEventListener("input", () => {
         audio.volume = Number(currentVolume.value) / 200;
@@ -293,38 +289,30 @@ export let playerState = {
         });
     }
 
-    const cardButtonsCheck = (button: Element) => {
-        if(playerState.currentPlaylist != button.parentElement.parentElement?.dataset.source){
-            playerState.currentPlaylist = button.parentElement.parentElement?.dataset.source;
-            changeSong(button.dataset.source);
-            button.firstChild.style.display = 'none';
-            button.lastChild.style.display = 'block';
-        } else {
-            if(audio.paused){
-                console.log("Audio is playing");
-                button.firstChild.style.display = 'none';
-                button.lastChild.style.display = 'block';
-                changeApperance();
-                audio.play();
-            } else {
-                console.log("Audio is paused");
-                cardPlayBtns.forEach((button) => {
-                    button.firstChild.style.display = 'block';
-                    button.lastChild.style.display = 'none';
-                });
-                audio.pause();
-                changeApperance();
-            }
-            playerState.isPlaying = !playerState.isPlaying;
-        }
-    }
-
     cardPlayBtns.forEach((button) => {
         if(button.dataset.source != null){
             button.addEventListener("click", (event) => {
                 removeClasses();
-                button.parentElement.parentElement.parentElement.classList.remove("active");
-                cardButtonsCheck(button);
+                if(playerState.currentPlaylist != button.parentElement.parentElement?.dataset.source){
+                    playerState.currentPlaylist = button.parentElement.parentElement?.dataset.source;
+                    changeSong(button.dataset.source);
+                    button.firstChild.style.display = 'none';
+                    button.lastChild.style.display = 'block';
+                } else {
+                    if(audio.paused){
+                        console.log("Audio is playing");
+                        button.firstChild.style.display = 'none';
+                        button.lastChild.style.display = 'block';
+                        changeApperance();
+                    } else {
+                        console.log("Audio is paused");
+                        cardPlayBtns.forEach((button) => {
+                            button.firstChild.style.display = 'block';
+                            button.lastChild.style.display = 'none';
+                        });
+                        changeApperance();
+                    }
+                }                
                 event.stopPropagation();
             });
         }
