@@ -113,14 +113,12 @@ export let playerState = {
 
     audio.addEventListener("play", () => {
         if (audio instanceof HTMLAudioElement) {
-            console.log("play")
             changePlayerPlayBtn();
         }
     });
     
     audio.addEventListener("pause", () => {
         if (audio instanceof HTMLAudioElement) {
-            console.log("pause")
             changePlayerPlayBtn(true);
         }
     });

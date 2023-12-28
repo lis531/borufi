@@ -108,6 +108,9 @@ import { ViewTransitions } from 'astro:transitions';
     let playlistMain = document.getElementById("playlistMain") as HTMLElement;
     let main = document.getElementById("main") as HTMLElement;
     let playPlaylist = document.getElementById("playPlaylist") as HTMLElement;
+    let audio = document.getElementById("audio") as HTMLAudioElement;
+
+    playPlaylist.lastChild.style.display = "none";
 
     let playlistId = 0;
     playlistMain.style.display = "none";
@@ -125,7 +128,6 @@ import { ViewTransitions } from 'astro:transitions';
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     }
     
-    const audio = document.getElementById("audio") as HTMLAudioElement;
 
 
     function updatePlaylistInfo() {
@@ -136,75 +138,76 @@ import { ViewTransitions } from 'astro:transitions';
         playlistsData[playlistId].songs.map((song) => {
             const audioTemp = new Audio(song.source);
             audioTemp.addEventListener('loadedmetadata', () => {
-                songsContainer.innerHTML += `<div><button id="singleSongButton" data-source='${song.source}' data-playlistID='${playlistId + 1}'>
+                songsContainer.innerHTML += `<div><button id="singleSongButton" data-source='${song.source}' data-playlistID='${playlistId + 1}' style="border: none; background: none; color: white; cursor: pointer; margin: 0; width: 3rem;">
                     <svg viewBox="0 0 15 15" fill="none" id="firstChild"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z" fill="currentColor"></path></svg>
-                    <svg viewBox="0 0 15 15" fill="none" id="lastChild"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor"></path></svg>
+                    <svg viewBox="0 0 15 15" fill="none" id="lastChild" display="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor"></path></svg>
                     </button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audioTemp.duration)}</li></div>`;
                 let singleSongButtons = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
                 singleSongButtons.forEach((playSongBtn) => {
                     playSongBtn.addEventListener("click", () => {
-                        audio.src = playSongBtn.dataset.source || "";
                         let playIco = playSongBtn.querySelector("#firstChild") as HTMLElement;
                         let pauseIco = playSongBtn.querySelector("#lastChild") as HTMLElement;
                         playIco.style.display = "none";
                         pauseIco.style.display = "block";
+                        let playBtn = document.getElementById("play") as HTMLButtonElement;
+                        let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
+                        seekSlider.removeAttribute("disabled");
+                        playBtn.removeAttribute("disabled");
                         if (playIco && pauseIco) {
-                            if(audio.src != playerState.audioSource)
+                            if(playerState.audioSource != playSongBtn.dataset.source)
                             {
+                                playerState.audioSource = playSongBtn.dataset.source;
                                 audio.src = playerState.audioSource;
                             }
                             if(audio.paused)
                             {
-                                console.log("audio playing")
+                                console.log("audio paused", audio.paused)
                                 audio.play();
+                                console.log("audio paused", audio.paused)
                                 playIco.style.display = "none";
                                 pauseIco.style.display = "block";
                             }
-                            else{
-                                console.log("audio paused")
+                            else {
                                 audio.pause();
                                 playIco.style.display = "block";
                                 pauseIco.style.display = "none";
                             }
                         }
-                        changePlaySongAppearance(playSongBtn);
                         playerState.currentPlaylist = parseInt(playSongBtn.dataset.playlistID || "");
                     });
                 });
             });
         });
     }
-    
+    audio.src = playerState.audioSource;
     const changePlaySongAppearance = (playSongBtn: Element) => {
         let playIco = playSongBtn.firstChild as HTMLElement;
         let pauseIco = playSongBtn.lastChild as HTMLElement;
-        console.log(playIco, pauseIco);
         playIco.style.display = "none";
         pauseIco.style.display = "block";
-        console.log(audio.paused, audio.src)
-        if (playIco && pauseIco) {
-            if(audio.paused)
-            {
-                audio.play();
-                playIco.style.display = "none";
-                pauseIco.style.display = "block";
-            }
-            else{
-                audio.pause();
-                playIco.style.display = "block";
-                pauseIco.style.display = "none";
-            }
+        if(audio.paused)
+        {
+            console.log("audio paused", audio.paused)
+            audio.play();
+            console.log("audio paused", audio.paused)
+            playIco.style.display = "none";
+            pauseIco.style.display = "block";
+        }
+        else {
+            audio.pause();
+            playIco.style.display = "block";
+            pauseIco.style.display = "none";
         }
     }
 
     playPlaylist.addEventListener("click", () =>{
-        if(audio.src != playlistsData[playlistId].songs[0].source)
+        if(playerState.audioSource != playlistsData[playlistId].songs[0].source)
         {
-            audio.src = playlistsData[playlistId].songs[0].source;
+            playerState.audioSource = playlistsData[playlistId].songs[0].source;
+            audio.src = playerState.audioSource;
         }
-        playerState.audioSource = playlistsData[playlistId].songs[0].source;
+        console.log(audio.src)
         playerState.currentPlaylist = playlistId;
-        audio.src = playerState.audioSource;
         let playBtn = document.getElementById("play") as HTMLButtonElement;
         let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
         seekSlider.removeAttribute("disabled");
@@ -219,6 +222,55 @@ import { ViewTransitions } from 'astro:transitions';
             // window.location.href = "/playlist/" + playlistId;
             updatePlaylistInfo();
         });
+    });
+
+    function changePlaylistPlayBtn(paused = false) {
+        let playIco = playPlaylist.firstChild as HTMLElement;
+        let pauseIco = playPlaylist.lastChild as HTMLElement;
+        if (playIco && pauseIco) {
+            if(!paused && playerState.currentPlaylist == playlistId)
+            {
+                playIco.style.display = "none";
+                pauseIco.style.display = "block";
+            }
+            else{
+                playIco.style.display = "block";
+                pauseIco.style.display = "none";
+            }
+        }
+    }
+
+    const changeSingleSongPlayBtn = () =>{
+        let singleSongButtons = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+        singleSongButtons.forEach((playSongBtn) => {
+            let playIco = playSongBtn.firstChild as HTMLElement;
+            let pauseIco = playSongBtn.lastChild as HTMLElement;
+            if (playIco && pauseIco) {
+                if(!audio.paused && playerState.audioSource == playSongBtn.dataset.source)
+                {
+                    playIco.style.display = "none";
+                    pauseIco.style.display = "block";
+                }
+                else{
+                    playIco.style.display = "block";
+                    pauseIco.style.display = "none";
+                }
+            }
+        });
+    }
+
+    audio.addEventListener("play", () => {
+        if (audio instanceof HTMLAudioElement) {
+            changePlaylistPlayBtn();
+            changeSingleSongPlayBtn();
+        }
+    });
+    
+    audio.addEventListener("pause", () => {
+        if (audio instanceof HTMLAudioElement) {
+            changePlaylistPlayBtn(true);
+            changeSingleSongPlayBtn();
+        }
     });
 </script>
 <style>
@@ -247,5 +299,24 @@ import { ViewTransitions } from 'astro:transitions';
     }
     #playlistMain div p:last-child{
         font-size: 1rem;
+    }
+    #backButton{
+        border: none;
+        background: none;
+        color: white;
+        cursor: pointer;
+        margin: none;
+        width: 3rem;
+    }
+    #playPlaylist{
+        border: none;
+        background: none;
+        color: white;
+        cursor: pointer;
+        padding: 0;
+    }
+    #playPlaylist svg{
+        width: 3rem;
+        height: 3rem;
     }
 </style>
