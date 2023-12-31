@@ -109,6 +109,9 @@ import { ViewTransitions } from 'astro:transitions';
     let main = document.getElementById("main") as HTMLElement;
     let playPlaylist = document.getElementById("playPlaylist") as HTMLElement;
     let audio = document.getElementById("audio") as HTMLAudioElement;
+    let playNextBtn = document.getElementById("playNext") as HTMLElement;
+    let playPreviousBtn = document.getElementById("playPrevious") as HTMLElement;
+    let playBtn = document.querySelectorAll("#playButton");
 
     playPlaylist.lastChild.style.display = "none";
 
@@ -119,16 +122,34 @@ import { ViewTransitions } from 'astro:transitions';
     backButton?.addEventListener("click", () => {
         playlistMain.style.display = "none";
         main.style.display = "block";
+        playlists.forEach((playlist) => {
+            console.log(playlist.dataset.source);
+            console.log(playerState.currentPlaylist);
+            console.log(playlist.dataset.source != playerState.currentPlaylist);
+            if(playlist.dataset.source != playerState.currentPlaylist){
+                playBtn[playlist.dataset.source].firstChild.style.display = "block";
+                playBtn[playlist.dataset.source].lastChild.style.display = "none";
+            }
+            else{
+                if(audio.paused){
+                    playBtn[playlist.dataset.source].firstChild.style.display = "block";
+                    playBtn[playlist.dataset.source].lastChild.style.display = "none";
+                }
+                else{
+                    playBtn[playlist.dataset.source].firstChild.style.display = "none";
+                    playBtn[playlist.dataset.source].lastChild.style.display = "block";
+                }
+            }
+        });
     });
 
-    
     function formatDuration(durationInSeconds: number) {
         const minutes = Math.floor(durationInSeconds / 60);
         const seconds = Math.floor(durationInSeconds % 60);
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     }
-    
 
+    let currentSong = NaN;
 
     function updatePlaylistInfo() {
         cover.src = playlistsData[openedPlaylistID].img;
@@ -138,17 +159,17 @@ import { ViewTransitions } from 'astro:transitions';
         playlistsData[openedPlaylistID].songs.map((song) => {
             const audioTemp = new Audio(song.source);
             audioTemp.addEventListener('loadedmetadata', () => {
-                songsContainer.innerHTML += `<div><button id="singleSongButton" data-source='${song.source}' data-openedPlaylistID='${openedPlaylistID + 1}' style="border: none; background: none; color: white; cursor: pointer; margin: 0; width: 3rem;">
+                songsContainer.innerHTML += `<div><button id="singleSongButton" data-source='${song.source}' data-openedPlaylistID='${openedPlaylistID}' style="border: none; background: none; color: white; cursor: pointer; margin: 0; width: 3rem;">
                     <svg viewBox="0 0 15 15" fill="none" id="firstChild"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z" fill="currentColor"></path></svg>
-                    <svg viewBox="0 0 15 15" fill="none" id="lastChild" display="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor"></path></svg>
+                    <svg viewBox="0 0 15 15" fill="none" id="lastChild" style="display: none;"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor"></path></svg>
                     </button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audioTemp.duration)}</li></div>`;
                 let singleSongButtons = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
-                singleSongButtons.forEach((playSongBtn) => {
+                singleSongButtons.forEach((playSongBtn, index) => {
+                    let playIco = playSongBtn.firstElementChild as HTMLElement;
+                    let pauseIco = playSongBtn.lastElementChild as HTMLElement;
+                    playIco.style.display = "block";
+                    pauseIco.style.display = "none";
                     playSongBtn.addEventListener("click", () => {
-                        let playIco = playSongBtn.querySelector("#firstChild") as HTMLElement;
-                        let pauseIco = playSongBtn.querySelector("#lastChild") as HTMLElement;
-                        playIco.style.display = "none";
-                        pauseIco.style.display = "block";
                         let playBtn = document.getElementById("play") as HTMLButtonElement;
                         let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
                         seekSlider.removeAttribute("disabled");
@@ -161,9 +182,7 @@ import { ViewTransitions } from 'astro:transitions';
                             }
                             if(audio.paused)
                             {
-                                console.log("audio paused", audio.paused)
                                 audio.play();
-                                console.log("audio paused", audio.paused)
                                 playIco.style.display = "none";
                                 pauseIco.style.display = "block";
                             }
@@ -173,6 +192,7 @@ import { ViewTransitions } from 'astro:transitions';
                                 pauseIco.style.display = "none";
                             }
                         }
+                        currentSong = index;
                         openedPlaylistID = parseInt(playSongBtn.dataset.openedplaylistid);
                         playerState.currentPlaylist = openedPlaylistID;
                     });
@@ -182,10 +202,17 @@ import { ViewTransitions } from 'astro:transitions';
     }
 
     const changePlaySongAppearance = (playSongBtn: Element) => {
-        let playIco = playSongBtn.firstChild as HTMLElement;
-        let pauseIco = playSongBtn.lastChild as HTMLElement;
+        let playIco = playSongBtn.firstElementChild as HTMLElement;
+        let pauseIco = playSongBtn.lastElementChild as HTMLElement;
+        console.log(playIco);
+        console.log(pauseIco);
         playIco.style.display = "none";
         pauseIco.style.display = "block";
+        if(playlistsData[openedPlaylistID].songs[currentSong].source != playerState.audioSource)
+        {
+            playerState.audioSource = playlistsData[openedPlaylistID].songs[currentSong].source;
+            audio.src = playerState.audioSource;
+        }
         if(audio.paused)
         {
             audio.play();
@@ -199,18 +226,24 @@ import { ViewTransitions } from 'astro:transitions';
         }
     }
 
-    playPlaylist.addEventListener("click", () =>{
-        console.log(playlistsData[openedPlaylistID].songs[0].source)
-        if(playerState.audioSource != playlistsData[openedPlaylistID].songs[0].source)
-        {
-            playerState.audioSource = playlistsData[openedPlaylistID].songs[0].source;
-            audio.src = playerState.audioSource;
+    const playingPlaylist = () =>{
+        let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+        if(isNaN(currentSong)){
+            currentSong = 0;
+            changePlaySongAppearance(singleSongButton[currentSong]);
+        }else{
+            changePlaySongAppearance(singleSongButton[currentSong]);
         }
+        // if any song in songs is playing, pause it else play first song
         let playBtn = document.getElementById("play") as HTMLButtonElement;
         let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
         seekSlider.removeAttribute("disabled");
         playBtn.removeAttribute("disabled");
         playerState.currentPlaylist = openedPlaylistID;
+    }
+
+    playPlaylist.addEventListener("click", () =>{
+        playingPlaylist();
         changePlaySongAppearance(playPlaylist);
     });
 
@@ -219,7 +252,7 @@ import { ViewTransitions } from 'astro:transitions';
             playlistMain.style.display = "block";
             main.style.display = "none";
             // window.location.href = "/playlist/" + openedPlaylistID;
-            openedPlaylistID = index + 1;
+            openedPlaylistID = index;
             updatePlaylistInfo();
         });
     });
@@ -239,18 +272,50 @@ import { ViewTransitions } from 'astro:transitions';
             }
         }
     }
+    
+    const playNextSong = () =>{
+        currentSong++;
+        console.log(currentSong);
+        let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+        if(singleSongButton[currentSong]){
+            changePlaySongAppearance(singleSongButton[currentSong]);
+        }
+        else{
+            currentSong--;
+        }
+    }
+    
+    const playPreviousSong = () =>{
+        currentSong--;
+        console.log(currentSong);
+        let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+        if(singleSongButton[currentSong]){
+            changePlaySongAppearance(singleSongButton[currentSong]);
+        }
+        else{
+            currentSong++;
+        }
+    }
+
+    playNextBtn.addEventListener("click", () => {
+        playNextSong();
+    });
+
+    playPreviousBtn.addEventListener("click", () => {
+        playPreviousSong();
+    });
 
     audio.addEventListener("play", () => {
-        console.log("just worked")
         if (audio instanceof HTMLAudioElement) {
-            console.log(playerState.currentPlaylist, openedPlaylistID)
             changePlaylistPlayBtn();
+            playingPlaylist();
         }
     });
     
     audio.addEventListener("pause", () => {
         if (audio instanceof HTMLAudioElement) {
             changePlaylistPlayBtn(true);
+            playingPlaylist();
         }
     });
 </script>
