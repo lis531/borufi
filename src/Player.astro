@@ -6,7 +6,8 @@ export let playerState = {
     isLooping: false,
     isShuffling: false,
     audioSource: "",
-    currentPlaylist: 0
+    currentPlaylist: NaN,
+    currentSong: NaN
 };
 ---
 
@@ -72,7 +73,7 @@ export let playerState = {
         }
     }
         
-        //change song <-- it will recieve the song source link and play it
+    //change song <-- it will recieve the song source link and play it
         
     const changeSong = (sourceLink: string) => {
         console.log("Changing song");
@@ -88,6 +89,8 @@ export let playerState = {
                 seekSlider.removeAttribute("disabled");
                 playBtn.removeAttribute("disabled");
                 audio.setAttribute("src", sourceLink);
+                console.log(sourceLink)
+                playerState.audioSource = sourceLink;
                 console.log("Audio source changed");
                 audio.play();
                 changePlayerPlayBtn();
@@ -119,6 +122,17 @@ export let playerState = {
 
     playBtn.addEventListener("click", () => {
         changeSongStatus();
+        cardPlayBtns.forEach((button) => {
+            if(audio.paused){
+                button.firstChild.style.display = 'block';
+                button.lastChild.style.display = 'none';
+            } else {
+                if(playerState.currentPlaylist == button.parentElement.parentElement?.dataset.source){
+                    button.firstChild.style.display = 'none';
+                    button.lastChild.style.display = 'block';
+                }
+            }
+        });
     });
 
     //displaying the duration of the song
@@ -161,16 +175,15 @@ export let playerState = {
     let lastVolume = "50";
     
     muteBtn?.addEventListener("click", () => {
+        const [firstChild, secondChild, lastChild] = muteBtn.children as HTMLElement[];
         if(turned){
             lastVolume = currentVolume.value;
             currentVolume.value = "0";
-            const [firstChild, secondChild, lastChild] = muteBtn.children as HTMLElement[];
             firstChild.style.display = "none";
             secondChild.style.display = "none";
             lastChild.style.display = "block";
         } else {
             currentVolume.value = lastVolume;
-            const [firstChild, secondChild, lastChild] = muteBtn.children as HTMLElement[];
             if(lastVolume > "75"){
                 firstChild.style.display = "none";
                 secondChild.style.display = "block";
@@ -207,6 +220,7 @@ export let playerState = {
         }
         currentVolume.style.setProperty('--volume-before-width', `${(Number(currentVolume.value) / Number(currentVolume.max)) * 100}%`);
         volume.innerHTML = currentVolume.value.toString();
+        turned = true;
     });
 
     currentVolume?.addEventListener("change", () => {
@@ -269,8 +283,10 @@ export let playerState = {
 
     //card play buttons
 
-    const removeClasses = () => {
+    const resetRest = () => {
         cardPlayBtns.forEach((button) => {
+            button.firstChild.style.display = 'block';
+            button.lastChild.style.display = 'none';
             if (button instanceof HTMLElement) {
                 const parentElement = button.parentElement?.parentElement?.parentElement;
                 if (parentElement) {
@@ -283,10 +299,11 @@ export let playerState = {
     cardPlayBtns.forEach((button) => {
         if(button.dataset.source != null){
             button.addEventListener("click", (event) => {
-                console.log("Clicked");
-                removeClasses();
+                resetRest();
+                button.parentElement?.parentElement?.parentElement.classList.add("active");
                 if(playerState.currentPlaylist != button.parentElement.parentElement?.dataset.source){
                     playerState.currentPlaylist = button.parentElement.parentElement?.dataset.source;
+                    playerState.currentSong = 0;
                     changeSong(button.dataset.source);
                     button.firstChild.style.display = 'none';
                     button.lastChild.style.display = 'block';
@@ -294,14 +311,10 @@ export let playerState = {
                     if(audio.paused){
                         button.firstChild.style.display = 'none';
                         button.lastChild.style.display = 'block';
-                        console.log("Playing song");
                         changeSongStatus();
                     } else {
-                        console.log("Pausing song");
-                        cardPlayBtns.forEach((button) => {
-                            button.firstChild.style.display = 'block';
-                            button.lastChild.style.display = 'none';
-                        });
+                        button.firstChild.style.display = 'block';
+                        button.lastChild.style.display = 'none';
                         changeSongStatus();
                     }
                 }                

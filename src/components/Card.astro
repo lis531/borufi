@@ -31,6 +31,7 @@ const { title, author, source, img, playlistId } = Astro.props;
 		button.firstChild.style.display = 'block';
 		button.lastChild.style.display = 'none';
 	});
+	
 	Array.from(linkCards).forEach((card: Element) => {
 		const button = card.querySelector('#playButton');
 		card.addEventListener('mouseover', () => {

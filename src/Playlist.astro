@@ -152,6 +152,7 @@ import { ViewTransitions } from 'astro:transitions';
     let currentSong = NaN;
 
     function updatePlaylistInfo() {
+        let playlistLengthNumber = 0;
         cover.src = playlistsData[openedPlaylistID].img;
         playlistTitle.textContent = playlistsData[openedPlaylistID].title;
         author.textContent = playlistsData[openedPlaylistID].author;
@@ -164,77 +165,100 @@ import { ViewTransitions } from 'astro:transitions';
                     <svg viewBox="0 0 15 15" fill="none" id="lastChild" style="display: none;"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor"></path></svg>
                     </button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audioTemp.duration)}</li></div>`;
                 let singleSongButtons = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+                playlistLengthNumber += audioTemp.duration;
+                playlistLength.textContent = "Playlist length: " + formatDuration(playlistLengthNumber);
                 singleSongButtons.forEach((playSongBtn, index) => {
                     let playIco = playSongBtn.firstElementChild as HTMLElement;
                     let pauseIco = playSongBtn.lastElementChild as HTMLElement;
-                    playIco.style.display = "block";
-                    pauseIco.style.display = "none";
+                    if(index != currentSong || openedPlaylistID != playerState.currentPlaylist){
+                        playIco.style.display = "block";
+                        pauseIco.style.display = "none";
+                    }
+                    else{
+                        playIco.style.display = "none";
+                        pauseIco.style.display = "block";
+                    }
                     playSongBtn.addEventListener("click", () => {
                         let playBtn = document.getElementById("play") as HTMLButtonElement;
                         let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
-                        seekSlider.removeAttribute("disabled");
                         playBtn.removeAttribute("disabled");
+                        seekSlider.removeAttribute("disabled");
+                        openedPlaylistID = parseInt(playSongBtn.dataset.openedplaylistid);
+                        playerState.currentPlaylist = openedPlaylistID;
                         if (playIco && pauseIco) {
-                            if(playerState.audioSource != playSongBtn.dataset.source)
+                            if(currentSong != index)
                             {
+                                currentSong = index;
                                 playerState.audioSource = playSongBtn.dataset.source;
                                 audio.src = playerState.audioSource;
                             }
                             if(audio.paused)
                             {
                                 audio.play();
-                                playIco.style.display = "none";
-                                pauseIco.style.display = "block";
                             }
                             else {
                                 audio.pause();
-                                playIco.style.display = "block";
-                                pauseIco.style.display = "none";
                             }
+                            singleSongButtons.forEach((playSongBtn, index) => {
+                                let playIco = playSongBtn.firstElementChild as HTMLElement;
+                                let pauseIco = playSongBtn.lastElementChild as HTMLElement;
+                                if(index != currentSong || openedPlaylistID != playerState.currentPlaylist || audio.paused){
+                                    playIco.style.display = "block";
+                                    pauseIco.style.display = "none";
+                                }
+                                else{
+                                    console.log("krol jestem i tyle")
+                                    playIco.style.display = "none";
+                                    pauseIco.style.display = "block";
+                                }
+                            });
                         }
-                        currentSong = index;
-                        openedPlaylistID = parseInt(playSongBtn.dataset.openedplaylistid);
-                        playerState.currentPlaylist = openedPlaylistID;
                     });
                 });
             });
         });
     }
 
-    const changePlaySongAppearance = (playSongBtn: Element) => {
+    const changeButtonAppearance = (playSongBtn: Element, check = false) => {
+        console.log("kkkk", check);
         let playIco = playSongBtn.firstElementChild as HTMLElement;
         let pauseIco = playSongBtn.lastElementChild as HTMLElement;
-        console.log(playIco);
-        console.log(pauseIco);
         playIco.style.display = "none";
         pauseIco.style.display = "block";
-        if(playlistsData[openedPlaylistID].songs[currentSong].source != playerState.audioSource)
-        {
-            playerState.audioSource = playlistsData[openedPlaylistID].songs[currentSong].source;
-            audio.src = playerState.audioSource;
+        if(playlistsData[openedPlaylistID].songs[currentSong]){
+            if(playlistsData[openedPlaylistID].songs[currentSong].source != playerState.audioSource && !check)
+            {
+                playerState.audioSource = playlistsData[openedPlaylistID].songs[currentSong].source;
+                audio.src = playerState.audioSource;
+                audio.play();
+                playIco.style.display = "none";
+                pauseIco.style.display = "block";
+                return;
+            }
         }
         if(audio.paused)
         {
-            audio.play();
+            if (!check){
+                audio.play();
+            }
             playIco.style.display = "none";
             pauseIco.style.display = "block";
         }
         else {
-            audio.pause();
+            if (!check){
+                audio.pause();
+            }
             playIco.style.display = "block";
             pauseIco.style.display = "none";
         }
     }
 
-    const playingPlaylist = () =>{
+    const changeAllAppearances = () =>{
         let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
         if(isNaN(currentSong)){
             currentSong = 0;
-            changePlaySongAppearance(singleSongButton[currentSong]);
-        }else{
-            changePlaySongAppearance(singleSongButton[currentSong]);
         }
-        // if any song in songs is playing, pause it else play first song
+        changeButtonAppearance(singleSongButton[currentSong]);
         let playBtn = document.getElementById("play") as HTMLButtonElement;
         let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
         seekSlider.removeAttribute("disabled");
@@ -243,42 +267,41 @@ import { ViewTransitions } from 'astro:transitions';
     }
 
     playPlaylist.addEventListener("click", () =>{
-        playingPlaylist();
-        changePlaySongAppearance(playPlaylist);
+        changeAllAppearances();
+        console.log("playPlaylist");
     });
 
     playlists.forEach((playlist, index) => {
         playlist.addEventListener("click", () => {
             playlistMain.style.display = "block";
             main.style.display = "none";
-            // window.location.href = "/playlist/" + openedPlaylistID;
             openedPlaylistID = index;
+            console.log(playerState.currentPlaylist, openedPlaylistID)
+            console.log(openedPlaylistID != playerState.currentPlaylist);
+            //window.location.href = "/playlist/" + openedPlaylistID;
             updatePlaylistInfo();
-        });
-    });
-
-    function changePlaylistPlayBtn(paused = false) {
-        let playIco = playPlaylist.firstChild as HTMLElement;
-        let pauseIco = playPlaylist.lastChild as HTMLElement;
-        if (playIco && pauseIco) {
-            if(!paused && playerState.currentPlaylist == openedPlaylistID)
-            {
-                playIco.style.display = "none";
-                pauseIco.style.display = "block";
+            if(openedPlaylistID != playerState.currentPlaylist){
+                playPlaylist.firstElementChild.style.display = "block";
+                playPlaylist.lastElementChild.style.display = "none";
             }
             else{
-                playIco.style.display = "block";
-                pauseIco.style.display = "none";
+                playPlaylist.firstElementChild.style.display = "none";
+                playPlaylist.lastElementChild.style.display = "block";
             }
-        }
-    }
+            let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+            if(isNaN(currentSong)){
+                currentSong = 0;
+            }
+            changeButtonAppearance(singleSongButton[currentSong], true);
+        });
+    });
     
     const playNextSong = () =>{
         currentSong++;
         console.log(currentSong);
         let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
         if(singleSongButton[currentSong]){
-            changePlaySongAppearance(singleSongButton[currentSong]);
+            changeButtonAppearance(singleSongButton[currentSong]);
         }
         else{
             currentSong--;
@@ -290,7 +313,7 @@ import { ViewTransitions } from 'astro:transitions';
         console.log(currentSong);
         let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
         if(singleSongButton[currentSong]){
-            changePlaySongAppearance(singleSongButton[currentSong]);
+            changeButtonAppearance(singleSongButton[currentSong]);
         }
         else{
             currentSong++;
@@ -305,18 +328,22 @@ import { ViewTransitions } from 'astro:transitions';
         playPreviousSong();
     });
 
-    audio.addEventListener("play", () => {
-        if (audio instanceof HTMLAudioElement) {
-            changePlaylistPlayBtn();
-            playingPlaylist();
-        }
+    audio.addEventListener("ended", () => {
+        playNextSong();
     });
-    
+
+    audio.addEventListener("play", () => {
+        console.log("play");
+        playPlaylist.firstChild.style.display = "none";
+        playPlaylist.lastChild.style.display = "block";
+        changeButtonAppearance(singleSongButton[currentSong], true);
+    });
+
     audio.addEventListener("pause", () => {
-        if (audio instanceof HTMLAudioElement) {
-            changePlaylistPlayBtn(true);
-            playingPlaylist();
-        }
+        console.log("pause");
+        playPlaylist.firstChild.style.display = "block";
+        playPlaylist.lastChild.style.display = "none";
+        changeButtonAppearance(singleSongButton[currentSong], true);
     });
 </script>
 <style>
