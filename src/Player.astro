@@ -19,9 +19,9 @@ export let playerState = {
     <div id="mainControls">
         <div id="songControls">
             <button id="random"><RxShuffle /></button>
-            <button id="playNext"><RxTrackPrevious /></button>
+            <button id="playPrevious"><RxTrackPrevious /></button>
             <button id="play"><RxPlay /><RxPause /></button>
-            <button id="playPrevious"><RxTrackNext /></button>
+            <button id="playNext"><RxTrackNext /></button>
             <button id="loop"><RxLoop /></button>
         </div>
         <div id="audioNavigation">
@@ -43,7 +43,6 @@ export let playerState = {
     let cardPlayBtns = document.querySelectorAll("#playButton");
     let playBtn = document.getElementById("play") as HTMLButtonElement;
     let loopBtn = document.getElementById("loop");
-    let randomBtn = document.getElementById("random");
     let currentTime = document.getElementById("current-time");
     let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
     let durationTime = document.getElementById("duration");
@@ -76,7 +75,6 @@ export let playerState = {
     //change song <-- it will recieve the song source link and play it
         
     const changeSong = (sourceLink: string) => {
-        console.log("Changing song");
         if (playBtn instanceof HTMLElement) {
             if (sourceLink == null || sourceLink == "" || sourceLink == undefined) {
                 console.log("No audio source found");
@@ -89,7 +87,6 @@ export let playerState = {
                 seekSlider.removeAttribute("disabled");
                 playBtn.removeAttribute("disabled");
                 audio.setAttribute("src", sourceLink);
-                console.log(sourceLink)
                 playerState.audioSource = sourceLink;
                 console.log("Audio source changed");
                 audio.play();
@@ -274,11 +271,6 @@ export let playerState = {
         loopBtn?.classList.toggle("on")
         audio.loop = playerState.isLooping;
         playerState.isLooping = !playerState.isLooping;
-    });
-
-    randomBtn?.addEventListener("click", () => {
-        randomBtn?.classList.toggle("on");
-        playerState.isShuffling = !playerState.isShuffling;
     });
 
     //card play buttons

@@ -31,68 +31,73 @@ import { ViewTransitions } from 'astro:transitions';
         {
             "title": "Boruwa Originals",
             "img": "boruwa_originals.jpg",
-            "author": "Artist 1",
+            "author": "Boruwa's Assistant",
             "songs": [
                 {
-                    "title": "Song 1",
-                    "artist": "Artist 1",
-                    "source": "./kebsonken.mp3"
+                    "title": "Daylight",
+                    "artist": "Boruwa's Assistant",
+                    "source": "./songs/daligh.mp3"
                 },
                 {
-                    "title": "Song 2",
-                    "artist": "Artist 2",
-                    "source": "./kebsonken.mp3"
+                    "title": "Five Nights At Freddy's",
+                    "artist": "Boruwa's Assistant",
+                    "source": "./songs/fred.mp3"
                 }
             ]
         },
         {
             "title": "Modern Boruwas",
             "img": "modern_boruwas.jpg",
-            "author": "Artist 2",
+            "author": "Boruwa's Assistant",
             "songs": [
                 {
-                    "title": "Song 3",
-                    "artist": "Artist 3",
-                    "source": "./kebsonken.mp3"
+                    "title": "Cheri Cheri Lady",
+                    "artist": "Boruwa's Assistant",
+                    "source": "./songs/cheri.mp3"
                 },
                 {
-                    "title": "Song 4",
-                    "artist": "Artist 4",
-                    "source": "./kebsonken.mp3"
+                    "title": "Brother Louie",
+                    "artist": "Boruwa's Assistant",
+                    "source": "./songs/brotherlouie.mp3"
+                },
+                {
+                    "title": "Your My Heart Your My Soul",
+                    "artist": "Boruwa's Assistant",
+                    "source": "./songs/yourmyheart.mp3"
                 }
             ]
         },
         {
             "title": "Boruwa Vocals",
             "img": "boruwa_vocals.jpg",
-            "author": "Artist 3",
+            "author": "Boruwa's Assistant",
             "songs": [
                 {
-                    "title": "Song 5",
-                    "artist": "Artist 5",
-                    "source": "./kebsonken.mp3"
+                    "title": "Never Fade Away",
+                    "artist": "Boruwa's Assistant",
+                    "source": "./songs/neverfadeaway.mp3"
                 },
                 {
-                    "title": "Song 6",
-                    "artist": "Artist 6",
-                    "source": "./kebsonken.mp3"
+                    "title": "Paktofonika - Jestem Bogiem",
+                    "artist": "Boruwa's Assistant",
+                    "source": "./songs/paktofo.mp3"
                 }
             ]
         },
         {
             "title": "Boruwa For Christmas",
             "img": "christmas_with_boruwa.jpg",
-            "author": "Artist 4",
+            "author": "Boruwa's Assistant",
             "songs": [
                 {
-                    "title": "Song 7",
-                    "artist": "Artist 7",
-                    "source": "kebsonken.mp3"
+                    "title": "Scareface (Push It To The Limit)",
+                    "artist": "Boruwa's Assistant",
+                    "source": "./songs/pushittothelimit.mp3"
                 },
                 {
-                    "title": "Song 8",
-                    "artist": "Artist 8",
-                    "source": "kebsonken.mp3"
+                    "title": "Michael Jackson - Thriller",
+                    "artist": "Boruwa's Assistant",
+                    "source": "./songs/michael.mp3"
                 }
             ]
         }
@@ -123,9 +128,6 @@ import { ViewTransitions } from 'astro:transitions';
         playlistMain.style.display = "none";
         main.style.display = "block";
         playlists.forEach((playlist) => {
-            console.log(playlist.dataset.source);
-            console.log(playerState.currentPlaylist);
-            console.log(playlist.dataset.source != playerState.currentPlaylist);
             if(playlist.dataset.source != playerState.currentPlaylist){
                 playBtn[playlist.dataset.source].firstChild.style.display = "block";
                 playBtn[playlist.dataset.source].lastChild.style.display = "none";
@@ -134,10 +136,16 @@ import { ViewTransitions } from 'astro:transitions';
                 if(audio.paused){
                     playBtn[playlist.dataset.source].firstChild.style.display = "block";
                     playBtn[playlist.dataset.source].lastChild.style.display = "none";
+                    let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+                    singleSongButton[currentSong].firstElementChild.style.display = "block";
+                    singleSongButton[currentSong].lastElementChild.style.display = "none";
                 }
                 else{
                     playBtn[playlist.dataset.source].firstChild.style.display = "none";
                     playBtn[playlist.dataset.source].lastChild.style.display = "block";
+                    let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+                    singleSongButton[currentSong].firstElementChild.style.display = "none";
+                    singleSongButton[currentSong].lastElementChild.style.display = "block";
                 }
             }
         });
@@ -152,25 +160,36 @@ import { ViewTransitions } from 'astro:transitions';
     let currentSong = NaN;
 
     function updatePlaylistInfo() {
+        currentSong = playerState.currentSong;
         let playlistLengthNumber = 0;
         cover.src = playlistsData[openedPlaylistID].img;
         playlistTitle.textContent = playlistsData[openedPlaylistID].title;
         author.textContent = playlistsData[openedPlaylistID].author;
         songsContainer.innerHTML = "";
-        playlistsData[openedPlaylistID].songs.map((song) => {
-            const audioTemp = new Audio(song.source);
-            audioTemp.addEventListener('loadedmetadata', () => {
-                songsContainer.innerHTML += `<div><button id="singleSongButton" data-source='${song.source}' data-openedPlaylistID='${openedPlaylistID}' style="border: none; background: none; color: white; cursor: pointer; margin: 0; width: 3rem;">
+        playlistsData[openedPlaylistID].songs.forEach((song, i) => {
+            let audioTemp = new Audio(song.source);
+            // to powoduje że się losuje kolejność -- zrobione
+            // a poza tym to coś jeszcze zmienia ikone songplaybuttona
+            audioTemp.addEventListener("loadedmetadata", () => {
+                let songElement = document.createElement("div");
+                songElement.innerHTML += `<button id="singleSongButton" data-source='${song.source}' data-openedPlaylistID='${openedPlaylistID}' style="border: none; background: none; color: white; cursor: pointer; margin: 0; width: 3rem;">
                     <svg viewBox="0 0 15 15" fill="none" id="firstChild"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z" fill="currentColor"></path></svg>
                     <svg viewBox="0 0 15 15" fill="none" id="lastChild" style="display: none;"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor"></path></svg>
-                    </button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audioTemp.duration)}</li></div>`;
+                    </button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audioTemp.duration)}</li>`;
+                if(i > songsContainer.childElementCount){
+                    songsContainer.appendChild(songElement);
+                }
+                else{
+                    songsContainer.insertBefore(songElement, songsContainer.children[i]);
+                }
                 let singleSongButtons = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
                 playlistLengthNumber += audioTemp.duration;
                 playlistLength.textContent = "Playlist length: " + formatDuration(playlistLengthNumber);
                 singleSongButtons.forEach((playSongBtn, index) => {
                     let playIco = playSongBtn.firstElementChild as HTMLElement;
                     let pauseIco = playSongBtn.lastElementChild as HTMLElement;
-                    if(index != currentSong || openedPlaylistID != playerState.currentPlaylist){
+                    console.log(index, currentSong, openedPlaylistID, playerState.currentPlaylist, audio.paused);
+                    if(index != currentSong || openedPlaylistID != playerState.currentPlaylist || audio.paused){
                         playIco.style.display = "block";
                         pauseIco.style.display = "none";
                     }
@@ -179,6 +198,7 @@ import { ViewTransitions } from 'astro:transitions';
                         pauseIco.style.display = "block";
                     }
                     playSongBtn.addEventListener("click", () => {
+                        console.log("HALO");
                         let playBtn = document.getElementById("play") as HTMLButtonElement;
                         let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
                         playBtn.removeAttribute("disabled");
@@ -186,28 +206,33 @@ import { ViewTransitions } from 'astro:transitions';
                         openedPlaylistID = parseInt(playSongBtn.dataset.openedplaylistid);
                         playerState.currentPlaylist = openedPlaylistID;
                         if (playIco && pauseIco) {
-                            if(currentSong != index)
+                            if(currentSong != index || playerState.audioSource != playSongBtn.dataset.source)
                             {
                                 currentSong = index;
                                 playerState.audioSource = playSongBtn.dataset.source;
                                 audio.src = playerState.audioSource;
-                            }
-                            if(audio.paused)
-                            {
                                 audio.play();
                             }
-                            else {
-                                audio.pause();
+                            else{
+                                if(audio.paused)
+                                {
+                                    audio.play();
+                                }
+                                else {
+                                    audio.pause();
+                                }
                             }
                             singleSongButtons.forEach((playSongBtn, index) => {
                                 let playIco = playSongBtn.firstElementChild as HTMLElement;
                                 let pauseIco = playSongBtn.lastElementChild as HTMLElement;
-                                if(index != currentSong || openedPlaylistID != playerState.currentPlaylist || audio.paused){
+                                console.log(index != currentSong, openedPlaylistID != playerState.currentPlaylist, audio.paused);
+                                if(index != currentSong || audio.paused){
+                                    console.log("playIco", index)
                                     playIco.style.display = "block";
                                     pauseIco.style.display = "none";
                                 }
                                 else{
-                                    console.log("krol jestem i tyle")
+                                    console.log("pauseIco", index)
                                     playIco.style.display = "none";
                                     pauseIco.style.display = "block";
                                 }
@@ -215,7 +240,7 @@ import { ViewTransitions } from 'astro:transitions';
                         }
                     });
                 });
-            });
+            });         
         });
     }
 
@@ -280,7 +305,7 @@ import { ViewTransitions } from 'astro:transitions';
             console.log(openedPlaylistID != playerState.currentPlaylist);
             //window.location.href = "/playlist/" + openedPlaylistID;
             updatePlaylistInfo();
-            if(openedPlaylistID != playerState.currentPlaylist){
+            if(openedPlaylistID != playerState.currentPlaylist || audio.paused){
                 playPlaylist.firstElementChild.style.display = "block";
                 playPlaylist.lastElementChild.style.display = "none";
             }
@@ -288,19 +313,19 @@ import { ViewTransitions } from 'astro:transitions';
                 playPlaylist.firstElementChild.style.display = "none";
                 playPlaylist.lastElementChild.style.display = "block";
             }
-            let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
-            if(isNaN(currentSong)){
-                currentSong = 0;
-            }
-            changeButtonAppearance(singleSongButton[currentSong], true);
         });
     });
     
     const playNextSong = () =>{
         currentSong++;
-        console.log(currentSong);
         let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
         if(singleSongButton[currentSong]){
+            singleSongButton.forEach(songButton => {
+                let playIco = songButton.firstElementChild as HTMLElement;
+                let pauseIco = songButton.lastElementChild as HTMLElement;
+                playIco.style.display = "block";
+                pauseIco.style.display = "none";
+            });
             changeButtonAppearance(singleSongButton[currentSong]);
         }
         else{
@@ -310,7 +335,6 @@ import { ViewTransitions } from 'astro:transitions';
     
     const playPreviousSong = () =>{
         currentSong--;
-        console.log(currentSong);
         let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
         if(singleSongButton[currentSong]){
             changeButtonAppearance(singleSongButton[currentSong]);
@@ -328,6 +352,13 @@ import { ViewTransitions } from 'astro:transitions';
         playPreviousSong();
     });
 
+    let randomBtn = document.getElementById("random");
+
+    randomBtn?.addEventListener("click", () => {
+        randomBtn?.classList.toggle("on");
+        playerState.isShuffling = !playerState.isShuffling;
+    });
+
     audio.addEventListener("ended", () => {
         playNextSong();
     });
@@ -336,14 +367,19 @@ import { ViewTransitions } from 'astro:transitions';
         console.log("play");
         playPlaylist.firstChild.style.display = "none";
         playPlaylist.lastChild.style.display = "block";
-        changeButtonAppearance(singleSongButton[currentSong], true);
+        let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+        singleSongButton[currentSong].firstElementChild.style.display = "none";
+        singleSongButton[currentSong].lastElementChild.style.display = "block";
     });
 
     audio.addEventListener("pause", () => {
         console.log("pause");
         playPlaylist.firstChild.style.display = "block";
         playPlaylist.lastChild.style.display = "none";
-        changeButtonAppearance(singleSongButton[currentSong], true);
+        let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+        console.log(currentSong)
+        singleSongButton[currentSong].firstElementChild.style.display = "block";
+        singleSongButton[currentSong].lastElementChild.style.display = "none";
     });
 </script>
 <style>
