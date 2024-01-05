@@ -10,8 +10,8 @@ export let playerState = {
 
 <div id="audioPlayer">
     <div id="songInfo">
-        <h1><a id="title">Title</a></h1>
-        <h2><a id="artist">Artist</a></h2>
+        <h1><p id="title">Title</p></h1>
+        <h2><p id="artist">Artist</p></h2>
     </div>
     <div id="mainControls">
         <div id="songControls">
@@ -54,7 +54,6 @@ export let playerState = {
     import playerState from './Player.astro';
     let cardPlayBtns = document.querySelectorAll("#playButton");
     let playBtn = document.getElementById("play") as HTMLButtonElement;
-    let loopBtn = document.getElementById("loop");
     let currentTime = document.getElementById("current-time");
     let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
     let durationTime = document.getElementById("duration");
@@ -62,8 +61,6 @@ export let playerState = {
     let muteBtn = document.getElementById("mute");
     let volume = document.getElementById("volume");
     let currentVolume = document.getElementById("volume-slider") as HTMLInputElement;
-    let title = document.getElementById("title");
-    let artist = document.getElementById("artist");
   
     seekSlider.disabled = true;
     if (playBtn) playBtn.disabled = true;
@@ -116,17 +113,19 @@ export let playerState = {
             }
         }
     }
-
+    
     audio.addEventListener("play", () => {
-        if (audio instanceof HTMLAudioElement) {
-            changePlayerPlayBtn();
-        }
+        changePlayerPlayBtn();
+        cardPlayBtns.forEach((button, index) => {
+            console.log(playerState.currentPlaylist, index);
+            if(playerState.currentPlaylist != index){
+                resetRest();
+            }
+        });
     });
     
     audio.addEventListener("pause", () => {
-        if (audio instanceof HTMLAudioElement) {
-            changePlayerPlayBtn(true);
-        }
+        changePlayerPlayBtn(true);
     });
 
     playBtn.addEventListener("click", () => {
@@ -185,7 +184,6 @@ export let playerState = {
     
     muteBtn?.addEventListener("click", () => {
         const [firstChild, secondChild, lastChild] = muteBtn?.children as HTMLElement[];
-        console.log(firstChild, secondChild, lastChild);
         if(turned){
             lastVolume = currentVolume.value;
             currentVolume.value = "0";
@@ -277,14 +275,6 @@ export let playerState = {
             }
         }
     }, 1000);
-
-    //loop and shuffle controls
-
-    loopBtn?.addEventListener("click", () => {
-        loopBtn?.classList.toggle("on");
-        audio.loop = playerState.isLooping;
-        playerState.isLooping = !playerState.isLooping;
-    });
 
     //card play buttons
 

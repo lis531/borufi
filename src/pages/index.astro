@@ -4,6 +4,34 @@ import Card from '../components/Card.astro';
 import Player from '../Player.astro';
 import Playlist from '../Playlist.astro';
 // import { ViewTransitions } from "astro:transitions";
+
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
+// Follow this pattern to import other Firebase services
+// import { } from 'firebase/<service>';
+
+// TODO: Replace the following with your app's Firebase project configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyD8y05o67CNIYc0kNPVQtsz4p58S1QyRXA",
+  	authDomain: "borufi-4610a.firebaseapp.com",
+  	projectId: "borufi-4610a",
+  	storageBucket: "borufi-4610a.appspot.com",
+  	messagingSenderId: "13483024769",
+  	appId: "1:13483024769:web:4875c275b2f726b36d8880",
+  	measurementId: "G-XZNVBP7S41"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Get a list of cities from your database
+async function getCities(db) {
+  const citiesCol = collection(db, 'cities');
+  const citySnapshot = await getDocs(citiesCol);
+  const cityList = citySnapshot.docs.map(doc => doc.data());
+  return cityList;
+}
+
 ---
 
 <Layout title="Borufi">

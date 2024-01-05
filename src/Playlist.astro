@@ -24,6 +24,8 @@
 </html>
 <script>
     import playerState from './Player.astro';
+    import { getStorage } from "firebase/storage";
+    
     const playlistsData = [
         {
             "title": "Boruwa Originals",
@@ -349,7 +351,17 @@
         playPreviousSong();
     });
 
+    //loop and shuffle controls
+
     let randomBtn = document.getElementById("random");
+    let loopBtn = document.getElementById("loop");
+    // when current playlist, change  buttons classlist
+
+    loopBtn?.addEventListener("click", () => {
+        loopBtn?.classList.toggle("on");
+        audio.loop = playerState.isLooping;
+        playerState.isLooping = !playerState.isLooping;
+    });
 
     randomBtn?.addEventListener("click", () => {
         randomBtn?.classList.toggle("on");
@@ -357,8 +369,21 @@
     });
 
     audio.addEventListener("ended", () => {
-        playNextSong();
-    });
+        if(playerState.isShuffling){
+            let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+            singleSongButton.forEach(songButton => {
+                let playIco = songButton.firstElementChild as HTMLElement;
+                let pauseIco = songButton.lastElementChild as HTMLElement;
+                playIco.style.display = "block";
+                pauseIco.style.display = "none";
+            });
+            currentSong = Math.random() * playlistsData[openedPlaylistID].songs.length;
+            changeButtonAppearance(singleSongButton[currentSong]);
+        }
+        else{
+            playNextSong();
+        }
+    })
 
     audio.addEventListener("play", () => {
         console.log("play");
