@@ -121,11 +121,10 @@
 
     let openedPlaylistID = 0;
     playlistMain.style.display = "none";
-    main.style.display = "block";
 
     backButton?.addEventListener("click", () => {
         playlistMain.style.display = "none";
-        main.style.display = "block";
+        main.style.display = "flex";
         playlists.forEach((playlist) => {
             if(playlist.dataset.source != playerState.currentPlaylist){
                 playBtn[playlist.dataset.source].firstElementChild.style.display = "block";

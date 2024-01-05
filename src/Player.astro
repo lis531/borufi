@@ -41,9 +41,9 @@ export let playerState = {
     <div id="volumeControl">
         <span id="volume">50</span>
         <button id="mute">
-            <svg viewBox="0 0 16 16" height="32px" width="32px" fill="white"><path d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 9 12V4zM6.312 6.39 8 5.04v5.92L6.312 9.61A.5.5 0 0 0 6 9.5H4v-3h2a.5.5 0 0 0 .312-.11zM12.025 8a4.486 4.486 0 0 1-1.318 3.182L10 10.475A3.489 3.489 0 0 0 11.025 8 3.49 3.49 0 0 0 10 5.525l.707-.707A4.486 4.486 0 0 1 12.025 8z"></path></svg>            
-            <svg viewBox="0 0 16 16" height="32px" width="32px" fill="white"><path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"></path><path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z" style="display: block;"></path><path d="M10.025 8a4.486 4.486 0 0 1-1.318 3.182L8 10.475A3.489 3.489 0 0 0 9.025 8c0-.966-.392-1.841-1.025-2.475l.707-.707A4.486 4.486 0 0 1 10.025 8zM7 4a.5.5 0 0 0-.812-.39L3.825 5.5H1.5A.5.5 0 0 0 1 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 7 12V4zM4.312 6.39 6 5.04v5.92L4.312 9.61A.5.5 0 0 0 4 9.5H2v-3h2a.5.5 0 0 0 .312-.11z" style="display: block;"></path></svg>
-            <svg viewBox="0 0 16 16" height="32px" width="32px" fill="white"><path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06zM6 5.04 4.312 6.39A.5.5 0 0 1 4 6.5H2v3h2a.5.5 0 0 1 .312.11L6 10.96V5.04zm7.854.606a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0z"></path></svg>
+            <svg id="highV" viewBox="0 0 16 16" height="32px" width="32px" fill="white"><path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"></path><path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z" style="display: block;"></path><path d="M10.025 8a4.486 4.486 0 0 1-1.318 3.182L8 10.475A3.489 3.489 0 0 0 9.025 8c0-.966-.392-1.841-1.025-2.475l.707-.707A4.486 4.486 0 0 1 10.025 8zM7 4a.5.5 0 0 0-.812-.39L3.825 5.5H1.5A.5.5 0 0 0 1 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 7 12V4zM4.312 6.39 6 5.04v5.92L4.312 9.61A.5.5 0 0 0 4 9.5H2v-3h2a.5.5 0 0 0 .312-.11z" style="display: block;"></path></svg>
+            <svg id="medV" viewBox="0 0 16 16" height="32px" width="32px" fill="white"><path d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 9 12V4zM6.312 6.39 8 5.04v5.92L6.312 9.61A.5.5 0 0 0 6 9.5H4v-3h2a.5.5 0 0 0 .312-.11zM12.025 8a4.486 4.486 0 0 1-1.318 3.182L10 10.475A3.489 3.489 0 0 0 11.025 8 3.49 3.49 0 0 0 10 5.525l.707-.707A4.486 4.486 0 0 1 12.025 8z"></path></svg>            
+            <svg id="noV" viewBox="0 0 16 16" height="32px" width="32px" fill="white"><path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06zM6 5.04 4.312 6.39A.5.5 0 0 1 4 6.5H2v3h2a.5.5 0 0 1 .312.11L6 10.96V5.04zm7.854.606a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0z"></path></svg>
         </button>
         <input type="range" id="volume-slider" min="0" max="100" value="50">
     </div>
@@ -117,9 +117,11 @@ export let playerState = {
     audio.addEventListener("play", () => {
         changePlayerPlayBtn();
         cardPlayBtns.forEach((button, index) => {
-            console.log(playerState.currentPlaylist, index);
-            if(playerState.currentPlaylist != index){
-                resetRest();
+            if(playerState.currentPlaylist == index){
+                button.parentElement?.parentElement?.parentElement.classList.add("active");
+            }
+            else{
+                button.parentElement?.parentElement?.parentElement.classList.remove("active");
             }
         });
     });
@@ -180,25 +182,28 @@ export let playerState = {
     }
 
     let turned = true;
-    let lastVolume = "50";
+    let lastVolume = 50;
     
     muteBtn?.addEventListener("click", () => {
+        if(currentVolume.value == "0" && lastVolume == 0){
+            return;
+        }
         const [firstChild, secondChild, lastChild] = muteBtn?.children as HTMLElement[];
         if(turned){
-            lastVolume = currentVolume.value;
+            lastVolume = parseInt(currentVolume.value);
             currentVolume.value = "0";
             firstChild.style.display = "none";
             secondChild.style.display = "none";
             lastChild.style.display = "block";
         } else {
-            currentVolume.value = lastVolume;
-            if(lastVolume > "75"){
-                firstChild.style.display = "none";
-                secondChild.style.display = "block";
-                lastChild.style.display = "none";
-            } else {
+            currentVolume.value = lastVolume.toString();
+            if(lastVolume > 75){
                 firstChild.style.display = "block";
                 secondChild.style.display = "none";
+                lastChild.style.display = "none";
+            } else {
+                firstChild.style.display = "none";
+                secondChild.style.display = "block";
                 lastChild.style.display = "none";
             }
         }
@@ -214,12 +219,12 @@ export let playerState = {
         audio.volume = Number(currentVolume.value) / 200;
         const [firstChild, secondChild, lastChild] = muteBtn.children as HTMLElement[];
         if (Number(currentVolume.value) > 75) {
-            firstChild.style.display = "none";
-            secondChild.style.display = "block";
-            lastChild.style.display = "none";
-        } else if (Number(currentVolume.value) > 0) {
             firstChild.style.display = "block";
             secondChild.style.display = "none";
+            lastChild.style.display = "none";
+        } else if (Number(currentVolume.value) > 0) {
+            firstChild.style.display = "none";
+            secondChild.style.display = "block";
             lastChild.style.display = "none";
         } else {
             firstChild.style.display = "none";
@@ -376,7 +381,7 @@ export let playerState = {
     #seek-slider{
         width: 50vw;
     }
-    #mute :nth-child(2), #mute :nth-child(3){
+    #highV, #noV{
         display: none;
     }
     #mute > svg{
