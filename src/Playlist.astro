@@ -6,18 +6,34 @@
     <title>Document</title>
 </head>
 <body>
-    <div id="playlistMain">
-        <button id="backButton">Back</button>
+    <div id="playlistMain" style="display: none;">
+        <button id="backButton">
+            <svg stroke="black" viewBox="0 0 512 512" height="32px" width="32px"><path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M328 112L184 256l144 144"></path></svg>        </button>
         <div>
-            <img id="cover" src=>
-            <h1 id="playlistTitle"></h1>
-            <button id="playPlaylist">
-                <svg viewBox="0 0 15 15" height="32px" width="32px"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z" fill="currentColor" data-darkreader-inline-fill="" style="--darkreader-inline-fill: currentColor;"></path></svg>
-                <svg viewBox="0 0 15 15" height="32px" width="32px"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor" data-darkreader-inline-fill="" style="--darkreader-inline-fill: currentColor;"></path></svg>
-            </button>
-            <div style="display: flex; flex-direction: row; gap: 5%;"><p id="author"></p><p id="playlistLength">Playlist length</p></div>
-            <ol id="songs">
-            </ol>
+            <div id="playlistTop">
+                <div id="playPlaylist">
+                    <img id="cover" src="">
+                    <button>
+                        <svg viewBox="0 0 15 15" height="32px" width="32px"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z" fill="currentColor"></path></svg>
+                        <svg viewBox="0 0 15 15" height="32px" width="32px"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor"></path></svg>
+                    </button>
+                </div>
+                <div>
+                    <h1 id="playlistTitle"></h1>
+                    <div id="info"><p id="author"></p><p id="playlistLength">Playlist length</p></div>
+                </div>
+            </div>
+            <table id="songsTable">
+                <thead>
+                        <th style="width: 4vw;"></th>
+                        <th style="width: 3vw;">#</th>
+                        <th style="width: 25vw;">Title</th>
+                        <th style="width: 25vw;">Artist</th>
+                        <th style="width: 5vw;">Length</th>
+                </thead>
+                <tbody id="songs">
+                </tbody>
+            </table>
         </div>
     </div>
 </body>
@@ -111,7 +127,7 @@
     let songsContainer = document.getElementById("songs") as HTMLElement;
     let playlistMain = document.getElementById("playlistMain") as HTMLElement;
     let main = document.getElementById("main") as HTMLElement;
-    let playPlaylist = document.getElementById("playPlaylist") as HTMLElement;
+    let playPlaylist = document.getElementById("playPlaylist")?.lastElementChild as HTMLElement;
     let audio = document.getElementById("audio") as HTMLAudioElement;
     let playNextBtn = document.getElementById("playNext") as HTMLElement;
     let playPreviousBtn = document.getElementById("playPrevious") as HTMLElement;
@@ -120,7 +136,6 @@
     playPlaylist.lastElementChild.style.display = "none";
 
     let openedPlaylistID = 0;
-    playlistMain.style.display = "none";
 
     backButton?.addEventListener("click", () => {
         playlistMain.style.display = "none";
@@ -163,17 +178,29 @@
         cover.src = playlistsData[openedPlaylistID].img;
         playlistTitle.textContent = playlistsData[openedPlaylistID].title;
         author.textContent = playlistsData[openedPlaylistID].author;
-        songsContainer.innerHTML = "";
+        //remove all songs (tr) elements from songsContainer
+        var songs = songsContainer.querySelectorAll("tr") as NodeListOf<HTMLElement>;
+
+        songs.forEach((song) => {
+            console.log("removed", song);
+            song.remove();
+        });
         playlistsData[openedPlaylistID].songs.forEach((song, i) => {
             let audioTemp = new Audio(song.source);
-            // to powoduje że się losuje kolejność -- zrobione
-            // a poza tym to coś jeszcze zmienia ikone songplaybuttona
             audioTemp.addEventListener("loadedmetadata", () => {
-                let songElement = document.createElement("div");
-                songElement.innerHTML += `<button id="singleSongButton" data-source='${song.source}' data-openedPlaylistID='${openedPlaylistID}' style="border: none; background: none; color: white; cursor: pointer; margin: 0; width: 3rem;">
-                    <svg viewBox="0 0 15 15" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z" fill="currentColor"></path></svg>
-                    <svg viewBox="0 0 15 15" fill="none" style="display: none;"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor"></path></svg>
-                    </button><li>${song.title} - ${song.artist} - Length: ${formatDuration(audioTemp.duration)}</li>`;
+                let songElement = document.createElement("tr");
+                songElement.style.height = "3rem";
+                songElement.innerHTML += `
+                    <td style="display: flex; height: inherit;">
+                        <button id="singleSongButton" data-source='${song.source}' data-openedPlaylistID='${openedPlaylistID}' style="padding: 0; border: none; background: none; color: white; cursor: pointer;">
+                            <svg viewBox="0 0 16 16" width="32px" height="32px"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z" fill="currentColor"></path></svg>
+                            <svg viewBox="0 0 16 16" style="display: none;" width="32px" height="32px"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor"></path></svg>
+                        </button>
+                    </td>
+                    <td>${i + 1}</td>
+                    <td>${song.title}</td>
+                    <td>${song.artist}</td>
+                    <td>${formatDuration(audioTemp.duration)}</td>`;
                 if(i > songsContainer.childElementCount){
                     songsContainer.appendChild(songElement);
                 }
@@ -405,9 +432,55 @@
 </script>
 <style>
     #cover{
-        width: 10rem;
-        height: 10rem;
-        border-radius: 1rem;
+        width: 15rem;
+        height: 15rem;
+        transition: cubic-bezier(0.075, 0.82, 0.165, 1) 1s;
+    }
+    #playPlaylist{
+        box-shadow: 0.8rem 0.8rem 1rem rgba(0, 0, 0, 0.4);
+    }
+    #playPlaylist:hover > #cover{
+        filter: brightness(0.5);
+        scale: 1.1;
+    }
+    #playPlaylist:hover > button{
+        opacity: 1;
+        animation: buttonApperar 1s cubic-bezier(0, .5, .5, 1) forwards;
+    }
+    #playPlaylist{
+        overflow: hidden;
+        border-radius: 0.6rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+    #playPlaylist svg{
+        width: 9rem;
+        height: 9rem;
+        z-index: 1;
+    }
+    #playPlaylist button{
+        border: none;
+        background: none;
+        color: white;
+        padding: 0;
+        position: absolute;
+        cursor: pointer;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    @keyframes buttonApperar {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
     }
     #playlistMain{
         display: flex;
@@ -415,38 +488,90 @@
         align-items: center;
         gap: 2rem;
     }
-    #playlistMain div{
+    #playlistMain > div{
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 1rem;
+        gap: 4rem;
+        margin-top: 2rem;
     }
     #playlistMain div p{
         margin: 0;
     }
-    #playlistMain div p:first-child{
-        font-size: 1.5rem;
-    }
-    #playlistMain div p:last-child{
-        font-size: 1rem;
-    }
     #backButton{
         border: none;
-        background: none;
+        background-color: white;
         color: white;
         cursor: pointer;
-        margin: none;
-        width: 3rem;
+        position: absolute;
+        width: 48px;
+        height: 48px;
+        padding: 0.5rem;
+        margin-left: 2rem;
+        border-radius: 100%;
     }
-    #playPlaylist{
-        border: none;
-        background: none;
-        color: white;
-        cursor: pointer;
-        padding: 0;
+    #playlistTop{
+        display: flex;
+        flex-direction: row;
+        gap: 2rem;
+        width: 50vw;
+        max-width: 60rem;
     }
-    #playPlaylist svg{
-        width: 3rem;
-        height: 3rem;
+    #playlistTop > div{
+        height: 15rem;
+        display: flex;
+        justify-content: end;
+        flex-direction: column;
+    }
+    #playlistTop > div > h1{
+        font-size: 3.5rem;
+    }
+    #playlistTitle{
+        margin-top: 3rem;
+    }
+    tr :hover{
+        background-color: white;
+    }
+    th{
+        text-align: left;
+        font-size: 1.5rem;
+    }
+    #songsTable{
+        max-width: 60rem;
+        border-collapse: collapse;
+    }
+    #info{
+        display: flex;
+        flex-direction: row;
+        gap: 3rem;
+        font-size: 1.5rem;
+    }
+    @media screen and (max-width: 600px) {
+        #playlistTop{
+            width: 90vw;
+            flex-direction: column;
+            align-items: center;
+        }
+        #playlistTitle{
+            text-align: center;
+            margin-top: 0;
+        }
+        #cover{
+            width: 10rem;
+            height: 10rem;
+        }
+        #playlistTop > div{
+            height: auto;
+        }
+        #playlistTop > div > h1{
+            font-size: 2rem;
+        }
+        #info{
+            font-size: 1rem;
+        }
+        #backButton{
+            position: relative;
+            margin-top: 2rem;
+        }
     }
 </style>

@@ -10,8 +10,8 @@ export let playerState = {
 
 <div id="audioPlayer">
     <div id="songInfo">
-        <h1><p id="title">Title</p></h1>
-        <h2><p id="artist">Artist</p></h2>
+        <h1 id="title">Title</h1>
+        <h2 id="artist">Artist</h2>
     </div>
     <div id="mainControls">
         <div id="songControls">
@@ -485,9 +485,6 @@ export let playerState = {
         text-decoration: underline;
         cursor: pointer;
     }
-    #duration, #current-time{
-        width: 3vw;
-    }
     #current-time{
         text-align: right;
     }
@@ -495,5 +492,43 @@ export let playerState = {
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+    @media screen and (max-width: 600px) {
+        #audioPlayer{
+            flex-direction: column;
+            height: 16vh;
+            min-height: 13rem;
+        }
+        #volumeControl{
+            display: none;
+        }
+        #title{
+            margin-bottom: 0;
+            margin-top: 0.5rem;
+            font-size: 1.7rem;
+        }
+        #artist{
+            margin: 0;
+            font-size: 1.2rem;
+        }
+        #songInfo{
+            width: 80%;
+            margin: 0;
+            text-align: center;
+        }
+        #songControls{
+            gap: 2.5rem;
+            order: 2;
+        }
+        #audioNavigation{
+            width: 100%;
+        }
+        #mainControls{
+            width: 100%;
+            margin: 0.5rem;
+        }
+        #seek-slider{
+            width: 70vw;
+        }
     }
 </style>
