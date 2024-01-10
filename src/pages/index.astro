@@ -1,37 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
-import Player from '../Player.astro';
-import Playlist from '../Playlist.astro';
+import Cards from '../components/Card.astro';
+import Player from '../player/Player.astro';
+import Playlist from '../playlist/Playlist.astro';
 // import { ViewTransitions } from "astro:transitions";
-
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
-// Follow this pattern to import other Firebase services
-// import { } from 'firebase/<service>';
-
-// TODO: Replace the following with your app's Firebase project configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyD8y05o67CNIYc0kNPVQtsz4p58S1QyRXA",
-  	authDomain: "borufi-4610a.firebaseapp.com",
-  	projectId: "borufi-4610a",
-  	storageBucket: "borufi-4610a.appspot.com",
-  	messagingSenderId: "13483024769",
-  	appId: "1:13483024769:web:4875c275b2f726b36d8880",
-  	measurementId: "G-XZNVBP7S41"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// Get a list of cities from your database
-async function getCities(db) {
-  const citiesCol = collection(db, 'cities');
-  const citySnapshot = await getDocs(citiesCol);
-  const cityList = citySnapshot.docs.map(doc => doc.data());
-  return cityList;
-}
-
 ---
 
 <Layout title="Borufi">
@@ -39,35 +11,8 @@ async function getCities(db) {
 	<head>
 		<main id="main">
 			<h1><span class="text-gradient">Borufi</span></h1>
-			<ul role="list" class="link-card-grid">
-				<Card
-				img="boruwa_originals.jpg"
-				source='./daligh.mp3'
-				title="Boruwa Originals"
-				author="boruwa"
-				playlistId="0"
-				/>
-				<Card
-				img="modern_boruwas.jpg"
-				source='./cheri.mp3'
-				title="Modern Boruwas"
-				author="boruwa"
-				playlistId="1"
-				/>
-				<Card
-				img="boruwa_vocals.jpg"
-				source='./neverfadeaway.mp3'
-				title="Boruwa Vocals"
-				author="boruwa"
-				playlistId="2"
-				/>
-				<Card
-				img="christmas_with_boruwa.jpg"
-				source='./pushittothelimit.mp3'
-				title="Boruwa For Christmas"
-				author="boruwa"
-				playlistId="3"
-				/>
+			<ul role="list" class="link-card-grid" id="playlistsList">
+				<Cards />
 			</ul>
 		</main>
 		<!-- <ViewTransitions /> -->
@@ -86,9 +31,6 @@ async function getCities(db) {
 		font-size: 20px;
 		margin-bottom: 15vh;
 	}
-	/* main > *{
-		display: none;
-	} */
 	.astro-a {
 		position: absolute;
 		top: -32px;
@@ -118,7 +60,7 @@ async function getCities(db) {
 	}
 	.link-card-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(18ch, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(20ch, 1fr));
 		justify-items: center;
 		gap: 2ch;
 		padding: 0;
