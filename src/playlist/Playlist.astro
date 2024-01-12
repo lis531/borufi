@@ -44,13 +44,16 @@
 
     import { initializeApp } from 'firebase/app';
     import { getStorage, ref as storageRef, getDownloadURL } from 'firebase/storage';
-    import { ref as dbRef, get } from 'firebase/database';
-
-    const playlistsData = [];
+    import { ref as dbRef, get, getDatabase } from 'firebase/database';
 
     const firebaseApp = initializeApp(firebaseConfig);
     const storage = getStorage(firebaseApp);
     const coversRef = storageRef(storage, 'covers/boruwa_originals.jpg');
+    const db = getDatabase(firebaseApp);
+    const playlistData = dbRef(db, 'songData');
+    const playlistDataSnapshot = await get(playlistData);
+    const playlistsData = playlistDataSnapshot.val();
+    
     const imgPlayElement = document.getElementById('imgPlay');
     
     try {
@@ -60,25 +63,9 @@
         console.error('Error getting download URL:', error);
     }
     
-    const playlistsRef = dbRef(storage, 'songData');
-    try {
-        const snapshot = await get(playlistsRef);
-        const data = snapshot.val();
-        if (data) {
-            Object.keys(data).forEach((key) => {
-                playlistsData.push(data[key]);
-            });
-            console.log('Playlists Data:', playlistsData);
-        } else {
-            console.log('No data available');
-        }
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
-    
     const setAudioSource = async () => {
-        const songsRef = storageRef(storage, 'songData');
-        const source = await getDownloadURL(songsRef + playlistsData[openedPlaylistID].songs[currentSong].source);
+        const songsRef = storageRef(storage, 'songData/' + playerState.currentPlaylist + '/songs/' + currentSong + '/source');
+        const source = await getDownloadURL(songsRef);
         console.log(source);
         audio.src = source;
     }
@@ -137,24 +124,36 @@
 
     let currentSong = NaN;
 
-    function updatePlaylistInfo() {
+    async function updatePlaylistInfo() {
         currentSong = playerState.currentSong;
         let playlistLengthNumber = 0;
-        cover.src = playlistsData[openedPlaylistID].img;
+        const coverRef = storageRef(storage, 'covers/' + playlistsData[openedPlaylistID].img);
+        const coverUrl = await getDownloadURL(coverRef);
+        cover.src = coverUrl;
         playlistTitle.textContent = playlistsData[openedPlaylistID].title;
         author.textContent = playlistsData[openedPlaylistID].author;
+
         var songs = songsContainer.querySelectorAll("tr") as NodeListOf<HTMLElement>;
         songs.forEach((song) => {
             song.remove();
         });
-        playlistsData[openedPlaylistID].songs.forEach((song, i) => {
-            let audioTemp = new Audio(song.source);
+        const songsRef = storageRef(storage, 'songs/');
+        // playlistsData[openedPlaylistID].songs
+        
+        cover.src = coverUrl;
+        
+        playlistsData[openedPlaylistID].songs.forEach(async (song, i) => {
+            console.log(song);
+            const songRef = storageRef(storage, 'songs/' + song.source);
+            const songURL = await getDownloadURL(songRef);
+            cover.src = coverUrl;
+            let audioTemp = new Audio(songURL);
             audioTemp.addEventListener("loadedmetadata", () => {
                 let songElement = document.createElement("tr");
                 songElement.style.height = "3rem";
                 songElement.innerHTML += `
                     <td style="display: flex; height: inherit; padding-right: 1rem;">
-                        <button id="singleSongButton" data-source='${song.source}' data-openedPlaylistID='${openedPlaylistID}' style="padding: 0; border: none; background: none; color: white; cursor: pointer;">
+                        <button id="singleSongButton" data-id='${i}' data-openedPlaylistID='${openedPlaylistID}' style="padding: 0; border: none; background: none; color: white; cursor: pointer;">
                             <svg viewBox="0 0 16 16" width="32px" height="32px"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z" fill="currentColor"></path></svg>
                             <svg viewBox="0 0 16 16" style="display: none;" width="32px" height="32px"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor"></path></svg>
                         </button>
@@ -188,13 +187,16 @@
                         return;
                     }
                     playSongBtn.addEventListener("click", () => {
-                        console.log("HALO");
                         let playBtn = document.getElementById("play") as HTMLButtonElement;
                         let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
                         playBtn.removeAttribute("disabled");
                         seekSlider.removeAttribute("disabled");
                         openedPlaylistID = parseInt(playSongBtn.dataset.openedplaylistid);
                         playerState.currentPlaylist = openedPlaylistID;
+                        const titlePlayer = document.getElementById("title") as HTMLElement;
+                        const artistPlayer = document.getElementById("artist") as HTMLElement;
+                        titlePlayer.textContent = playlistsData[openedPlaylistID].songs[index].title;
+                        artistPlayer.textContent = playlistsData[openedPlaylistID].songs[index].artist;
                         if (playIco && pauseIco) {
                             if(currentSong != index || playerState.audioSource != playSongBtn.dataset.source)
                             {
