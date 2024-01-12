@@ -1,10 +1,6 @@
 # Borufi
 
-It is my music library (AKA. Spotify).
-
-```sh
-https://github.com/lis531/borufi.git
-```
+It is my own music library (AKA. Spotify).
 
 ## 🚀 Project Structure
 
