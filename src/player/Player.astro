@@ -53,7 +53,6 @@ export let playerState = {
 
 <script>
     import playerState from '../player/Player.astro';
-    import FirebaseConfig from '../firebaseConfig.astro';
 
     let cardPlayBtns = document.querySelectorAll("#playButton");
     let playBtn = document.getElementById("play") as HTMLButtonElement;
@@ -83,26 +82,33 @@ export let playerState = {
             }
         }
     }
+    import { firebaseConfig } from '../firebaseConfig.astro';
+    import { initializeApp } from 'firebase/app';
+    import { getStorage, ref as storageRef, getDownloadURL } from 'firebase/storage';
+    import { ref as dbRef, get, getDatabase } from 'firebase/database';
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const storage = getStorage(firebaseApp);
         
     //change song <-- it will recieve the song source link and play it
 
-    const changeSong = (sourceLink: string) => {
+    const changeSong = async(sourceLink: string) => {
         if (playBtn instanceof HTMLElement) {
-            if (sourceLink == null || sourceLink == "" || sourceLink == undefined) {
-                console.log("No audio source found");
-                seekSlider.setAttribute("disabled", "true");
-                playBtn.setAttribute("disabled", "true");
-                audio.setAttribute("src", "null");
-                changePlayerPlayBtn(true);
-                calTime;
-            } else if (sourceLink !== audio.src) {
+            if (sourceLink !== audio.src) {
                 seekSlider.removeAttribute("disabled");
                 playBtn.removeAttribute("disabled");
-                audio.setAttribute("src", sourceLink);
+                const songRef = storageRef(storage, 'songs/' + source);
+                const songURL = await getDownloadURL(songRef);
+                audio.src = songURL;
                 playerState.audioSource = sourceLink;
-                console.log("Audio source changed");
                 audio.play();
                 changePlayerPlayBtn();
+            }
+            else if (sourceLink == null || sourceLink == "" || sourceLink == undefined) {
+                seekSlider.setAttribute("disabled", "true");
+                playBtn.setAttribute("disabled", "true");
+                changePlayerPlayBtn(true);
+                calTime;
             }
         }
     }
@@ -178,6 +184,7 @@ export let playerState = {
     if(audio instanceof HTMLAudioElement){
         audio.volume = Number(currentVolume.value) / 200;
     }
+    
     const changeVolume = () =>{
         if (audio instanceof HTMLAudioElement) {
             audio.volume = Number(currentVolume.value) / 200;
@@ -316,6 +323,7 @@ export let playerState = {
             }
         });
     }
+
     cardPlayBtns.forEach((button, i) => {
         button.addEventListener("click", (event) => {
             if(playerState.currentPlaylist != i){

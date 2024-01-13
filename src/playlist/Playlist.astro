@@ -40,8 +40,8 @@
 </html>
 <script>
     import { playerState } from "../player/Player.astro";
-	import { firebaseConfig } from '../firebaseConfig.astro';
 
+	import { firebaseConfig } from '../firebaseConfig.astro';
     import { initializeApp } from 'firebase/app';
     import { getStorage, ref as storageRef, getDownloadURL } from 'firebase/storage';
     import { ref as dbRef, get, getDatabase } from 'firebase/database';
@@ -54,21 +54,7 @@
     const playlistDataSnapshot = await get(playlistData);
     const playlistsData = playlistDataSnapshot.val();
     
-    const imgPlayElement = document.getElementById('imgPlay');
-    
-    try {
-        const url = await getDownloadURL(coversRef);
-        imgPlayElement.src = url;
-    } catch (error) {
-        console.error('Error getting download URL:', error);
-    }
-    
-    const setAudioSource = async () => {
-        const songsRef = storageRef(storage, 'songData/' + playerState.currentPlaylist + '/songs/' + currentSong + '/source');
-        const source = await getDownloadURL(songsRef);
-        console.log(source);
-        audio.src = source;
-    }
+
 
     let backButton = document.getElementById("backButton") as HTMLElement;
     let playlists = document.querySelectorAll("#song") as NodeListOf<HTMLElement>;
@@ -84,7 +70,24 @@
     let playNextBtn = document.getElementById("playNext") as HTMLElement;
     let playPreviousBtn = document.getElementById("playPrevious") as HTMLElement;
     let playBtn = document.querySelectorAll("#playButton");
-
+    const imgPlayElement = document.getElementById('imgPlay');
+    
+    try {
+        const url = await getDownloadURL(coversRef);
+        imgPlayElement.src = url;
+    } catch (error) {
+        console.error('Error getting download URL:', error);
+    }
+    
+    const setAudioSource = async (source: string, play: boolean = false) => {
+        const songRef = storageRef(storage, 'songs/' + source);
+        const songURL = await getDownloadURL(songRef);
+        audio.src = songURL;
+        if(play){
+            audio.play();
+        }
+    }
+    
     playPlaylist.lastElementChild.style.display = "none";
 
     let openedPlaylistID = 0;
@@ -132,21 +135,14 @@
         cover.src = coverUrl;
         playlistTitle.textContent = playlistsData[openedPlaylistID].title;
         author.textContent = playlistsData[openedPlaylistID].author;
-
         var songs = songsContainer.querySelectorAll("tr") as NodeListOf<HTMLElement>;
         songs.forEach((song) => {
             song.remove();
         });
-        const songsRef = storageRef(storage, 'songs/');
-        // playlistsData[openedPlaylistID].songs
-        
         cover.src = coverUrl;
-        
         playlistsData[openedPlaylistID].songs.forEach(async (song, i) => {
-            console.log(song);
             const songRef = storageRef(storage, 'songs/' + song.source);
             const songURL = await getDownloadURL(songRef);
-            cover.src = coverUrl;
             let audioTemp = new Audio(songURL);
             audioTemp.addEventListener("loadedmetadata", () => {
                 let songElement = document.createElement("tr");
@@ -174,7 +170,6 @@
                 singleSongButtons.forEach((playSongBtn, index) => {
                     let playIco = playSongBtn.firstElementChild as HTMLElement;
                     let pauseIco = playSongBtn.lastElementChild as HTMLElement;
-                    console.log(index, currentSong, openedPlaylistID, playerState.currentPlaylist, audio.paused);
                     if(index != currentSong || openedPlaylistID != playerState.currentPlaylist || audio.paused){
                         playIco.style.display = "block";
                         pauseIco.style.display = "none";
@@ -201,8 +196,7 @@
                             if(currentSong != index || playerState.audioSource != playSongBtn.dataset.source)
                             {
                                 currentSong = index;
-                                setAudioSource();
-                                audio.play();
+                                setAudioSource(song.source, true);
                             }
                             else{
                                 if(audio.paused)
@@ -216,14 +210,11 @@
                             singleSongButtons.forEach((playSongBtn, index) => {
                                 let playIco = playSongBtn.firstElementChild as HTMLElement;
                                 let pauseIco = playSongBtn.lastElementChild as HTMLElement;
-                                console.log(index != currentSong, openedPlaylistID != playerState.currentPlaylist, audio.paused);
                                 if(index != currentSong || audio.paused){
-                                    console.log("playIco", index)
                                     playIco.style.display = "block";
                                     pauseIco.style.display = "none";
                                 }
                                 else{
-                                    console.log("pauseIco", index)
                                     playIco.style.display = "none";
                                     pauseIco.style.display = "block";
                                 }
@@ -236,7 +227,6 @@
     }
 
     const changeButtonAppearance = (playSongBtn: Element, check = false) => {
-        console.log("kkkk", check);
         let playIco = playSongBtn.firstElementChild as HTMLElement;
         let pauseIco = playSongBtn.lastElementChild as HTMLElement;
         playIco.style.display = "none";
@@ -244,8 +234,7 @@
         if(playlistsData[openedPlaylistID].songs[currentSong]){
             if(playlistsData[openedPlaylistID].songs[currentSong].source != playerState.audioSource && !check)
             {
-                setAudioSource();
-                audio.play();
+                setAudioSource(playlistsData[openedPlaylistID].songs[currentSong].source, true);
                 playIco.style.display = "none";
                 pauseIco.style.display = "block";
                 return;
@@ -283,7 +272,6 @@
 
     playPlaylist.addEventListener("click", () =>{
         changeAllAppearances();
-        console.log("playPlaylist");
     });
 
     playlists.forEach((playlist, index) => {
@@ -291,8 +279,6 @@
             playlistMain.style.display = "block";
             main.style.display = "none";
             openedPlaylistID = index;
-            console.log(playerState.currentPlaylist, openedPlaylistID)
-            console.log(openedPlaylistID != playerState.currentPlaylist);
             //window.location.href = "/playlist/" + openedPlaylistID;
             updatePlaylistInfo();
             if(openedPlaylistID != playerState.currentPlaylist || audio.paused){
@@ -390,7 +376,6 @@
         playPlaylist.firstElementChild.style.display = "block";
         playPlaylist.lastElementChild.style.display = "none";
         let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
-        console.log(currentSong)
         singleSongButton[currentSong].firstElementChild.style.display = "block";
         singleSongButton[currentSong].lastElementChild.style.display = "none";
     });
