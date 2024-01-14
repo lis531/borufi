@@ -34,7 +34,6 @@
 			</div>`;
 		});
 	}
-	//style is not applied to the elements created by the function above, so we need to call it before we select the elements
 	await createPlaylists();
 
 	const playButtons = document.querySelectorAll('#playButton');
@@ -76,7 +75,7 @@
 		console.error('Error fetching data:', error);
 	}
 </script>
-<style>
+<style is:global>
 	#imgPlay{
 		position: relative;
 		width: 100%;
@@ -201,7 +200,7 @@
 	.link-card:is(.active) #playButton {
 		visibility: visible;
 	}
-	svg {
+	#playButton > svg {
 		clip-path: circle(50% at 50% 50%);
 		background-color: rgb(146,75,236);
 		color: white;
@@ -209,19 +208,19 @@
 		height: max-content;
 		width: max-content;
 	}
-	div{
+	#info, #imgPlay, #song{
 		display: flex;
 		flex-direction: column;
 	}
-	img{
+	#imgPlay > img{
 		border-radius: 0.5rem;
 	}
-	h2 {
+	#info > h2 {
 		margin: 0;
 		font-size: 1.25rem;
 		transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 	}
-	p {
+	#info > p {
 		margin-top: 0.5rem;
 		margin-bottom: 0;
 	}
