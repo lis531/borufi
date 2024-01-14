@@ -1,6 +1,6 @@
 # Borufi
 
-It is my own music library (AKA. Spotify).
+It is my own music library (AKA Spotify).
 
 ## 🚀 Project Structure
 
