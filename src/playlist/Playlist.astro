@@ -54,7 +54,7 @@
     const playlistDataSnapshot = await get(playlistData);
     const playlistsData = playlistDataSnapshot.val();
     
-
+    
 
     let backButton = document.getElementById("backButton") as HTMLElement;
     let playlists = document.querySelectorAll("#song") as NodeListOf<HTMLElement>;
@@ -87,7 +87,7 @@
             audio.play();
         }
     }
-    
+
     playPlaylist.lastElementChild.style.display = "none";
 
     let openedPlaylistID = 0;
@@ -158,7 +158,7 @@
                     <td style="padding-right: 1rem;">${song.title}</td>
                     <td style="padding-right: 1rem;">${song.artist}</td>
                     <td>${formatDuration(audioTemp.duration)}</td>`;
-                if(i > songsContainer.childElementCount){
+                if(i + 1 > songsContainer.childElementCount){
                     songsContainer.appendChild(songElement);
                 }
                 else{
@@ -293,7 +293,12 @@
     });
     
     const playNextSong = () =>{
-        currentSong++;
+        if(playerState.isShuffling){
+            currentSong = Math.random() * playlistsData[openedPlaylistID].songs.length;
+        }
+        else{
+            currentSong++;
+        }
         let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
         if(singleSongButton[currentSong]){
             singleSongButton.forEach(songButton => {
@@ -313,12 +318,44 @@
         currentSong--;
         let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
         if(singleSongButton[currentSong]){
+            singleSongButton.forEach(songButton => {
+                let playIco = songButton.firstElementChild as HTMLElement;
+                let pauseIco = songButton.lastElementChild as HTMLElement;
+                playIco.style.display = "block";
+                pauseIco.style.display = "none";
+            });
             changeButtonAppearance(singleSongButton[currentSong]);
         }
         else{
             currentSong++;
         }
     }
+
+    audio.addEventListener("ended", () => {
+        if(playerState.isShuffling){
+            let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+            singleSongButton.forEach(songButton => {
+                let playIco = songButton.firstElementChild as HTMLElement;
+                let pauseIco = songButton.lastElementChild as HTMLElement;
+                playIco.style.display = "block";
+                pauseIco.style.display = "none";
+            });
+            let tempCurrentSong = Math.round(Math.random() * playlistsData[openedPlaylistID].songs.length);
+            if(tempCurrentSong != currentSong){
+                currentSong = tempCurrentSong;
+            }
+            else if(currentSong < playlistsData[openedPlaylistID].songs.length - 1){
+                currentSong++;
+            }
+            else{
+                currentSong--;
+            }
+            changeButtonAppearance(singleSongButton[currentSong]);
+        }
+        else{
+            playNextSong();
+        }
+    })
 
     playNextBtn.addEventListener("click", () => {
         playNextSong();
@@ -344,23 +381,6 @@
         randomBtn?.classList.toggle("on");
         playerState.isShuffling = !playerState.isShuffling;
     });
-
-    audio.addEventListener("ended", () => {
-        if(playerState.isShuffling){
-            let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
-            singleSongButton.forEach(songButton => {
-                let playIco = songButton.firstElementChild as HTMLElement;
-                let pauseIco = songButton.lastElementChild as HTMLElement;
-                playIco.style.display = "block";
-                pauseIco.style.display = "none";
-            });
-            currentSong = Math.random() * playlistsData[openedPlaylistID].songs.length;
-            changeButtonAppearance(singleSongButton[currentSong]);
-        }
-        else{
-            playNextSong();
-        }
-    })
 
     audio.addEventListener("play", () => {
         console.log("play");
