@@ -48,7 +48,6 @@
 
     const firebaseApp = initializeApp(firebaseConfig);
     const storage = getStorage(firebaseApp);
-    const coversRef = storageRef(storage, 'covers/boruwa_originals.jpg');
     const db = getDatabase(firebaseApp);
     const playlistData = dbRef(db, 'songData');
     const playlistDataSnapshot = await get(playlistData);
@@ -70,15 +69,7 @@
     let playNextBtn = document.getElementById("playNext") as HTMLElement;
     let playPreviousBtn = document.getElementById("playPrevious") as HTMLElement;
     let playBtn = document.querySelectorAll("#playButton");
-    const imgPlayElement = document.getElementById('imgPlay');
-    
-    try {
-        const url = await getDownloadURL(coversRef);
-        imgPlayElement.src = url;
-    } catch (error) {
-        console.error('Error getting download URL:', error);
-    }
-    
+        
     const setAudioSource = async (source: string, play: boolean = false) => {
         const songRef = storageRef(storage, 'songs/' + source);
         const songURL = await getDownloadURL(songRef);
