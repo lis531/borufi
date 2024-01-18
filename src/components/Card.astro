@@ -1,4 +1,6 @@
 <script>
+	import { playerState } from '../player/Player.astro';
+
 	import { getStorage, ref as storageRef, getDownloadURL } from "firebase/storage";
 	import { initializeApp } from 'firebase/app';
 	import { ref as dbRef, get, getDatabase } from "firebase/database";
@@ -74,6 +76,68 @@
 	} catch (error) {
 		console.error('Error fetching data:', error);
 	}
+
+	//yet to change
+
+	const resetRest = () => {
+        playButtons.forEach((button) => {
+            button.firstElementChild.style.display = 'block';
+            button.lastElementChild.style.display = 'none';
+            if (button instanceof HTMLElement) {
+                const parentElement = button.parentElement?.parentElement?.parentElement;
+                if (parentElement) {
+                    parentElement.classList.remove("active");
+                }
+            }
+        });
+    }
+
+	const changeSong = async(sourceLink: string) => {
+        if (playBtn instanceof HTMLElement) {
+            if (sourceLink !== audio.src) {
+                seekSlider.removeAttribute("disabled");
+                playBtn.removeAttribute("disabled");
+                const songRef = storageRef(storage, 'songs/' + source);
+                const songURL = await getDownloadURL(songRef);
+                audio.src = songURL;
+                playerState.audioSource = sourceLink;
+                audio.play();
+                changePlayerPlayBtn();
+            }
+            else if (sourceLink == null || sourceLink == "" || sourceLink == undefined) {
+                seekSlider.setAttribute("disabled", "true");
+                playBtn.setAttribute("disabled", "true");
+                changePlayerPlayBtn(true);
+                calTime;
+            }
+        }
+    }
+	
+    playButtons.forEach((button, i) => {
+        button.addEventListener("click", (event) => {
+            if(playerState.currentPlaylist != i){
+                resetRest();
+                let songs = document.querySelectorAll("#song");
+                songs[i].classList.add("active");
+                playerState.currentPlaylist = i;
+                playerState.currentSong = 0;
+                changeSong(playlistData[i].songs[0].source);
+                button.firstElementChild.style.display = 'none';
+                button.lastElementChild.style.display = 'block';
+            } else {
+                if(audio.paused){
+                    button.firstElementChild.style.display = 'none';
+                    button.lastElementChild.style.display = 'block';
+                    audio.play();
+                } else {
+                    button.firstElementChild.style.display = 'block';
+                    button.lastElementChild.style.display = 'none';
+                    audio.pause();
+                }
+            }                
+            event.stopPropagation();
+        });
+    });
 </script>
 <style is:global>
 	#imgPlay{
