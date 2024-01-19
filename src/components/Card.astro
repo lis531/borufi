@@ -79,6 +79,12 @@
 
 	//yet to change
 
+	const audio = document.getElementById("audio") as HTMLAudioElement;
+	const seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
+	const playBtn = document.getElementById("playButton") as HTMLButtonElement;
+	const title = document.getElementById("title") as HTMLHeadingElement;
+	const author = document.getElementById("artist") as HTMLParagraphElement;
+
 	const resetRest = () => {
         playButtons.forEach((button) => {
             button.firstElementChild.style.display = 'block';
@@ -97,18 +103,17 @@
             if (sourceLink !== audio.src) {
                 seekSlider.removeAttribute("disabled");
                 playBtn.removeAttribute("disabled");
-                const songRef = storageRef(storage, 'songs/' + source);
+                const songRef = storageRef(storage, 'songs/' + sourceLink);
                 const songURL = await getDownloadURL(songRef);
                 audio.src = songURL;
+				title.innerHTML = playlistsData[playerState.currentPlaylist].songs[playerState.currentSong].title;
+				author.innerHTML = playlistsData[playerState.currentPlaylist].songs[playerState.currentSong].artist;
                 playerState.audioSource = sourceLink;
                 audio.play();
-                changePlayerPlayBtn();
             }
             else if (sourceLink == null || sourceLink == "" || sourceLink == undefined) {
                 seekSlider.setAttribute("disabled", "true");
                 playBtn.setAttribute("disabled", "true");
-                changePlayerPlayBtn(true);
-                calTime;
             }
         }
     }
@@ -119,9 +124,10 @@
                 resetRest();
                 let songs = document.querySelectorAll("#song");
                 songs[i].classList.add("active");
+				console.log(songs, i);
                 playerState.currentPlaylist = i;
                 playerState.currentSong = 0;
-                changeSong(playlistData[i].songs[0].source);
+                changeSong(playlistsData[i].songs[0].source);
                 button.firstElementChild.style.display = 'none';
                 button.lastElementChild.style.display = 'block';
             } else {

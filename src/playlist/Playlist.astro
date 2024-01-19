@@ -373,20 +373,6 @@
 
     audio.addEventListener("play", () => {
         console.log("play");
-        playPlaylist.firstElementChild.style.display = "none";
-        playPlaylist.lastElementChild.style.display = "block";
-        let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
-        singleSongButton[currentSong].firstElementChild.style.display = "none";
-        singleSongButton[currentSong].lastElementChild.style.display = "block";
-    });
-
-    audio.addEventListener("pause", () => {
-        console.log("pause");
-        playPlaylist.firstElementChild.style.display = "block";
-        playPlaylist.lastElementChild.style.display = "none";
-        let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
-        singleSongButton[currentSong].firstElementChild.style.display = "block";
-        singleSongButton[currentSong].lastElementChild.style.display = "none";
     });
 </script>
 <style>
