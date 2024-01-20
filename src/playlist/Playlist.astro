@@ -58,12 +58,15 @@
     let playlists = document.querySelectorAll("#song") as NodeListOf<HTMLElement>;
     let cover = document.getElementById("cover") as HTMLImageElement;
     let playlistTitle = document.getElementById("playlistTitle") as HTMLElement;
-    let author = document.getElementById("author") as HTMLElement;
+    let playlistAuthor = document.getElementById("author") as HTMLElement;
+    let titlePlayer = document.getElementById("title") as HTMLElement;
+    let artistPlayer = document.getElementById("artist") as HTMLElement;
     let playlistLength = document.getElementById("playlistLength") as HTMLElement;
     let songsContainer = document.getElementById("songs") as HTMLElement;
     let playlistMain = document.getElementById("playlistMain") as HTMLElement;
     let main = document.getElementById("main") as HTMLElement;
     let playPlaylist = document.getElementById("playPlaylist")?.lastElementChild as HTMLElement;
+    let playPlaylistButton = document.getElementById("playButton") as HTMLElement;
     let audio = document.getElementById("audio") as HTMLAudioElement;
     let playNextBtn = document.getElementById("playNext") as HTMLElement;
     let playPreviousBtn = document.getElementById("playPrevious") as HTMLElement;
@@ -116,103 +119,89 @@
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     }
 
-
     async function updatePlaylistInfo() {
         let playlistLengthNumber = 0;
         const coverRef = storageRef(storage, 'covers/' + playlistsData[openedPlaylistID].img);
         const coverUrl = await getDownloadURL(coverRef);
+        if(currentSong != playerState.currentSong){
+            currentSong = playerState.currentSong;
+        }
         cover.src = coverUrl;
         playlistTitle.textContent = playlistsData[openedPlaylistID].title;
-        author.textContent = playlistsData[openedPlaylistID].author;
+        playlistAuthor.textContent = playlistsData[openedPlaylistID].author;
         var songs = songsContainer.querySelectorAll("tr") as NodeListOf<HTMLElement>;
         songs.forEach((song) => {
             song.remove();
         });
         cover.src = coverUrl;
-        playlistsData[openedPlaylistID].songs.forEach(async (song, i) => {
+        let audioTemp: HTMLAudioElement;
+        for (const [i, song] of playlistsData[openedPlaylistID].songs.entries()) {
+            console.log(song);
+            console.log("updatePlaylistInfo");
             const songRef = storageRef(storage, 'songs/' + song.source);
             const songURL = await getDownloadURL(songRef);
-            let audioTemp = new Audio(songURL);
-            audioTemp.addEventListener("loadedmetadata", () => {
-                let songElement = document.createElement("tr");
-                songElement.style.height = "3rem";
-                songElement.innerHTML += `
-                    <td style="display: flex; height: inherit; padding-right: 1rem;">
-                        <button id="singleSongButton" data-id='${i}' data-openedPlaylistID='${openedPlaylistID}' style="padding: 0; border: none; background: none; color: white; cursor: pointer;">
-                            <svg viewBox="0 0 16 16" width="32px" height="32px"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z" fill="currentColor"></path></svg>
-                            <svg viewBox="0 0 16 16" style="display: none;" width="32px" height="32px"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor"></path></svg>
-                        </button>
-                    </td>
-                    <td style="padding-right: 1rem;">${i + 1}</td>
-                    <td style="padding-right: 1rem;">${song.title}</td>
-                    <td style="padding-right: 1rem;">${song.artist}</td>
-                    <td>${formatDuration(audioTemp.duration)}</td>`;
-                if(i + 1 > songsContainer.childElementCount){
-                    songsContainer.appendChild(songElement);
-                }
-                else{
-                    songsContainer.insertBefore(songElement, songsContainer.children[i]);
-                }
-                let singleSongButtons = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
-                playlistLengthNumber += audioTemp.duration;
-                playlistLength.textContent = "Playlist length: " + formatDuration(playlistLengthNumber);
-                singleSongButtons.forEach((playSongBtn, index) => {
-                    let playIco = playSongBtn.firstElementChild as HTMLElement;
-                    let pauseIco = playSongBtn.lastElementChild as HTMLElement;
-                    if(index != currentSong || openedPlaylistID != playerState.currentPlaylist || audio.paused){
-                        playIco.style.display = "block";
-                        pauseIco.style.display = "none";
+            audioTemp = new Audio(songURL)
+            await new Promise(resolve => audioTemp.onloadedmetadata = resolve);
+            let songElement = document.createElement("tr");
+            songElement.style.height = "3rem";
+            songElement.innerHTML += `
+                <td style="display: flex; height: inherit; padding-right: 1rem;">
+                    <button id="singleSongButton" data-id='${i}' data-openedPlaylistID='${openedPlaylistID}' style="padding: 0; border: none; background: none; color: white; cursor: pointer;">
+                        <svg viewBox="0 0 16 16" width="32px" height="32px"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z" fill="currentColor"></path></svg>
+                        <svg viewBox="0 0 16 16" style="display: none;" width="32px" height="32px"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z" fill="currentColor"></path></svg>
+                    </button>
+                </td>
+                <td style="padding-right: 1rem;">${i + 1}</td>
+                <td style="padding-right: 1rem;">${song.title}</td>
+                <td style="padding-right: 1rem;">${song.artist}</td>
+                <td>${formatDuration(audioTemp.duration)}</td>`;
+            songsContainer.appendChild(songElement);
+            let singleSongButton = document.querySelectorAll("#singleSongButton")[i] as HTMLButtonElement;
+            console.log(singleSongButton);
+            playlistLengthNumber += audioTemp.duration;
+            playlistLength.textContent = "Playlist length: " + formatDuration(playlistLengthNumber);
+            let playIco = singleSongButton.firstElementChild as HTMLElement;
+            let pauseIco = singleSongButton.lastElementChild as HTMLElement;
+            console.log(i, currentSong, playerState.currentPlaylist, openedPlaylistID);
+            console.log(i != currentSong || playerState.currentPlaylist != openedPlaylistID || audio.paused);
+            if(i != currentSong || openedPlaylistID != playerState.currentPlaylist || audio.paused){
+                playIco.style.display = "block";
+                pauseIco.style.display = "none";
+            }
+            else{
+                playIco.style.display = "none";
+                pauseIco.style.display = "block";
+            }
+            if(singleSongButton.getAttribute("listener")){
+                return;
+            }
+            singleSongButton.addEventListener("click", () => {
+                let playBtn = document.getElementById("play") as HTMLButtonElement;
+                let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
+                playBtn.removeAttribute("disabled");
+                seekSlider.removeAttribute("disabled");
+                openedPlaylistID = parseInt(singleSongButton.dataset.openedplaylistid as string);
+                playerState.currentPlaylist = openedPlaylistID;
+                titlePlayer.textContent = playlistsData[openedPlaylistID].songs[i].title;
+                artistPlayer.textContent = playlistsData[openedPlaylistID].songs[i].artist;
+                if (playIco && pauseIco) {
+                    if(currentSong != i || playerState.currentPlaylist != openedPlaylistID)
+                    {
+                        currentSong = i;
+                        setAudioSource(song.source, true);
                     }
                     else{
-                        playIco.style.display = "none";
-                        pauseIco.style.display = "block";
-                    }
-                    if(playSongBtn.getAttribute("listener")){
-                        return;
-                    }
-                    playSongBtn.addEventListener("click", () => {
-                        let playBtn = document.getElementById("play") as HTMLButtonElement;
-                        let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
-                        playBtn.removeAttribute("disabled");
-                        seekSlider.removeAttribute("disabled");
-                        openedPlaylistID = parseInt(playSongBtn.dataset.openedplaylistid);
-                        playerState.currentPlaylist = openedPlaylistID;
-                        const titlePlayer = document.getElementById("title") as HTMLElement;
-                        const artistPlayer = document.getElementById("artist") as HTMLElement;
-                        titlePlayer.textContent = playlistsData[openedPlaylistID].songs[index].title;
-                        artistPlayer.textContent = playlistsData[openedPlaylistID].songs[index].artist;
-                        if (playIco && pauseIco) {
-                            if(currentSong != index || playerState.currentPlaylist != openedPlaylistID)
-                            {
-                                currentSong = index;
-                                setAudioSource(song.source, true);
-                            }
-                            else{
-                                if(audio.paused)
-                                {
-                                    audio.play();
-                                }
-                                else {
-                                    audio.pause();
-                                }
-                            }
-                            singleSongButtons.forEach((playSongBtn, index) => {
-                                let playIco = playSongBtn.firstElementChild as HTMLElement;
-                                let pauseIco = playSongBtn.lastElementChild as HTMLElement;
-                                if(index != currentSong || audio.paused){
-                                    playIco.style.display = "block";
-                                    pauseIco.style.display = "none";
-                                }
-                                else{
-                                    playIco.style.display = "none";
-                                    pauseIco.style.display = "block";
-                                }
-                            });
+                        if(audio.paused)
+                        {
+                            audio.play();
                         }
-                    });
-                });
-            });         
-        });
+                        else {
+                            audio.pause();
+                        }
+                    }
+                }
+            }); 
+        };
     }
 
     const changeButtonAppearance = (playSongBtn: Element, check = false) => {
@@ -226,6 +215,8 @@
                 setAudioSource(playlistsData[openedPlaylistID].songs[currentSong].source, true);
                 playIco.style.display = "none";
                 pauseIco.style.display = "block";
+                titlePlayer.textContent = playlistsData[openedPlaylistID].songs[currentSong].title;
+                artistPlayer.textContent = playlistsData[openedPlaylistID].songs[currentSong].artist;
                 return;
             }
         }
@@ -252,6 +243,7 @@
             currentSong = 0;
         }
         changeButtonAppearance(singleSongButton[currentSong]);
+        changeButtonAppearance(playPlaylist, true);
         let playBtn = document.getElementById("play") as HTMLButtonElement;
         let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
         seekSlider.removeAttribute("disabled");
@@ -260,6 +252,10 @@
     }
 
     playPlaylist.addEventListener("click", () =>{
+        changeAllAppearances();
+    });
+    
+    playPlaylistButton.addEventListener("click", () =>{
         changeAllAppearances();
     });
 
@@ -352,23 +348,6 @@
 
     playPreviousBtn.addEventListener("click", () => {
         playPreviousSong();
-    });
-
-    //loop and shuffle controls
-
-    let randomBtn = document.getElementById("random");
-    let loopBtn = document.getElementById("loop");
-    // when current playlist, change  buttons classlist
-
-    loopBtn?.addEventListener("click", () => {
-        loopBtn?.classList.toggle("on");
-        audio.loop = playerState.isLooping;
-        playerState.isLooping = !playerState.isLooping;
-    });
-
-    randomBtn?.addEventListener("click", () => {
-        randomBtn?.classList.toggle("on");
-        playerState.isShuffling = !playerState.isShuffling;
     });
 
     audio.addEventListener("play", () => {

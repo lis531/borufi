@@ -54,7 +54,6 @@ export let playerState = {
 <script>
     import playerState from '../player/Player.astro';
 
-    let cardPlayBtns = document.querySelectorAll("#playButton");
     let playBtn = document.getElementById("play") as HTMLButtonElement;
     let currentTime = document.getElementById("current-time");
     let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
@@ -82,12 +81,6 @@ export let playerState = {
             }
         }
     }
-    import { firebaseConfig } from '../firebaseConfig.astro';
-    import { initializeApp } from 'firebase/app';
-    import { getStorage, ref as storageRef, getDownloadURL } from 'firebase/storage';
-
-    const firebaseApp = initializeApp(firebaseConfig);
-    const storage = getStorage(firebaseApp);
 
     const changeSongStatus = () =>{
         if (audio instanceof HTMLAudioElement) {
@@ -101,33 +94,16 @@ export let playerState = {
     
     audio.addEventListener("play", () => {
         changePlayerPlayBtn();
-        cardPlayBtns.forEach((button, index) => {
-            if(playerState.currentPlaylist == index){
-                button.parentElement?.parentElement?.parentElement.classList.add("active");
-            }
-            else{
-                button.parentElement?.parentElement?.parentElement.classList.remove("active");
-            }
-        });
     });
     
     audio.addEventListener("pause", () => {
         changePlayerPlayBtn(true);
     });
 
+    console.log(playBtn);
     playBtn.addEventListener("click", () => {
+        console.log("clicked");
         changeSongStatus();
-        cardPlayBtns.forEach((button) => {
-            if(audio.paused){
-                button.firstElementChild.style.display = 'block';
-                button.lastElementChild.style.display = 'none';
-            } else {
-                if(playerState.currentPlaylist == button.parentElement.parentElement?.dataset.source){
-                    button.firstElementChild.style.display = 'none';
-                    button.lastElementChild.style.display = 'block';
-                }
-            }
-        });
     });
 
     //displaying the duration of the song
@@ -285,6 +261,22 @@ export let playerState = {
             }
         }
     }, 1000);
+
+    //loop and shuffle controls
+
+    let randomBtn = document.getElementById("random");
+    let loopBtn = document.getElementById("loop");
+
+    loopBtn?.addEventListener("click", () => {
+        loopBtn?.classList.toggle("on");
+        audio.loop = playerState.isLooping;
+        playerState.isLooping = !playerState.isLooping;
+    });
+
+    randomBtn?.addEventListener("click", () => {
+        randomBtn?.classList.toggle("on");
+        playerState.isShuffling = !playerState.isShuffling;
+    });
 </script>
 <style>
     :root{

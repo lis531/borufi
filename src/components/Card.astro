@@ -123,7 +123,7 @@
             if(playerState.currentPlaylist != i){
                 resetRest();
                 let songs = document.querySelectorAll("#song");
-                songs[i].classList.add("active");
+                songs[i].parentElement.classList.add("active");
 				console.log(songs, i);
                 playerState.currentPlaylist = i;
                 playerState.currentSong = 0;
@@ -200,7 +200,6 @@
 	#song {
 		padding: 1.5rem;
 		border-radius: 8px;
-		color: white;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -298,8 +297,10 @@
 		color: var(--accent-light);
 	}
 	.active{
-		color: var(--accent-light) !important;
 		scale: 1.05;
+	}
+	.active h2{
+		color: var(--accent-light) !important;
 	}
 	.active img{
 		box-shadow: 0rem 0rem 1rem rgba(0, 0, 0, 0.5);
