@@ -53,7 +53,7 @@
     const playlistDataSnapshot = await get(playlistData);
     const playlistsData = playlistDataSnapshot.val();
 
-    
+
     let backButton = document.getElementById("backButton") as HTMLElement;
     let playlists = document.querySelectorAll("#song") as NodeListOf<HTMLElement>;
     let cover = document.getElementById("cover") as HTMLImageElement;
@@ -66,13 +66,13 @@
     let playlistMain = document.getElementById("playlistMain") as HTMLElement;
     let main = document.getElementById("main") as HTMLElement;
     let playPlaylist = document.getElementById("playPlaylist")?.lastElementChild as HTMLElement;
-    let playPlaylistButton = document.getElementById("playButton") as HTMLElement;
     let audio = document.getElementById("audio") as HTMLAudioElement;
     let playNextBtn = document.getElementById("playNext") as HTMLElement;
     let playPreviousBtn = document.getElementById("playPrevious") as HTMLElement;
     let playBtn = document.querySelectorAll("#playButton");
         
     const setAudioSource = async (source: string, play: boolean = false) => {
+        playerState.audioSource = source;
         const songRef = storageRef(storage, 'songs/' + source);
         const songURL = await getDownloadURL(songRef);
         audio.src = songURL;
@@ -136,8 +136,6 @@
         cover.src = coverUrl;
         let audioTemp: HTMLAudioElement;
         for (const [i, song] of playlistsData[openedPlaylistID].songs.entries()) {
-            console.log(song);
-            console.log("updatePlaylistInfo");
             const songRef = storageRef(storage, 'songs/' + song.source);
             const songURL = await getDownloadURL(songRef);
             audioTemp = new Audio(songURL)
@@ -157,13 +155,10 @@
                 <td>${formatDuration(audioTemp.duration)}</td>`;
             songsContainer.appendChild(songElement);
             let singleSongButton = document.querySelectorAll("#singleSongButton")[i] as HTMLButtonElement;
-            console.log(singleSongButton);
             playlistLengthNumber += audioTemp.duration;
             playlistLength.textContent = "Playlist length: " + formatDuration(playlistLengthNumber);
             let playIco = singleSongButton.firstElementChild as HTMLElement;
             let pauseIco = singleSongButton.lastElementChild as HTMLElement;
-            console.log(i, currentSong, playerState.currentPlaylist, openedPlaylistID);
-            console.log(i != currentSong || playerState.currentPlaylist != openedPlaylistID || audio.paused);
             if(i != currentSong || openedPlaylistID != playerState.currentPlaylist || audio.paused){
                 playIco.style.display = "block";
                 pauseIco.style.display = "none";
@@ -180,24 +175,31 @@
                 let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
                 playBtn.removeAttribute("disabled");
                 seekSlider.removeAttribute("disabled");
-                openedPlaylistID = parseInt(singleSongButton.dataset.openedplaylistid as string);
                 playerState.currentPlaylist = openedPlaylistID;
-                titlePlayer.textContent = playlistsData[openedPlaylistID].songs[i].title;
-                artistPlayer.textContent = playlistsData[openedPlaylistID].songs[i].artist;
-                if (playIco && pauseIco) {
-                    if(currentSong != i || playerState.currentPlaylist != openedPlaylistID)
+                titlePlayer.textContent = playlistsData[playerState.currentPlaylist].songs[i].title;
+                artistPlayer.textContent = playlistsData[playerState.currentPlaylist].songs[i].artist;
+                console.log(i, currentSong, playerState.currentPlaylist, openedPlaylistID);
+                console.log(i != currentSong || playerState.currentPlaylist != openedPlaylistID || audio.paused);
+                if(currentSong != i || playerState.currentPlaylist != openedPlaylistID)
+                {
+                    currentSong = i;
+                    //changeButtonAppearance(singleSongButton); ig?
+                    setAudioSource(song.source, true);
+                    changeButtonAppearance(playPlaylist, true);
+                    playIco.style.display = "none";
+                    pauseIco.style.display = "block";
+                }
+                else{
+                    if(audio.paused)
                     {
-                        currentSong = i;
-                        setAudioSource(song.source, true);
+                        changeButtonAppearance(playPlaylist);
+                        playIco.style.display = "none";
+                        pauseIco.style.display = "block";
                     }
-                    else{
-                        if(audio.paused)
-                        {
-                            audio.play();
-                        }
-                        else {
-                            audio.pause();
-                        }
+                    else {
+                        changeButtonAppearance(playPlaylist);
+                        playIco.style.display = "block";
+                        pauseIco.style.display = "none";
                     }
                 }
             }); 
@@ -220,8 +222,7 @@
                 return;
             }
         }
-        if(audio.paused)
-        {
+        if(audio.paused){
             if (!check){
                 audio.play();
             }
@@ -252,10 +253,6 @@
     }
 
     playPlaylist.addEventListener("click", () =>{
-        changeAllAppearances();
-    });
-    
-    playPlaylistButton.addEventListener("click", () =>{
         changeAllAppearances();
     });
 
