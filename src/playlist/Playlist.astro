@@ -77,6 +77,8 @@
         const songURL = await getDownloadURL(songRef);
         audio.src = songURL;
         if(play){
+            playPlaylist.firstElementChild.style.display = "none";
+            playPlaylist.lastElementChild.style.display = "block";
             audio.play();
         }
     }
@@ -159,6 +161,8 @@
             playlistLength.textContent = "Playlist length: " + formatDuration(playlistLengthNumber);
             let playIco = singleSongButton.firstElementChild as HTMLElement;
             let pauseIco = singleSongButton.lastElementChild as HTMLElement;
+            console.log(i, currentSong, playerState.currentPlaylist, openedPlaylistID);
+            console.log(i != currentSong || playerState.currentPlaylist != openedPlaylistID || audio.paused);
             if(i != currentSong || openedPlaylistID != playerState.currentPlaylist || audio.paused){
                 playIco.style.display = "block";
                 pauseIco.style.display = "none";
@@ -183,6 +187,7 @@
                 if(currentSong != i || playerState.currentPlaylist != openedPlaylistID)
                 {
                     currentSong = i;
+                    playerState.currentSong = i;
                     //changeButtonAppearance(singleSongButton); ig?
                     setAudioSource(song.source, true);
                     changeButtonAppearance(playPlaylist, true);
@@ -209,8 +214,6 @@
     const changeButtonAppearance = (playSongBtn: Element, check = false) => {
         let playIco = playSongBtn.firstElementChild as HTMLElement;
         let pauseIco = playSongBtn.lastElementChild as HTMLElement;
-        playIco.style.display = "none";
-        pauseIco.style.display = "block";
         if(playlistsData[openedPlaylistID].songs[currentSong]){
             if(playlistsData[openedPlaylistID].songs[currentSong].source != playerState.audioSource && !check)
             {
@@ -242,9 +245,17 @@
         let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
         if(isNaN(currentSong)){
             currentSong = 0;
+            playerState.currentSong = 0;
         }
         changeButtonAppearance(singleSongButton[currentSong]);
-        changeButtonAppearance(playPlaylist, true);
+        if(audio.paused){
+            playPlaylist.firstElementChild.style.display = "block";
+            playPlaylist.lastElementChild.style.display = "none";
+        }
+        else {
+            playPlaylist.firstElementChild.style.display = "none";
+            playPlaylist.lastElementChild.style.display = "block";
+        }
         let playBtn = document.getElementById("play") as HTMLButtonElement;
         let seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
         seekSlider.removeAttribute("disabled");
@@ -277,9 +288,11 @@
     const playNextSong = () =>{
         if(playerState.isShuffling){
             currentSong = Math.random() * playlistsData[openedPlaylistID].songs.length;
+            playerState.currentSong = currentSong;
         }
         else{
             currentSong++;
+            playerState.currentSong = currentSong;
         }
         let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
         if(singleSongButton[currentSong]){
@@ -293,11 +306,13 @@
         }
         else{
             currentSong--;
+            playerState.currentSong = currentSong;
         }
     }
     
     const playPreviousSong = () =>{
         currentSong--;
+        playerState.currentSong = currentSong;
         let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
         if(singleSongButton[currentSong]){
             singleSongButton.forEach(songButton => {
@@ -345,10 +360,6 @@
 
     playPreviousBtn.addEventListener("click", () => {
         playPreviousSong();
-    });
-
-    audio.addEventListener("play", () => {
-        console.log("play");
     });
 </script>
 <style>

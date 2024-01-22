@@ -81,13 +81,29 @@ export let playerState = {
             }
         }
     }
+    // audio.addEventListener("play", () => {
+    //     let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+    //     changeButtonAppearance(singleSongButton[currentSong], false);
+    //     changeButtonAppearance(playPlaylist, false);
+    // });
 
+    // audio.addEventListener("play", () => {
+    //     let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+    //     changeButtonAppearance(singleSongButton[currentSong], false);
+    //     changeButtonAppearance(playPlaylist, false);
+    // });
     const changeSongStatus = () =>{
         if (audio instanceof HTMLAudioElement) {
+            let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
             if (audio.paused) {
                 audio.play();
+                singleSongButton[playerState.currentSong].lastElementChild.style.display = "none";
+                singleSongButton[playerState.currentSong].firstElementChild.style.display = "block";
+
             } else {
                 audio.pause();
+                singleSongButton[playerState.currentSong].lastElementChild.style.display = "block";
+                singleSongButton[playerState.currentSong].firstElementChild.style.display = "none";
             }
         }
     }
