@@ -189,6 +189,13 @@
                     currentSong = i;
                     playerState.currentSong = i;
                     //changeButtonAppearance(singleSongButton); ig?
+                    let singleSongButtons = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+                    singleSongButtons.forEach(button => {
+                        let playIco = button.firstElementChild as HTMLElement;
+                        let pauseIco = button.lastElementChild as HTMLElement;
+                        playIco.style.display = "block";
+                        pauseIco.style.display = "none";
+                    });
                     setAudioSource(song.source, true);
                     changeButtonAppearance(playPlaylist, true);
                     playIco.style.display = "none";
@@ -272,6 +279,7 @@
             playlistMain.style.display = "block";
             main.style.display = "none";
             openedPlaylistID = index;
+            playerState.openedPlaylist = openedPlaylistID;
             //window.location.href = "/playlist/" + openedPlaylistID;
             updatePlaylistInfo();
             if(openedPlaylistID != playerState.currentPlaylist || audio.paused){
