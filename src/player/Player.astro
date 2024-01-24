@@ -115,9 +115,7 @@ export let playerState = {
         changePlayerPlayBtn(true);
     });
 
-    console.log(playBtn);
     playBtn.addEventListener("click", () => {
-        console.log("clicked");
         changeSongStatus();
     });
 
@@ -399,7 +397,6 @@ export let playerState = {
         justify-content: center;
         gap: 1rem;
         width: 50%;
-        margin: auto;
     }
     #play{
         clip-path: circle(50% at center);
@@ -445,10 +442,12 @@ export let playerState = {
         flex-direction: row;
         align-items: center;
         justify-content: right;
+        margin-left: auto;
+        max-width: 30%;
     }
     #songInfo{
         min-width: 20%;
-        width: max-content;
+        margin-right: auto;
         max-width: 30%;
     }
     #songInfo a:hover{

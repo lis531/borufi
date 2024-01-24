@@ -118,13 +118,13 @@
         }
     }
 	
-    playButtons.forEach((button, i) => {
+	let songs = document.querySelectorAll("#song");
+
+	playButtons.forEach((button, i) => {
         button.addEventListener("click", (event) => {
             if(playerState.currentPlaylist != i){
                 resetRest();
-                let songs = document.querySelectorAll("#song");
                 songs[i].parentElement.classList.add("active");
-				console.log(songs, i);
                 playerState.currentPlaylist = i;
                 playerState.currentSong = 0;
                 changeSong(playlistsData[i].songs[0].source);
