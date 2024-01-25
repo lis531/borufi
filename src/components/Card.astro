@@ -80,7 +80,6 @@
 	//yet to change
 
 	const audio = document.getElementById("audio") as HTMLAudioElement;
-	const seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
 	const playBtn = document.getElementById("playButton") as HTMLButtonElement;
 	const title = document.getElementById("title") as HTMLHeadingElement;
 	const author = document.getElementById("artist") as HTMLParagraphElement;
@@ -101,8 +100,6 @@
 	const changeSong = async(sourceLink: string) => {
         if (playBtn instanceof HTMLElement) {
             if (sourceLink !== audio.src) {
-                seekSlider.removeAttribute("disabled");
-                playBtn.removeAttribute("disabled");
                 const songRef = storageRef(storage, 'songs/' + sourceLink);
                 const songURL = await getDownloadURL(songRef);
                 audio.src = songURL;
@@ -110,10 +107,6 @@
 				author.innerHTML = playlistsData[playerState.currentPlaylist].songs[playerState.currentSong].artist;
                 playerState.audioSource = sourceLink;
                 audio.play();
-            }
-            else if (sourceLink == null || sourceLink == "" || sourceLink == undefined) {
-                seekSlider.setAttribute("disabled", "true");
-                playBtn.setAttribute("disabled", "true");
             }
         }
     }
