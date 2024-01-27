@@ -298,8 +298,8 @@ export let playerState = {
 
     loopBtn?.addEventListener("click", () => {
         loopBtn?.classList.toggle("on");
-        audio.loop = playerState.isLooping;
         playerState.isLooping = !playerState.isLooping;
+        audio.loop = playerState.isLooping;
     });
 
     randomBtn?.addEventListener("click", () => {

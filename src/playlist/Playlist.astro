@@ -44,8 +44,8 @@
 
 	import { firebaseConfig } from '../firebaseConfig.astro';
     import { initializeApp } from 'firebase/app';
-    import { getStorage, ref as storageRef, getDownloadURL } from 'firebase/storage';
-    import { ref as dbRef, get, getDatabase } from 'firebase/database';
+    import { getStorage, ref as storageRef, getDownloadURL, getMetadata, updateMetadata } from 'firebase/storage';
+    import { ref as dbRef, get, getDatabase, serverTimestamp } from 'firebase/database';
 
     const firebaseApp = initializeApp(firebaseConfig);
     const storage = getStorage(firebaseApp);
@@ -90,6 +90,8 @@
 
     let openedPlaylistID = 0;
     let currentSong = NaN;
+    
+    //nie dziala card active
 
     backButton?.addEventListener("click", () => {
         playlistMain.style.display = "none";
@@ -132,6 +134,7 @@
     }
 
     async function updatePlaylistInfo() {
+        let lastTime = Date.now();
         let playlistLengthNumber = 0;
         const coverRef = storageRef(storage, 'covers/' + playlistsData[openedPlaylistID].img);
         const coverUrl = await getDownloadURL(coverRef);
@@ -139,6 +142,7 @@
             currentSong = playerState.currentSong;
         }
         cover.src = coverUrl;
+
         playlistTitle.textContent = playlistsData[openedPlaylistID].title;
         playlistAuthor.textContent = playlistsData[openedPlaylistID].author;
         var songs = songsContainer.querySelectorAll("tr") as NodeListOf<HTMLElement>;
@@ -146,14 +150,22 @@
             song.remove();
         });
         cover.src = coverUrl;
-        let audioTemp: HTMLAudioElement;
-        for (const [i, song] of playlistsData[openedPlaylistID].songs.entries()) {
+        let audioDuration;
+        const metadataPromises = playlistsData[openedPlaylistID].songs.map(song => {
             const songRef = storageRef(storage, 'songs/' + song.source);
-            const songURL = await getDownloadURL(songRef);
-            audioTemp = new Audio(songURL)
-            await new Promise(resolve => audioTemp.onloadedmetadata = resolve);
+            return getMetadata(songRef).then((metadata) => {
+                return metadata.customMetadata?.duration || '';
+            }).catch((error) => {
+                return '';
+            });
+        });
+
+        const allMetadata = await Promise.all(metadataPromises);
+
+        for (const [i, song] of playlistsData[openedPlaylistID].songs.entries()) {
             let songElement = document.createElement("tr");
             songElement.style.height = "3rem";
+            audioDuration = parseFloat(allMetadata[i]);
             songElement.innerHTML += `
                 <td style="display: flex; height: inherit; padding-right: 1rem;">
                     <button id="singleSongButton" data-id='${i}' data-openedPlaylistID='${openedPlaylistID}' style="padding: 0; border: none; background: none; color: white; cursor: pointer;">
@@ -164,11 +176,34 @@
                 <td style="padding-right: 1rem;">${i + 1}</td>
                 <td style="padding-right: 1rem;">${song.title}</td>
                 <td style="padding-right: 1rem;">${song.artist}</td>
-                <td>${formatDuration(audioTemp.duration)}</td>`;
+                <td>${formatDuration(audioDuration)}</td>`;
+                
+            //maybe change it to realtime database later?
+
+
+            // // Update metadata properties
+            // const songRef = storageRef(storage, 'songs/' + song.source);
+            // const songURL = await getDownloadURL(songRef);
+            // audioTemp = new Audio(songURL)
+            // await new Promise(resolve => audioTemp.onloadedmetadata = resolve);
+            //
+            // const newMetadata = {
+            //     cacheControl: 'public, max-age=31536000',
+            //     contentType: 'audio/mpeg',
+            //     customMetadata: {
+            //         'duration': audioTemp.duration.toString()
+            //     }
+            // };
+
+            // updateMetadata(songRef, newMetadata)
+            //     .then((metadata) => {
+            //     })
+            //     .catch((error) => {
+            //     });
+
             songsContainer.appendChild(songElement);
             let singleSongButton = document.querySelectorAll("#singleSongButton")[i] as HTMLButtonElement;
-            playlistLengthNumber += audioTemp.duration;
-            playlistLength.textContent = "Playlist length: " + formatDuration(playlistLengthNumber);
+            playlistLengthNumber += audioDuration;
             let playIco = singleSongButton.firstElementChild as HTMLElement;
             let pauseIco = singleSongButton.lastElementChild as HTMLElement;
             if(i != currentSong || openedPlaylistID != playerState.currentPlaylist || audio.paused){
@@ -183,13 +218,11 @@
                 return;
             }
             singleSongButton.addEventListener("click", () => {
-                playerState.currentPlaylist = openedPlaylistID;
-                titlePlayer.textContent = playlistsData[playerState.currentPlaylist].songs[i].title;
-                artistPlayer.textContent = playlistsData[playerState.currentPlaylist].songs[i].artist;
                 if(currentSong != i || playerState.currentPlaylist != openedPlaylistID)
                 {
                     currentSong = i;
                     playerState.currentSong = i;
+                    playerState.currentPlaylist = openedPlaylistID;
                     //changeButtonAppearance(singleSongButton); ig?
                     let singleSongButtons = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
                     singleSongButtons.forEach(button => {
@@ -199,7 +232,8 @@
                         pauseIco.style.display = "none";
                     });
                     setAudioSource(song.source, true);
-                    changeButtonAppearance(playPlaylist, true);
+                    titlePlayer.textContent = playlistsData[playerState.currentPlaylist].songs[i].title;
+                    artistPlayer.textContent = playlistsData[playerState.currentPlaylist].songs[i].artist;
                     playIco.style.display = "none";
                     pauseIco.style.display = "block";
                 }
@@ -218,6 +252,8 @@
                 }
             }); 
         };
+        playlistLength.textContent = "Playlist length: " + formatDuration(playlistLengthNumber);
+        console.log(Date.now() - lastTime + " ms");
     }
 
     const changeButtonAppearance = (playSongBtn: Element, check = false) => {
@@ -303,89 +339,64 @@
         });
     });
     
-    const playNextSong = () =>{
-        let tempSongs = playlistsData[playerState.currentPlaylist].songs;
-        tempSongs.splice(currentSong, 1);
-        if(tempSongs.length == 0){
-            tempSongs = playlistsData[playerState.currentPlaylist].songs;
-        }
-        if(playerState.isShuffling){
-            currentSong = Math.round(Math.random() * playlistsData[playerState.currentPlaylist].songs.length);
-            playerState.currentSong = currentSong;
-        }
-        else if(playlistsData[playerState.currentPlaylist].songs.length - 1 > playerState.currentSong){
-            currentSong++;
-            playerState.currentSong = currentSong;
-        }
-        else{
-            return;
-        }
+    const changeSong = () =>{
         let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
-        if(playlistsData[playerState.currentPlaylist].songs[playerState.currentSong]){
-            if(openedPlaylistID == playerState.currentPlaylist && singleSongButton[playerState.currentSong]){
-                singleSongButton.forEach(songButton => {
-                    let playIco = songButton.firstElementChild as HTMLElement;
-                    let pauseIco = songButton.lastElementChild as HTMLElement;
-                    playIco.style.display = "block";
-                    pauseIco.style.display = "none";
-                });
-                singleSongButton[playerState.currentSong].firstElementChild.style.display = "none";
-                singleSongButton[playerState.currentSong].lastElementChild.style.display = "block";
-            }
-            setAudioSource(playlistsData[playerState.currentPlaylist].songs[playerState.currentSong].source, true);
-            titlePlayer.textContent = playlistsData[playerState.currentPlaylist].songs[currentSong].title;
-            artistPlayer.textContent = playlistsData[playerState.currentPlaylist].songs[currentSong].artist;
-        }else{
-            currentSong--;
-            playerState.currentSong = currentSong;
-        }
-    }
-    
-    const playPreviousSong = () =>{
-        if(playlistsData[playerState.currentPlaylist].songs.length > playerState.currentSong && playerState.currentSong > 0){
-            currentSong--;
-            playerState.currentSong = currentSong;
-        }
-        else{
-            return;
-        }
-        playerState.currentSong = currentSong;
-        let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
-        if(playlistsData[playerState.currentPlaylist].songs[currentSong]){
-            if(openedPlaylistID == playerState.currentPlaylist && singleSongButton[currentSong]){
-                singleSongButton.forEach(songButton => {
-                    let playIco = songButton.firstElementChild as HTMLElement;
-                    let pauseIco = songButton.lastElementChild as HTMLElement;
-                    playIco.style.display = "block";
-                    pauseIco.style.display = "none";
-                });
-                singleSongButton[playerState.currentSong].firstElementChild.style.display = "none";
-                singleSongButton[playerState.currentSong].lastElementChild.style.display = "block";
-            }
-            setAudioSource(playlistsData[playerState.currentPlaylist].songs[currentSong].source, true);
-            titlePlayer.textContent = playlistsData[playerState.currentPlaylist].songs[currentSong].title;
-            artistPlayer.textContent = playlistsData[playerState.currentPlaylist].songs[currentSong].artist;
-        }
-        else{
-            currentSong++;
-        }
-    }
-
-    audio.addEventListener("ended", () => {
-        if(playerState.isShuffling){
-            let singleSongButton = document.querySelectorAll("#singleSongButton") as NodeListOf<HTMLButtonElement>;
+        if(openedPlaylistID == playerState.currentPlaylist && singleSongButton[currentSong]){
             singleSongButton.forEach(songButton => {
                 let playIco = songButton.firstElementChild as HTMLElement;
                 let pauseIco = songButton.lastElementChild as HTMLElement;
                 playIco.style.display = "block";
                 pauseIco.style.display = "none";
             });
+            singleSongButton[playerState.currentSong].firstElementChild.style.display = "none";
+            singleSongButton[playerState.currentSong].lastElementChild.style.display = "block";
+        }
+        console.log(playlistData[playerState.currentPlaylist])
+        setAudioSource(playlistData[playerState.currentPlaylist].songs[currentSong].source, true);
+        titlePlayer.textContent = playlistsData[playerState.currentPlaylist].songs[currentSong].title;
+        artistPlayer.textContent = playlistsData[playerState.currentPlaylist].songs[currentSong].artist;
+    }
+
+    let tempArray = [];
+    let previousSongs = [];
+
+    const playNextSong = () => {
+        if(playerState.isShuffling){
+            if(tempArray.length <= 1){
+                tempArray = playlistsData[playerState.currentPlaylist].songs.filter(song => song.source !== playlistsData[playerState.currentPlaylist].songs[currentSong].source);
+                tempArray.sort(() => Math.random() - 0.5);
+            }
+
+            let nextSong = tempArray[0];
+            previousSongs.push(nextSong);
+            titlePlayer.textContent = nextSong.title;
+            artistPlayer.textContent = nextSong.artist;
             
-            changeButtonAppearance(singleSongButton[currentSong]);
+            currentSong = playlistsData[playerState.currentPlaylist].songs.findIndex(song => song.source === nextSong.source);
+            playerState.currentSong = currentSong;
+            changeSong();
+            
+            tempArray.shift();
         }
-        else{
-            playNextSong();
+        else if(playlistsData[playerState.currentPlaylist].songs.length - 1 > playerState.currentSong){
+            previousSongs.push(playlistsData[playerState.currentPlaylist].songs[currentSong]);
+            currentSong++;
+            playerState.currentSong = currentSong;
+            changeSong();
         }
+    }
+
+    const playPreviousSong = () => {
+        if(previousSongs.length > 0){
+            let previousSong = previousSongs.pop();
+            currentSong = playlistsData[playerState.currentPlaylist].songs.findIndex(song => song.source === previousSong.source);
+            playerState.currentSong = currentSong;
+            changeSong();
+        }
+    }
+
+    audio.addEventListener("ended", () => {
+        playNextSong();
     })
 
     playNextBtn.addEventListener("click", () => {
@@ -404,7 +415,7 @@
     }
     #playPlaylist:hover > #cover{
         filter: brightness(0.5);
-        scale: 1.1;
+        transform: scale(1.1);
     }
     #playPlaylist:hover > button{
         opacity: 1;
