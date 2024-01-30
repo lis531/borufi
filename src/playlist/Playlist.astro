@@ -25,7 +25,7 @@
                     <th style="width: 3vw;">#</th>
                     <th style="width: 25vw;">Title</th>
                     <th style="width: 25vw;">Artist</th>
-                    <th style="width: 5vw;">Length</th>
+                    <th class="length" style="width: 5vw;"><p>Length</p><svg style="display: none"><path d="M17 3.34a10 10 0 1 1 -14.995 8.984l-.005 -.324l.005 -.324a10 10 0 0 1 14.995 -8.336zm-5 2.66a1 1 0 0 0 -.993 .883l-.007 .117v5l.009 .131a1 1 0 0 0 .197 .477l.087 .1l3 3l.094 .082a1 1 0 0 0 1.226 0l.094 -.083l.083 -.094a1 1 0 0 0 0 -1.226l-.083 -.094l-2.707 -2.708v-4.585l-.007 -.117a1 1 0 0 0 -.993 -.883z" stroke-width="0" fill="currentColor"></path></svg></th>
                 </thead>
                 <tbody id="songs">
                     <svg width="0" height="0">
@@ -103,8 +103,6 @@
     let openedPlaylistID = 0;
     let currentSong = NaN;
     
-    //nie dziala card active
-
     backButton?.addEventListener("click", () => {
         playlistMain.style.display = "none";
         main.style.display = "flex";
@@ -143,7 +141,7 @@
         const seconds = Math.floor(durationInSeconds % 60);
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     }
-
+    
     async function updatePlaylistInfo() {
         // let lastTime = Date.now();
         let playlistLengthNumber = 0;
@@ -404,6 +402,9 @@
     let previousSongs = [] as any;
 
     const playNextSong = () => {
+        if(isNaN(currentSong)){
+            currentSong = playerState.currentSong;
+        }
         if(playerState.isShuffling){
             previousSongs.push(playlistsData[playerState.currentPlaylist].songs[currentSong]);
             if(tempArray.length <= 1){
@@ -430,6 +431,9 @@
     }
 
     const playPreviousSong = () => {
+        if(isNaN(currentSong)){
+            currentSong = playerState.currentSong;
+        }
         if(audio.currentTime > 3){
             audio.currentTime = 0;
             return;
@@ -575,7 +579,6 @@
         align-items: center;
         gap: 4rem;
         padding-top: 2rem;
-        height: calc(100vh - 2rem);
     }
     #playlistMain div p{
         margin: 0;
@@ -604,7 +607,7 @@
     #playlistTitle{
         margin-top: 3rem;
     }
-    tr :hover{
+    tr:hover{
         background-color: white;
     }
     th{
@@ -649,6 +652,18 @@
         }
         #backButton{
             position: relative;
+        }
+        .length{
+            text-align: -webkit-right;
+            text-indent: 10px;
+        }
+        .length > p{
+            display: none !important;
+        }
+        .length > svg{
+            display: block !important;
+            height: 22px;
+            width: 30px;
         }
     }
 </style>
