@@ -11,8 +11,8 @@ export let playerState = {
 
 <div id="audioPlayer">
     <div id="songInfo">
-        <h1 id="title">Title</h1>
-        <h2 id="artist">Artist</h2>
+        <h1 id="title"></h1>
+        <h2 id="artist"></h2>
     </div>
     <div id="mainControls">
         <div id="songControls">
@@ -61,7 +61,7 @@ export let playerState = {
     let durationTime = document.getElementById("duration");
     let audio = document.getElementById("audio") as HTMLAudioElement;
     let muteBtn = document.getElementById("mute");
-    let volume = document.getElementById("volume");
+    // let volume = document.getElementById("volume");
     let currentVolume = document.getElementById("volume-slider") as HTMLInputElement;
   
     seekSlider.disabled = true;
@@ -382,7 +382,7 @@ export let playerState = {
         flex-direction: row;
         align-items: center;
         z-index: 100;
-        height: 12vh;
+        height: 11vh;
         min-height: 7.5rem;
         padding: 0 2vw 0 2vw;
     }
@@ -483,6 +483,8 @@ export let playerState = {
             flex-direction: column;
             height: 16vh;
             min-height: 13rem;
+            padding: 0;
+            width: 100vw;
         }
         #volumeControl{
             display: none;
