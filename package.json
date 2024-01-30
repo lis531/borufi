@@ -1,12 +1,12 @@
 {
   "name": "bor",
   "type": "module",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "deploy": "gh-pages -d dist",
     "astro": "astro"
   },
   "dependencies": {
@@ -15,7 +15,12 @@
     "@types/react-dom": "^18.2.18",
     "astro": "^3.6.0",
     "firebase": "^10.7.1",
+    "node-vibrant": "^3.1.6",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "requirejs": "^2.3.6"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.1.1"
   }
 }
