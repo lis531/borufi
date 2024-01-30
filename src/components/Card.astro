@@ -17,18 +17,20 @@
 	
 	const createPlaylists = async() => {
 		playlistsData.forEach(() =>{
-			playlistsList.innerHTML += `<div class="link-card">
-			<div id="song">
-    			<div id="imgPlay">
+			if(playlistsList)
+			playlistsList.innerHTML += `
+			<div class="link-card">
+				<div class="song">
+    				<div class="imgPlay">
 					<img loading="eager" src="" width="250px" height="250px" />
-					<button id="playButton" class="no-animation">
+					<button class="playButton no-animation">
 						<!-- <svg viewBox="0 0 384 512" height="32px" width="32px" fill="white"><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"></path></svg> -->
 						<!-- <svg viewBox="0 0 320 512" height="32px" width="32px" fill="white"><path d="M48 64C21.5 64 0 85.5 0 112V400c0 26.5 21.5 48 48 48H80c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H48zm192 0c-26.5 0-48 21.5-48 48V400c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H240z"></path></svg> -->
 						<svg viewBox="0 0 448 512" height="32px" width="32px" fill="white"><path d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"></path></svg>
 						<svg viewBox="0 0 448 512" height="32px" width="32px" fill="white"><path d="M144 479H48c-26.5 0-48-21.5-48-48V79c0-26.5 21.5-48 48-48h96c26.5 0 48 21.5 48 48v352c0 26.5-21.5 48-48 48zm304-48V79c0-26.5-21.5-48-48-48h-96c-26.5 0-48 21.5-48 48v352c0 26.5 21.5 48 48 48h96c26.5 0 48-21.5 48-48z"></path></svg>
 					</button>
     				</div>
-    				<div id="info">
+    				<div class="info">
 						<h2></h2>
 						<p></p>
     				</div>
@@ -38,36 +40,38 @@
 	}
 	await createPlaylists();
 
-	const playButtons = document.querySelectorAll('#playButton');
-	const linkCards = document.getElementsByClassName('link-card');
+	const playButtons = document.querySelectorAll('.playButton') as NodeListOf<HTMLButtonElement>;
+	const linkCards = document.querySelectorAll('.link-card') as NodeListOf<HTMLDivElement>;
 
-	playButtons.forEach(button => {
-		button.firstElementChild.style.display = 'block';
-		button.lastElementChild.style.display = 'none';
+	playButtons.forEach((button :any) => {
+		if(button.firstElementChild && button.lastElementChild){
+			button.firstElementChild.style.display = 'block';
+			button.lastElementChild.style.display = 'none';
+		}
 	});
 	
-	Array.from(linkCards).forEach((card: Element) => {
-		const button = card.querySelector('#playButton');
+	linkCards.forEach((card: Element) => {
+		const button = card.querySelector('.playButton');
 		card.addEventListener('mouseover', () => {
 			button?.classList.remove('no-animation');
 		});
 	});
 
-	let imgs = document.querySelectorAll('#imgPlay img');
-	let infosH2 = document.querySelectorAll('#info h2') as NodeListOf<HTMLHeadingElement>;
-	let infosP = document.querySelectorAll('#info p') as NodeListOf<HTMLParagraphElement>;
+	let imgs = document.querySelectorAll('.imgPlay img');
+	let infosH2 = document.querySelectorAll('.info h2') as NodeListOf<HTMLHeadingElement>;
+	let infosP = document.querySelectorAll('.info p') as NodeListOf<HTMLParagraphElement>;
 
 	try {
 		const snapshot = await get(playlistsRef);
 		const data = snapshot.val();
 		if (data) {
-			Object.keys(data).forEach((key) => {
+			Object.keys(data).forEach((element, key) => {
 				const coversRef = storageRef(storage, 'covers/' + data[key].img);
 				(async () => {
-					let lastTime = Date.now();
+					// let lastTime = Date.now();
 					const url = await getDownloadURL(coversRef);
-					console.log(Date.now() - lastTime + " ms");
-					imgs[key].src = url;
+					// console.log(Date.now() - lastTime + " ms");
+					(imgs[key] as HTMLImageElement).src = url;
 					infosH2[key].innerHTML = data[key].title;
 					infosP[key].innerHTML = data[key].author;
 				})();
@@ -82,47 +86,42 @@
 	//yet to change
 
 	const audio = document.getElementById("audio") as HTMLAudioElement;
-	const playBtn = document.getElementById("playButton") as HTMLButtonElement;
 	const title = document.getElementById("title") as HTMLHeadingElement;
 	const author = document.getElementById("artist") as HTMLParagraphElement;
 
 	const resetRest = () => {
-        playButtons.forEach((button) => {
+        playButtons.forEach((button :any) => {
             button.firstElementChild.style.display = 'block';
             button.lastElementChild.style.display = 'none';
-            if (button instanceof HTMLElement) {
-                const parentElement = button.parentElement?.parentElement?.parentElement;
-                if (parentElement) {
-                    parentElement.classList.remove("active");
-                }
+            const parentElement = button.parentElement?.parentElement?.parentElement;
+            if (parentElement) {
+                parentElement.classList.remove("active");
             }
         });
     }
 
 	const changeSong = async(sourceLink: string) => {
-        if (playBtn instanceof HTMLElement) {
-            if (sourceLink !== audio.src) {
-                const songRef = storageRef(storage, 'songs/' + sourceLink);
-                const songURL = await getDownloadURL(songRef);
-                audio.src = songURL;
-				title.innerHTML = playlistsData[playerState.currentPlaylist].songs[playerState.currentSong].title;
-				author.innerHTML = playlistsData[playerState.currentPlaylist].songs[playerState.currentSong].artist;
-                playerState.audioSource = sourceLink;
-                audio.play();
-            }
+        if (sourceLink !== audio.src) {
+            const songRef = storageRef(storage, 'songs/' + sourceLink);
+            const songURL = await getDownloadURL(songRef);
+            audio.src = songURL;
+			title.innerHTML = playlistsData[playerState.currentPlaylist].songs[playerState.currentSong].title;
+			author.innerHTML = playlistsData[playerState.currentPlaylist].songs[playerState.currentSong].artist;
+            playerState.audioSource = sourceLink;
+            audio.play();
         }
     }
 	
-	let songs = document.querySelectorAll("#song");
+	let songs = document.querySelectorAll(".song");
 
 	playButtons.forEach((button, i) => {
-        button.addEventListener("click", (event) => {
-            if(playerState.currentPlaylist != i){
+		button.addEventListener("click", (event) => {
+			if(playerState.currentPlaylist != i){
                 resetRest();
-                songs[i].parentElement.classList.add("active");
+				songs[i].parentElement.classList.add("active");
                 playerState.currentPlaylist = i;
                 playerState.currentSong = 0;
-                changeSong(playlistsData[i].songs[0].source);
+                changeSong(playlistsData[playerState.currentPlaylist].songs[playerState.currentSong].source);
                 button.firstElementChild.style.display = 'none';
                 button.lastElementChild.style.display = 'block';
             } else {
@@ -141,7 +140,7 @@
     });
 </script>
 <style is:global>
-	#imgPlay{
+	.imgPlay{
 		position: relative;
 		width: 100%;
 		height: 100%;
@@ -150,7 +149,7 @@
 		width: 100%;
 		height: 100%;
 	}
-	#info{
+	.info{
 		text-align: center;
 	}
 	.link-card {
@@ -164,7 +163,7 @@
 		background-image: linear-gradient(
 			to bottom right,
 			rgba(71, 0, 0, 0.2),
-			rgba(17, 135, 214, 0.1)
+			rgba(15, 126, 201, 0.1)
 			);
 			z-index: 0;
 		box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
@@ -179,8 +178,8 @@
 		border-radius: 8px;
   		background-image: linear-gradient(
 			to bottom right,
-			rgba(131, 29, 29, 0.2),
-			rgba(99, 175, 226, 0.2)
+			rgba(145, 45, 45, 0.2),
+			rgba(109, 173, 216, 0.2)
 		);
   		z-index: -1;
   		transition: opacity 0.5s linear;
@@ -192,7 +191,7 @@
 	.link-card:is(:hover, .active)::before{
 		opacity: 1;
 	}
-	#song {
+	.song {
 		padding: 1.5rem;
 		border-radius: 8px;
 		display: flex;
@@ -204,7 +203,7 @@
 		cursor: pointer;
 		gap: 1vh;
 	}
-	#playButton {
+	.playButton {
 		position: absolute;
 		visibility: hidden;
 		font-size: 1.5rem;
@@ -221,21 +220,19 @@
 	}
 	@keyframes playButtonAnimation {
 		0%{
-			visibility: hidden;
 			transform: translateY(30%);
 			opacity: 0;
 		}
 		100%{
 			transform: translateY(0%);
 			opacity: 1;
-			visibility: visible;
 		}
 	}
 	.no-animation{
 		animation: none !important;
 		visibility: hidden !important;
 	}
-	.link-card:not(.active):hover #playButton {
+	.link-card:not(.active):hover .playButton {
     	visibility: visible;
     	animation: playButtonAnimation 0.35s ease-in-out forwards;
 	}
@@ -245,7 +242,7 @@
 	.link-card:not(.active):hover img{
 		box-shadow: 0rem 0rem 1rem rgba(0, 0, 0, 0.5);
 	}
-	.link-card:not(:hover, .active) #playButton {
+	.link-card:not(:hover, .active) .playButton {
 		visibility: visible;
     	animation: playButtonAnimationReverse 0.35s ease-in-out forwards;
 	}
@@ -258,33 +255,32 @@
 	    100% {
 	        transform: translateY(30%);
 	        opacity: 0;
-			visibility: hidden;
 	    }
 	}
-	.link-card:is(.active) #playButton {
+	.link-card:is(.active) .playButton {
 		visibility: visible;
 	}
-	#playButton > svg {
+	.playButton > svg {
 		clip-path: circle(50% at 50% 50%);
-		background-color: rgb(146,75,236);
+		background-color: var(--accent);
 		color: white;
 		padding: 1rem;
 		height: max-content;
 		width: max-content;
 	}
-	#info, #imgPlay, #song{
+	.info, .imgPlay, .song{
 		display: flex;
 		flex-direction: column;
 	}
-	#imgPlay > img{
+	.imgPlay > img{
 		border-radius: 0.5rem;
 	}
-	#info > h2 {
+	.info > h2 {
 		margin: 0;
 		font-size: 1.25rem;
 		transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 	}
-	#info > p {
+	.info > p {
 		margin-top: 0.5rem;
 		margin-bottom: 0;
 	}
