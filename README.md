@@ -19,4 +19,8 @@ It is my own music library (AKA Spotify).
 │       └── Player.astro
 └── package.json
 ```
-![image](https://github.com/lis531/borufi/assets/82408934/b2ebd242-c587-4a15-a7e2-a8ce38d0c508)
+## Home page
+![image](https://github.com/lis531/borufi/assets/82408934/f4acc115-fc4b-4088-b3c9-4f9619293a7c)
+
+## Inside the playlist
+![image](https://github.com/lis531/borufi/assets/82408934/75e07e1a-21d6-4c92-abcc-37d604cd29de)
