@@ -1,10 +1,19 @@
 # Borufi
 
-```sh
-https://github.com/lis531/borufi.git
-```
+It is my own music library (AKA Spotify).
 
-## 🚀 Project Structure
+## Where to find it?
+https://borufi.netlify.app/
+
+https://lis531.github.io/borufi/
+
+## Home page
+![image](https://github.com/lis531/borufi/assets/82408934/f4acc115-fc4b-4088-b3c9-4f9619293a7c)
+
+## Inside the playlist
+![image](https://github.com/lis531/borufi/assets/82408934/75e07e1a-21d6-4c92-abcc-37d604cd29de)
+
+## Project Structure
 
 ```text
 ├── public/
@@ -13,11 +22,11 @@ https://github.com/lis531/borufi.git
 │   │   └── Card.astro
 │   ├── layouts/
 │   │   └── Layout.astro
-│   ├── player/
-│   │   └── Player.astro
+│   ├── pages/
+│   │   └── index.astro
 │   ├── playlist/
 │   │   └── Playlist.astro
-│   └── pages/
-│       └── index.astro
+│   └── player/
+│       └── Player.astro
 └── package.json
 ```
