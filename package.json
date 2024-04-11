@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "astro": "^3.6.0",
-    "firebase": "^10.8.1",
+    "firebase": "^10.11.0",
     "node-vibrant": "^3.1.6"
   },
   "devDependencies": {
