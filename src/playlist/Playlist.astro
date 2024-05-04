@@ -464,48 +464,54 @@
     });
 </script>
 <style is:global>
-    #songs > tr{
+    #songs > tr {
         transition: cubic-bezier(0.075, 0.82, 0.165, 1) 0.5s;
         -webkit-user-select: none;
         user-select: none;
     }
-    #songs > tr:hover{
+    #songs > tr:hover {
         background-color: rgba(53, 53, 53, 0.25);
     }
-    #songs > tr > td:first-child{
+    #songs > tr > td:first-child {
         padding-left: 0.5rem;
         border-radius: 0.3rem 0 0 0.3rem;
     }
-    #songs > tr > td:last-child{
+    #songs > tr > td:last-child {
         border-radius: 0 0.3rem 0.3rem 0;
         text-align: right;
         padding-right: 0.5rem; 
     }
-    .playing > td{
+    #songs > tr:first-child > td:first-child {
+        border-radius: 0 0 0 0.3rem;
+    }
+    #songs > tr:first-child > td:last-child {
+        border-radius: 0 0 0.3rem 0;
+    }
+    .playing > td {
         background-image: linear-gradient(to bottom right,rgb(255, 0, 64),rgb(0, 132, 255));
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
     }
-    .selected{
+    .selected {
         background-color: rgba(122, 122, 122, 0.25) !important;
     }
 </style>
 <style>
-    #cover{
+    #cover {
         width: 15rem;
         height: 15rem;
         transition: cubic-bezier(0.075, 0.82, 0.165, 1) 1s;
     }
-    #playPlaylist:hover > #cover{
+    #playPlaylist:hover > #cover {
         filter: brightness(0.6);
         transform: scale(1.1);
     }
-    #playPlaylist:hover > button{
+    #playPlaylist:hover > button {
         opacity: 1;
         animation: buttonApperar 1s cubic-bezier(0, .5, .5, 1) forwards;
     }
-    #playPlaylist{
+    #playPlaylist {
         overflow: hidden;
         border-radius: 0.6rem;
         display: flex;
@@ -513,17 +519,17 @@
         position: relative;
         box-shadow: 0 0 1.5rem 0.5rem rgba(0, 0, 0, 0.5);
     }
-    #playPlaylist + div{
+    #playPlaylist + div {
         display: flex;
         justify-content: end;
         flex-direction: column;
     }
-    #playPlaylist svg{
+    #playPlaylist svg {
         width: 9rem;
         height: 9rem;
         z-index: 1;
     }
-    #playPlaylist button{
+    #playPlaylist button {
         border: none;
         background: none;
         color: white;
@@ -545,10 +551,10 @@
             opacity: 1;
         }
     }
-    #playlistMain{
+    #playlistMain {
         min-height: 100vh;
     }
-    #playlistMain::after{
+    #playlistMain::after {
         content: "";
         position: absolute;
         top: 0;
@@ -559,7 +565,7 @@
         opacity: 0.1;
         z-index: -1;
     }
-    #playlistMain::before{
+    #playlistMain::before {
         content: "";
         position: absolute;
         top: 0;
@@ -570,17 +576,18 @@
         opacity: 0.6;
         z-index: -2;
     }
-    #playlistMain > div{
+    #playlistMain > div {
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 4rem;
         padding-top: 2rem;
+        margin-bottom: 15rem;
     }
-    #playlistMain div p{
+    #playlistMain div p {
         margin: 0;
     }
-    #backButton{
+    #backButton {
         border: none;
         background-color: rgba(0, 0, 0, 0.6);
         cursor: pointer;
@@ -592,72 +599,72 @@
         margin-top: 2rem;
         border-radius: 100%;
     }
-    #playlistTop{
+    #playlistTop {
         display: flex;
         flex-direction: row;
         gap: 2rem;
         max-width: 60rem;
     }
-    #playlistTop > div > h1{
+    #playlistTop > div > h1 {
         font-size: 3.5rem;
     }
-    #playlistTitle{
+    #playlistTitle {
         margin-top: 3rem;
     }
-    tr:hover{
+    tr:hover {
         background-color: white;
     }
-    th{
+    th {
         text-align: left;
         font-size: 1.7rem;
         border-bottom: 1px solid rgb(112, 112, 112);
     }
-    #songsTable{
+    #songsTable {
         max-width: 60rem;
         border-collapse: collapse;
     }
-    #songsTable > thead{
+    #songsTable > thead {
         height: 3rem;
     }
-    #songsTable > tbody{
+    #songsTable > tbody {
         font-weight: 500;
     }
-    #playlistInfo{
+    #playlistInfo {
         display: flex;
         flex-direction: row;
         gap: 3rem;
         font-size: 1.5rem;
     }
     @media screen and (max-width: 920px) {
-        #playlistTop{
+        #playlistTop {
             width: 90vw;
             flex-direction: column;
             align-items: center;
         }
-        #playlistTitle{
+        #playlistTitle {
             text-align: center;
             margin-top: 0;
         }
-        #playlistTop > div{
+        #playlistTop > div {
             height: auto;
         }
-        #playlistTop > div > h1{
+        #playlistTop > div > h1 {
             font-size: 2rem;
         }
-        #playlistInfo{
+        #playlistInfo {
             font-size: 1rem;
         }
-        #backButton{
+        #backButton {
             position: relative;
         }
-        .length{
+        .length {
             text-align: -webkit-right;
             text-indent: 10px;
         }
-        .length > p{
+        .length > p {
             display: none !important;
         }
-        .length > svg{
+        .length > svg {
             display: block !important;
             height: 22px;
             width: 30px;

@@ -20,7 +20,7 @@ import Playlist from '../playlist/Playlist.astro';
 	<Player />
 </Layout>
 <style>
-	body{
+	body {
 		margin: 0;
 	}
 	main {
@@ -30,7 +30,7 @@ import Playlist from '../playlist/Playlist.astro';
 		align-items: center;
 		padding: 1rem;
 		font-size: 20px;
-		margin-bottom: 15vh;
+		margin-bottom: 14rem;
 	}
 	h1 {
 		font-size: 5rem;
@@ -57,5 +57,11 @@ import Playlist from '../playlist/Playlist.astro';
 		max-width: -webkit-fill-available;
 		gap: 3vw;
 		padding: 0;
+	}
+
+	@media screen and (max-width: 600px) {
+		.link-card-grid {
+			gap: 1rem;
+		}
 	}
 </style>
