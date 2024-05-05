@@ -5,8 +5,6 @@ It is my own music library (AKA Spotify).
 ## Where to find it?
 [Netlify](https://borufi.netlify.app/)
 
-[Github pages](https://lis531.github.io/borufi/)
-
 ## Home page
 ![image](https://github.com/lis531/borufi/assets/82408934/f4acc115-fc4b-4088-b3c9-4f9619293a7c)
 

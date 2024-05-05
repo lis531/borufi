@@ -17,6 +17,7 @@ pnpm-debug.log*
 .env
 .env.production
 
-# macOS-specific files
-.DS_Store
+src/env.d.ts
+# Local Netlify folder
+.netlify
 src/firebaseConfig.astro

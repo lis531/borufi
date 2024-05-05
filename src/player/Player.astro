@@ -55,7 +55,7 @@ export let playerState = {
 </div>
 
 <script>
-    import { playerState } from '../player/Player.astro';
+    import { playerState } from './Player.astro';
 
     let playBtn = document.getElementById("play") as HTMLButtonElement;
     let currentTime = document.getElementById("current-time");
@@ -485,7 +485,7 @@ export let playerState = {
             flex-direction: column;
             height: auto;
             width: 100vw;
-            padding: 1rem 3rem;
+            padding: 1rem;
             margin: 1rem;
         }
         #volumeControl {
