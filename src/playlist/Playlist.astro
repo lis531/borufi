@@ -25,7 +25,7 @@
                     <th style="width: 3vw;">#</th>
                     <th style="width: 25vw;">Title</th>
                     <th style="width: 25vw;">Artist</th>
-                    <th class="length" style="width: 5vw;"><p>Length</p><svg style="display: none"><path d="M17 3.34a10 10 0 1 1 -14.995 8.984l-.005 -.324l.005 -.324a10 10 0 0 1 14.995 -8.336zm-5 2.66a1 1 0 0 0 -.993 .883l-.007 .117v5l.009 .131a1 1 0 0 0 .197 .477l.087 .1l3 3l.094 .082a1 1 0 0 0 1.226 0l.094 -.083l.083 -.094a1 1 0 0 0 0 -1.226l-.083 -.094l-2.707 -2.708v-4.585l-.007 -.117a1 1 0 0 0 -.993 -.883z" stroke-width="0" fill="currentColor"></path></svg></th>
+                    <th class="length" style="width: 5vw; padding-right: 1vw;"><p>Length</p><svg style="display: none"><path d="M17 3.34a10 10 0 1 1 -14.995 8.984l-.005 -.324l.005 -.324a10 10 0 0 1 14.995 -8.336zm-5 2.66a1 1 0 0 0 -.993 .883l-.007 .117v5l.009 .131a1 1 0 0 0 .197 .477l.087 .1l3 3l.094 .082a1 1 0 0 0 1.226 0l.094 -.083l.083 -.094a1 1 0 0 0 0 -1.226l-.083 -.094l-2.707 -2.708v-4.585l-.007 -.117a1 1 0 0 0 -.993 -.883z" stroke-width="0" fill="currentColor"></path></svg></th>
                 </thead>
                 <tbody id="songs">
                     <svg width="0" height="0">
@@ -173,7 +173,7 @@
             try {
                 const palette = await Vibrant.from(coverUrl).getPalette();
                 const dominantColor = palette.Vibrant.getHex();
-                const gradient = `linear-gradient(180deg, ${dominantColor} 0%, #13151a 40rem, #13151a 100%)`;
+                const gradient = `linear-gradient(180deg, ${dominantColor} 0%, #13151a 35rem, #13151a 100%)`;
                 document.documentElement.style.setProperty('--gradient', gradient);
             } catch (error) {
                 console.error('Error:', error);
@@ -188,8 +188,8 @@
             songElement.style.height = "3rem";
             audioDuration = parseFloat(allMetadata[i]);
             songElement.innerHTML += `
-                <td></td>
-                <td style="display: flex; height: inherit; padding-right: 1rem;">
+                <td style="width: 1vw"></td>
+                <td style="display: flex; height: inherit;">
                     <button class="singleSongButton" data-id='${i}' data-openedPlaylistID='${openedPlaylistID}' style="padding: 0; border: none; background: none; color: white; cursor: pointer;">
                         <svg viewBox="0 0 16 16" width="32px" height="32px">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z" fill="white"></path>
@@ -199,10 +199,10 @@
                         </svg>
                     </button>
                 </td>
-                <td style="padding-right: 1rem;">${i + 1}</td>
+                <td style="text-align: center; padding-right: 2vw;">${i + 1}</td>
                 <td style="padding-right: 1rem;">${song.title}</td>
                 <td style="padding-right: 1rem;">${song.artist}</td>
-                <td>${formatDuration(audioDuration)}</td>`;
+                <td style="padding-right: 1vw">${formatDuration(audioDuration)}</td>`;
             if(i == currentSong && openedPlaylistID == playerState.currentPlaylist){
                 songElement.classList.add("playing");
                 let icon = songElement.children[1]?.firstElementChild?.firstElementChild?.firstElementChild as HTMLElement;
@@ -622,6 +622,8 @@
     #songsTable {
         max-width: 60rem;
         border-collapse: collapse;
+        border-radius: 0.5rem;
+        background: linear-gradient(180deg, #13151a4f 0%, #13151a 35rem, #13151a 100%);
     }
     #songsTable > thead {
         height: 3rem;
