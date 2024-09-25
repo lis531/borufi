@@ -10,6 +10,8 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
     "@types/dotenv": "^8.2.0",
     "astro": "^4.7.1",
     "firebase": "^10.8.1",
@@ -19,6 +21,7 @@
     "npm": "^10.7.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^6.1.2",
     "astro-env": "^0.0.5",
     "gh-pages": "^6.1.1"
   }
